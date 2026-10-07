@@ -1,0 +1,81 @@
+---
+import { getCollection } from 'astro:content';
+import { site } from '../../data/site.ts';
+
+const research = await getCollection('research', (e) => e.data.status === 'published');
+const path = Astro.url.pathname;
+const items = [
+  { label: 'Work', href: '/work/', current: path.startsWith('/work/') },
+  ...(research.length > 0
+    ? [{ label: 'Research', href: '/research/', current: path.startsWith('/research/') }]
+    : []),
+  { label: 'About', href: '/about/', current: path.startsWith('/about/') },
+];
+---
+
+<ul>
+  {items.map((i) => (
+    <li>
+      <a href={i.href} aria-current={i.current ? 'page' : undefined}>
+        {i.label}
+      </a>
+    </li>
+  ))}
+  <li>
+    {site.resume.available ? (
+      <a href={site.resume.path} aria-current={path.startsWith('/resume/') ? 'page' : undefined}>
+        Résumé
+      </a>
+    ) : (
+      <span class="pending" title="The résumé is published after a privacy review">
+        Résumé <span class="mono">(pending)</span>
+      </span>
+    )}
+  </li>
+  <li>
+    <a href="/contact/" aria-current={path.startsWith('/contact/') ? 'page' : undefined}>
+      Contact
+    </a>
+  </li>
+  <li>
+    <a class="util" href={site.links.github} rel="noopener">
+      GitHub
+    </a>
+  </li>
+</ul>
+
+<style>
+  ul {
+    display: flex;
+    gap: 1.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--t-ui);
+    align-items: center;
+  }
+  a {
+    text-decoration: none;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid transparent;
+  }
+  a:hover,
+  a[aria-current='page'] {
+    border-bottom-color: var(--text);
+    color: var(--text);
+  }
+  .util {
+    font: 400 var(--t-mono) var(--mono);
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius);
+  }
+  .util:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .pending {
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,73 @@
+{
+  "project": "data-aware-rag",
+  "nodes": [
+    {
+      "id": "plan",
+      "label": "Query plan",
+      "order": 1,
+      "role": "A plan is chosen from the question's intent and then executed.",
+      "decision": "A plan keyed on query intent instead of one fixed chain of steps."
+    },
+    {
+      "id": "retrieve",
+      "label": "Hybrid retrieval",
+      "order": 2,
+      "role": "Two indexes, BM25 and an in-memory embedding store using cosine similarity, behind an ensemble retriever.",
+      "decision": "Hybrid lexical and vector retrieval."
+    },
+    {
+      "id": "prune",
+      "label": "Sentence-level prune",
+      "order": 3,
+      "role": "Irrelevant sentences are pruned before the context is built.",
+      "decision": "Sentence-level pruning before contextualization, so the generator sees less irrelevant text."
+    },
+    {
+      "id": "accept-threshold",
+      "label": "Acceptance rule",
+      "role": "Compares the verify score of a draft answer with the acceptance threshold. At or above the threshold the answer is accepted and repair is skipped.",
+      "why": "Acceptance is an explicit rule with a number, not an assumption.",
+      "io": {
+        "in": "A verify score from 0 to 1 and the threshold (0.72 by default).",
+        "out": "Accepted, or one repair attempt."
+      },
+      "decision": "Make acceptance a threshold that a request can override.",
+      "failure": "The verify score is only as meaningful as the verifier and the generator; the committed runs use a mock generator.",
+      "control": "A score at or above the threshold is accepted; below it, one repair runs.",
+      "evidence": [
+        {
+          "state": "verified",
+          "text": "Committed runs record the final score, whether repair ran and whether the answer was accepted.",
+          "caveat": "Mock generator; scores describe harness behavior, not answer quality."
+        }
+      ],
+      "limitation": "No claim is made about answer quality or real model behavior.",
+      "source": "rag_papers/retrieval/router_dag.py, run_plan and exec_repair",
+      "order": 4
+    },
+    {
+      "id": "repair-step",
+      "label": "Repair step",
+      "role": "Makes one more pass with tighter settings: more weight on BM25 (0.5 to 0.7) and less on vectors (0.5 to 0.3), a stricter prune, a constrained template and a lower temperature (0.2 to 0.1), then verifies again.",
+      "why": "A bounded second attempt has a fixed cost, and acceptance is decided by the same rule.",
+      "io": {
+        "in": "A draft below the threshold.",
+        "out": "A new draft and a new verify score."
+      },
+      "decision": "One repair only.",
+      "failure": "After the single attempt the answer can still be below the threshold and is then returned as not accepted.",
+      "control": "The maximum number of repairs is 1.",
+      "evidence": [
+        {
+          "state": "partially-verified",
+          "text": "In the committed runs that produced scores, every query that used repair ended below 0.72 and was not accepted.",
+          "caveat": "Mock generator; scores describe harness behavior."
+        }
+      ],
+      "limitation": "Whether a repair improves an answer is not claimed.",
+      "source": "rag_papers/retrieval/router_dag.py, exec_repair",
+      "order": 5
+    }
+  ],
+  "edges": []
+}

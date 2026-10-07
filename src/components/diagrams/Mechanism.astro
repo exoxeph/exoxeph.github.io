@@ -1,0 +1,78 @@
+---
+import EvidenceTag from '../evidence/EvidenceTag.astro';
+import EmailMechanism from './mechanisms/EmailMechanism.astro';
+import RagMechanism from './mechanisms/RagMechanism.astro';
+import SpeechMechanism from './mechanisms/SpeechMechanism.astro';
+import PoolMechanism from './mechanisms/PoolMechanism.astro';
+import type { DiagramName } from './Diagram.astro';
+import Note from '../notes/Note.astro';
+import { mechNotes } from '../notes/stageNotes';
+
+interface Props {
+  name: DiagramName;
+  id: string;
+  caption?: string;
+}
+const { name, id, caption } = Astro.props;
+const copy = {
+  email: {
+    label: 'Ambiguous request',
+    a: 'The check passes and the generator writes the email.',
+    b: 'The check returns a clarification question; nothing is generated.',
+  },
+  rag: {
+    label: 'Low verify score',
+    a: 'The verify score is at or above the threshold, so repair is skipped and the answer is returned as accepted.',
+    b: 'A score below the threshold triggers one repair attempt, then the result is re-verified. The answer is returned either way: marked not accepted if it is still below the threshold.',
+  },
+  speech: {
+    label: 'Unparseable value',
+    a: 'The value parses, so the row is kept with its raw line.',
+    b: 'The value cannot be parsed, so the row is omitted rather than guessed.',
+  },
+  pool: {
+    label: 'Request would overbook',
+    a: 'The request fits, so it is accepted into free seats.',
+    b: 'The request would exceed the capacity, so it is refused with HTTP 409.',
+  },
+}[name];
+---
+
+<figure class="mech" data-mech={name}>
+  <label class="mech-switch">
+    <input class="mech-input visually-hidden" id={`${id}-input`} type="checkbox" role="switch" />
+    <span class="mech-track" aria-hidden="true">
+      <span class="mech-thumb"></span>
+    </span>
+    <span class="mech-label">{copy.label}</span>
+    <span class="mech-hint mono">Switch to inspect</span>
+  </label>
+  {name === 'email' && <EmailMechanism id={id} />}
+  {name === 'rag' && <RagMechanism id={id} />}
+  {name === 'speech' && <SpeechMechanism id={id} />}
+  {name === 'pool' && <PoolMechanism id={id} />}
+  <div class="notes-slot">
+    {(mechNotes[name] ?? []).map((n) => (
+      <Note {...n} />
+    ))}
+  </div>
+  <div class="notes-layer">
+    <Note
+      cls="margin"
+      t="flip it to see the failure case"
+      x="calc(100% + 28px)"
+      y="4px"
+      dir="w"
+      r={2}
+      w="150px"
+    />
+  </div>
+  <figcaption class="mech-cap">
+    <span class="a">{copy.a}</span>
+    <span class="b">{copy.b}</span>
+    {caption && <span class="mech-extra">{caption}</span>}
+    <span class="mech-extra">
+      <EvidenceTag kind="model" />
+    </span>
+  </figcaption>
+</figure>

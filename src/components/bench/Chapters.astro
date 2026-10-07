@@ -1,0 +1,347 @@
+---
+import { getCollection } from 'astro:content';
+import EvidenceTag from '../evidence/EvidenceTag.astro';
+import { architectureSchema, type ArchitectureNode } from '../../lib/architecture/schema';
+import pool from '../../data/architecture/ride-pooling-lifecycle.json';
+import speech from '../../data/architecture/speech-doc-extraction.json';
+import rag from '../../data/architecture/data-aware-rag.json';
+import email from '../../data/architecture/email-assistant.json';
+import modelMerging from '../../data/architecture/model-merging.json';
+import { researchEntry } from '../../lib/bench/research-gate';
+
+const maps: Record<string, ArchitectureNode[]> = {
+  email: architectureSchema.parse(email).nodes,
+  rag: architectureSchema.parse(rag).nodes,
+  speech: architectureSchema.parse(speech).nodes,
+  pool: architectureSchema.parse(pool).nodes,
+};
+const markers = new Set([
+  'capacity-guard',
+  'value-normalizer',
+  'row-omission',
+  'accept-threshold',
+  'repair-step',
+  'code-validation',
+  'input-checker',
+]);
+// The chip beside each project names the failure it is about; the technical mechanism sits in the deeper layers.
+const mechanism: Record<string, string> = {
+  pool: 'overbooking',
+  email: 'unclear requests',
+  rag: 'weak answers',
+  speech: 'misread values',
+  research: 'sealed',
+};
+const beatNames = ['What goes wrong', 'How it responds', 'Decision', 'What happened', 'Where it fails'];
+// What each step does, in plain words. The technical label stays visible beside it.
+const plainStep: Record<string, string> = {
+  request: 'A rider asks for seats',
+  'transition-table': 'Every request follows fixed steps',
+  'accept-update': 'A driver accepts the request',
+  'pool-matching': 'Riders are grouped into one trip',
+  'capacity-guard': 'Blocks overbooking',
+  'audit-events': 'Every change is logged',
+  'code-validation': 'Checks the request has the basics',
+  'input-checker': 'Decides if there is enough to write from',
+  'clarify-or-generate': 'Asks a question, or writes',
+  'evaluation-runner': 'Scores the results on test scenarios',
+  plan: 'Works out what the question needs',
+  retrieve: 'Finds supporting passages',
+  prune: 'Drops sentences that do not help',
+  'accept-threshold': 'Checks the answer is good enough',
+  'repair-step': 'One more attempt if it falls short',
+  ocr: 'Reads the text from the photo',
+  'lab-gate': 'Checks it is a lab report',
+  metadata: 'Picks out patient, date and lab',
+  'value-normalizer': 'Turns report text into fields',
+  'row-omission': 'Leaves out values it cannot read',
+};
+const research = await researchEntry();
+const order = ['pool', 'email', 'rag', 'speech'];
+const researchNodes = architectureSchema.parse(modelMerging).nodes;
+const projects = (await getCollection('projects', (p) => p.data.tier === 'primary')).sort(
+  (a, b) => order.indexOf(a.data.chapter.channel) - order.indexOf(b.data.chapter.channel),
+);
+const first = (text: string) => text.split(/(?<=\.)\s/)[0] ?? text;
+const hasMore = (n: ArchitectureNode) =>
+  Boolean(n.why || n.io || n.failure || n.control || n.evidence?.length || n.limitation || n.source);
+---
+
+<div class="chapters">
+  {projects.map((project, index) => {
+    const d = project.data;
+    const c = d.chapter;
+    const nodes = [...maps[c.channel]!].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+    return (
+      <section
+        class="chapter"
+        id={index === 0 ? 'work' : `chapter-${c.channel}`}
+        data-chapter={c.channel}
+        aria-labelledby={`chapter-h-${c.channel}`}
+      >
+        <header class="cid" data-cid>
+          <span class="cid-n" aria-hidden="true">
+            0{index + 1}
+          </span>
+          <p class="cid-title">
+            <b class="ctitle">{d.title}</b>
+            <span class="cid-mech">{mechanism[c.channel]}</span>
+          </p>
+          <p class="cid-beat" aria-hidden="true">
+            <span class="cid-beat-name" data-beat-name>
+              {beatNames[0]}
+            </span>
+            <span class="cid-ticks">
+              {beatNames.map((_, i) => (
+                <i class={i === 0 ? 'on' : ''} data-tick={i} />
+              ))}
+            </span>
+          </p>
+          <button type="button" class="operate" data-operate={c.channel} aria-label="Operate on the bench">
+            bench ↑
+          </button>
+        </header>
+        <div class="cblock" data-beat="0">
+          <span class="cidx" aria-hidden="true">
+            0{index + 1} / 04
+          </span>
+          <h3 id={`chapter-h-${c.channel}`} class="cq">
+            {c.question}
+          </h3>
+          <p class="csub">{c.plain}</p>
+          <p class="cwho">{c.myPart}</p>
+          <h4>
+            What goes wrong<span class="visually-hidden">: {d.title}</span>
+          </h4>
+          <dl class="cstory">
+            <dt>Goes wrong</dt>
+            <dd>{c.wrong}</dd>
+            <dt>Why it matters</dt>
+            <dd>{c.matters}</dd>
+            <dt>What it does</dt>
+            <dd>{c.does}</dd>
+          </dl>
+          <details class="cdeep cterms">
+            <summary>In engineering terms</summary>
+            <p>{d.capability}</p>
+            <p>{c.problem}</p>
+            <p class="cstack">{d.technologies.join(', ')}</p>
+          </details>
+        </div>
+        <div class="cblock" data-beat="1">
+          <h4>
+            How it responds<span class="visually-hidden">: {d.title}</span>
+          </h4>
+          <p class="rm-hint">Select a step to see what it does and why it exists.</p>
+          <ol class="routemap" aria-label={`How ${d.title} works`}>
+            {nodes.map((node) => (
+              <li>
+                <details name={`route-${c.channel}`}>
+                  <summary>
+                    <i aria-hidden="true" />
+                    <span class="rm-label">{plainStep[node.id] ?? node.label}</span>{' '}
+                    <span class="rm-role">{plainStep[node.id] ? node.label : first(node.role)}</span>
+                  </summary>
+                  <div class="rm-body">
+                    <p>{node.role}</p>
+                    {node.decision && (
+                      <p>
+                        <b>Decision.</b> {node.decision}
+                      </p>
+                    )}
+                    {hasMore(node) && (
+                      <details class="rm-more">
+                        <summary>
+                          more<span class="visually-hidden"> about {node.label}</span>
+                        </summary>
+                        <dl>
+                          {node.why && (
+                            <>
+                              <dt>Why it exists</dt>
+                              <dd>{node.why}</dd>
+                            </>
+                          )}
+                          {node.io && (
+                            <>
+                              <dt>In and out</dt>
+                              <dd>
+                                {node.io.in} {node.io.out}
+                              </dd>
+                            </>
+                          )}
+                          {node.failure && (
+                            <>
+                              <dt>Failure</dt>
+                              <dd>{node.failure}</dd>
+                            </>
+                          )}
+                          {node.control && (
+                            <>
+                              <dt>Control</dt>
+                              <dd>{node.control}</dd>
+                            </>
+                          )}
+                          {node.evidence?.length ? (
+                            <>
+                              <dt>Evidence</dt>
+                              <dd>
+                                {node.evidence.map((e) => (
+                                  <p>
+                                    <EvidenceTag kind={e.state === 'verified' ? 'verified' : 'partial'} />{' '}
+                                    <span>
+                                      {e.text} {e.caveat}
+                                    </span>
+                                  </p>
+                                ))}
+                              </dd>
+                            </>
+                          ) : null}
+                          {node.limitation && (
+                            <>
+                              <dt>Limitation</dt>
+                              <dd>{node.limitation}</dd>
+                            </>
+                          )}
+                          {node.source && (
+                            <>
+                              <dt>Source</dt>
+                              <dd class="source">{node.source}</dd>
+                            </>
+                          )}
+                        </dl>
+                      </details>
+                    )}
+                    {markers.has(node.id) && (
+                      <button type="button" class="rm-show" data-show-bench={c.channel}>
+                        show on the bench
+                      </button>
+                    )}
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div class="cblock" data-beat="2">
+          <h4>
+            Decision<span class="visually-hidden">: {d.title}</span>
+          </h4>
+          <p>{c.decisionPlain}</p>
+          <details class="cdeep">
+            <summary>In engineering terms</summary>
+            <p>{c.decision}</p>
+          </details>
+        </div>
+        <div class="cblock" data-beat="3">
+          <h4>
+            What happened<span class="visually-hidden">: {d.title}</span>
+          </h4>
+          <p>{c.evidenceHuman}</p>
+          <details class="cdeep">
+            <summary>
+              Evidence detail <EvidenceTag kind="verified" label="Checked by me" />
+            </summary>
+            <p>{d.evidenceLine.text}</p>
+          </details>
+        </div>
+        <div class="cblock" data-beat="4">
+          <h4>
+            Where it still fails<span class="visually-hidden">: {d.title}</span>
+          </h4>
+          <p>{c.limitationPlain}</p>
+          <details class="cdeep">
+            <summary>In engineering terms</summary>
+            <p>{c.limitation}</p>
+          </details>
+          <p class="clinks">
+            <a class="btn solid" href={`/work/${project.id}/`}>
+              Case study →<span class="visually-hidden">: {d.title}</span>
+            </a>
+            <a class="btn" href={`/work/${project.id}/#flow`}>
+              Watch it run<span class="visually-hidden"> ({d.title})</span>
+            </a>
+          </p>
+          {projects[index + 1] && (
+            <p class="cnext">
+              <a href={`#chapter-${projects[index + 1]!.data.chapter.channel}`}>
+                <span class="cnext-k">Next system</span>
+                <span class="cnext-q">{projects[index + 1]!.data.chapter.question}</span>
+                <span class="cnext-a" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            </p>
+          )}
+        </div>
+      </section>
+    );
+  })}
+  {research && (
+    <section
+      class="chapter"
+      id="chapter-research"
+      data-chapter="research"
+      aria-labelledby="chapter-h-research"
+    >
+      <header class="cid" data-cid>
+        <p class="cid-title">
+          <b class="ctitle">{research.data.title}</b>
+          <span class="cid-mech">{mechanism.research}</span>
+        </p>
+        <p class="cid-beat" aria-hidden="true">
+          <span class="cid-beat-name" data-beat-name>
+            Question
+          </span>
+        </p>
+        <button type="button" class="operate" data-operate="research" aria-label="Operate on the bench">
+          bench ↑
+        </button>
+      </header>
+      <div class="cblock" data-beat="0">
+        <h3 id="chapter-h-research" class="cq">
+          What stays unshown, and why?
+        </h3>
+        <p class="csub">{research.data.description}</p>
+        <h4>Question</h4>
+        <p>{research.data.question}</p>
+      </div>
+      <div class="cblock" data-beat="1">
+        <h4>How it works, in public terms</h4>
+        <p class="rm-hint">Select a step to read more.</p>
+        <ol class="routemap" aria-label="Public mechanics of the method">
+          {researchNodes.map((node) => (
+            <li>
+              <details name="route-research">
+                <summary>
+                  <i aria-hidden="true" />
+                  <span class="rm-label">{node.label}</span>
+                  <span class="rm-role">{first(node.role)}</span>
+                </summary>
+                <div class="rm-body">
+                  <p>{node.role}</p>
+                  {node.source && <p class="source">{node.source}</p>}
+                </div>
+              </details>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div class="cblock" data-beat="2">
+        <h4>What stays private</h4>
+        <p>{research.data.disclosureNotes}</p>
+      </div>
+      <div class="cblock" data-beat="3">
+        <h4>Limitation</h4>
+        <p>{research.data.limitations.join(' ')}</p>
+        <p class="clinks">
+          <a href="/research/">Research overview</a>
+        </p>
+      </div>
+    </section>
+  )}
+  <p class="all">
+    <a class="arrow-link" href="/work/">
+      All work
+    </a>
+  </p>
+</div>

@@ -1,0 +1,37 @@
+---
+/** Inline claim with its evidence state, resolved from the current project's frontmatter evidence list. */
+import EvidenceTag from './EvidenceTag.astro';
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const project = Astro.locals.project;
+const item = project?.data.evidence.find((e) => e.id === id);
+if (!item) throw new Error(`<Claim id="${id}"> has no matching evidence entry in the project frontmatter`);
+const kind =
+  item.state === 'verified' ? 'verified' : item.state === 'partially-verified' ? 'partial' : 'notclaimed';
+---
+
+<p class="claim">
+  <EvidenceTag kind={kind} />
+  <span class="text">{item.claim}</span>
+  <span class="how mono">
+    {item.howChecked}.{item.caveat ? ` ${item.caveat}` : ''}
+  </span>
+</p>
+
+<style>
+  .claim {
+    margin: 0 0 1.2rem;
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.9rem 0 0.9rem 1.1rem;
+    border-left: 2px solid var(--rule);
+  }
+  .text {
+    font: 400 var(--t-body) / 1.55 var(--sans);
+  }
+  .how {
+    color: var(--muted);
+  }
+</style>

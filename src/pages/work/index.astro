@@ -1,0 +1,458 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Legend from '../../components/evidence/Legend.astro';
+import EvidenceTag from '../../components/evidence/EvidenceTag.astro';
+import avatar from '../../assets/github-avatar.webp';
+import { site } from '../../data/site.ts';
+
+// The page reads like a GitHub profile: the handle, a short facts panel, then repositories as cards.
+// Every fact below comes from the project files; there are no counts, stars or activity figures.
+const projects = (await getCollection('projects', (p) => p.data.tier === 'primary')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const secondary = [
+  {
+    name: 'email-spam-classification',
+    line: 'A four-version spam classifier on the Enron dataset, from a TF-IDF and Naive Bayes baseline to a threshold-tuned comparison. The author documents a test-set leak in an early version and corrects it with a validation split (author-reported F1 0.9894, test-selected, then 0.9891, validation-tuned; not independently reproduced).',
+    tech: 'Python',
+    url: 'https://github.com/exoxeph/email-spam-classification',
+  },
+  {
+    name: 'Cryptonite',
+    line: 'An educational course cryptography demonstrator with toy parameters and documented AI-assisted planning. The project states it is unsuitable for real data.',
+    tech: '',
+    url: 'https://github.com/exoxeph/Cryptonite',
+  },
+];
+const repoName = (url: string) => url.split('/').filter(Boolean).pop() ?? url;
+// The language dot uses the first technology listed, in GitHub's own language colors.
+const dot: Record<string, string> = { Python: '#3572a5', TypeScript: '#3178c6', JavaScript: '#f1e05a' };
+const languages = [
+  ...new Set(
+    [...projects.map((p) => p.data.technologies[0]!), ...secondary.map((s) => s.tech)].filter(Boolean),
+  ),
+];
+const typeLabel = (t: string) =>
+  t === 'solo' ? 'Solo project' : t === 'team' ? 'Team project' : 'Research group project';
+---
+
+<Base
+  title={`Work | ${site.name}`}
+  description="Four case studies with evidence states and contribution notes, plus smaller projects on GitHub."
+>
+  <section class="whero" aria-labelledby="work-h">
+    <div class="wrap whero-grid">
+      <div class="whero-id">
+        <div class="whero-who">
+          <div class="avatar">
+            <Image
+              src={avatar}
+              alt=""
+              width={140}
+              height={140}
+              densities={[1, 2]}
+              format="webp"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+          <p class="who">
+            github.com/exoxeph
+            <br />
+            Dhaka, Bangladesh
+          </p>
+        </div>
+        <h1 id="work-h">
+          <span class="name">exoxeph</span>
+          <span class="role">{site.name}</span>
+        </h1>
+        <p class="lede">
+          Each repository here has a case study: what was built, what I contributed, what was measured and
+          what was not.
+        </p>
+        <div class="actions">
+          <a class="btn" href={site.links.github} rel="noopener">
+            GitHub profile
+          </a>
+          {site.resume.available && (
+            <a class="btn" href={site.resume.path}>
+              Résumé
+            </a>
+          )}
+          {site.links.linkedin && (
+            <a class="btn" href={site.links.linkedin}>
+              LinkedIn
+            </a>
+          )}
+        </div>
+      </div>
+
+      <dl class="facts" aria-label="Profile facts">
+        <div>
+          <dt>Handle</dt>
+          <dd>exoxeph</dd>
+        </div>
+        <div>
+          <dt>Role</dt>
+          <dd>{site.role}</dd>
+        </div>
+        <div>
+          <dt>Studying</dt>
+          <dd>Computer Science, BRAC University</dd>
+        </div>
+        <div>
+          <dt>Case studies</dt>
+          <dd>{projects.length}, each with evidence states</dd>
+        </div>
+        <div>
+          <dt>Also public</dt>
+          <dd>{secondary.length} smaller repositories</dd>
+        </div>
+        <div>
+          <dt>Languages</dt>
+          <dd class="langs">
+            {languages.map((l) => (
+              <span>
+                <i style={`background:${dot[l] ?? 'var(--muted)'}`} aria-hidden="true" />
+                {l}
+              </span>
+            ))}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="wrap page">
+    <Legend />
+
+    <h2 class="shelf">Case studies</h2>
+    <ul class="cards" aria-label="Case studies">
+      {projects.map((p) => {
+        const d = p.data;
+        const repo = d.links[0]?.url;
+        const lang = d.technologies[0] ?? '';
+        return (
+          <li class="card">
+            <p class="card-top">
+              <span class="card-name mono">
+                <span class="owner">exoxeph /</span>
+                <a href={`/work/${p.id}/`}>{repo ? repoName(repo) : p.id}</a>
+              </span>
+              <span class="pill mono">Public</span>
+            </p>
+            <h3 class="card-title">{d.title}</h3>
+            <p class="card-desc">{d.chapter.plain}</p>
+            <p class="card-ev">
+              <EvidenceTag kind="verified" label="Checked by me" /> <span>{d.evidenceLine.text}</span>
+            </p>
+            <p class="card-meta mono">
+              <span class="lang">
+                <i style={`background:${dot[lang] ?? 'var(--muted)'}`} aria-hidden="true" />
+                {lang}
+              </span>
+              <span>{typeLabel(d.type)}</span>
+              <span>{d.domain}</span>
+            </p>
+            <p class="card-go">
+              <a href={`/work/${p.id}/`}>
+                Case study<span class="visually-hidden">: {d.title}</span>
+              </a>
+              {d.traces.length > 0 && (
+                <a href={`/work/${p.id}/#trace`}>
+                  Inspect the system<span class="visually-hidden"> ({d.title})</span>
+                </a>
+              )}
+              {repo && (
+                <a href={repo} rel="noopener">
+                  Repository<span class="visually-hidden">: {d.title}</span>
+                </a>
+              )}
+            </p>
+          </li>
+        );
+      })}
+    </ul>
+
+    <h2 class="shelf" id="more-h">
+      Also on GitHub
+    </h2>
+    <ul class="cards" aria-labelledby="more-h">
+      {secondary.map((s) => (
+        <li class="card">
+          <p class="card-top">
+            <span class="card-name mono">
+              <span class="owner">exoxeph /</span>
+              <a href={s.url} rel="noopener">
+                {s.name}
+              </a>
+            </span>
+            <span class="pill mono">Public</span>
+          </p>
+          <p class="card-desc">{s.line}</p>
+          {s.tech && (
+            <p class="card-meta mono">
+              <span class="lang">
+                <i style={`background:${dot[s.tech] ?? 'var(--muted)'}`} aria-hidden="true" />
+                {s.tech}
+              </span>
+            </p>
+          )}
+        </li>
+      ))}
+    </ul>
+    <p class="mono muted more-note">
+      <EvidenceTag kind="notclaimed" /> These projects have no case study on this site.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .whero {
+    border-bottom: 1px solid var(--rule);
+  }
+  .whero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 24px clamp(32px, 5vw, 88px);
+    padding-block: clamp(36px, 7vh, 72px) clamp(40px, 7vh, 72px);
+  }
+  .whero-who {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    margin: 0 0 clamp(20px, 3vh, 32px) 11px;
+  }
+  .avatar {
+    position: relative;
+    flex: none;
+    width: 140px;
+    height: 140px;
+    margin: 0;
+  }
+  .avatar :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+  .avatar::before {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+  }
+  .avatar::after {
+    content: '';
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    width: 1px;
+    height: 9px;
+    background: var(--accent);
+    transform: translateX(-50%);
+  }
+  .who {
+    margin: 0;
+    color: var(--muted);
+    font: 400 12px / 1.7 var(--mono);
+    letter-spacing: 0.04em;
+  }
+  h1 {
+    margin: 0;
+    font: 400 clamp(3.1rem, 5.5vw, 5.3rem) / 0.98 var(--serif);
+    letter-spacing: -0.02em;
+  }
+  .name,
+  .role {
+    display: block;
+  }
+  .role {
+    margin: 0.22em 0 0;
+    color: var(--accent);
+    font-style: italic;
+    font-size: 0.62em;
+  }
+  .lede {
+    max-width: 34ch;
+    margin: clamp(18px, 3vh, 28px) 0 0;
+    color: var(--muted);
+    font: 400 clamp(1.1rem, 1.5vw, 1.3rem) / 1.4 var(--serif);
+  }
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    max-width: 28rem;
+    margin-top: clamp(20px, 3.5vh, 36px);
+  }
+  .actions .btn {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .facts {
+    margin: 0;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+  }
+  .facts > div {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .facts > div:first-child {
+    border-top: 0;
+  }
+  .facts dt {
+    color: var(--muted);
+    font: 400 12px / 1.6 var(--mono);
+    letter-spacing: 0.04em;
+  }
+  .facts dd {
+    margin: 0;
+    font-size: var(--t-ui);
+  }
+  .langs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+  }
+  .langs span,
+  .lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .langs i,
+  .lang i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .page {
+    padding-top: clamp(28px, 5vw, 56px);
+  }
+  .shelf {
+    margin: var(--s4) 0 1.2rem;
+    font-size: 1.5rem;
+  }
+  .cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.2rem 1.3rem 1.1rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--paper);
+  }
+  .card:hover,
+  .card:focus-within {
+    border-color: var(--accent);
+  }
+  .card > p,
+  .card > h3 {
+    margin: 0;
+  }
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+  }
+  .card-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .card-name .owner {
+    color: var(--muted);
+    margin-right: 0.35em;
+  }
+  .card-name a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .pill {
+    flex: none;
+    padding: 0 0.6em;
+    border: 1px solid var(--rule-strong);
+    border-radius: 2em;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .card-title {
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+  .card-desc {
+    font-size: var(--t-ui);
+  }
+  .card-ev {
+    font-size: var(--t-ui);
+    color: var(--muted);
+  }
+  .card > .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.1rem;
+    margin-top: auto;
+    padding-top: 0.4rem;
+    color: var(--muted);
+  }
+  .card-go {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.3rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--rule);
+    font-weight: 500;
+    font-size: var(--t-ui);
+  }
+  .more-note {
+    margin-top: 1.6rem;
+  }
+  @media (max-width: 900px) {
+    .whero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .who {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 380px) {
+    .whero-who {
+      gap: 18px;
+    }
+    .avatar {
+      width: 96px;
+      height: 96px;
+    }
+  }
+  @media (max-width: 520px) {
+    .facts > div {
+      grid-template-columns: 1fr;
+      gap: 0.1rem;
+    }
+  }
+</style>

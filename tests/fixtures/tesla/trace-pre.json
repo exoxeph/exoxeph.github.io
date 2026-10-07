@@ -1,0 +1,261 @@
+{
+  "scenario": "sequential",
+  "ids": {
+    "A": "1",
+    "B": "2",
+    "C": "3"
+  },
+  "zoneInfo": {
+    "pickupDistancesKm": {
+      "Banani-Farmgate": 4.55,
+      "Banani-Mirpur": 5.05,
+      "Farmgate-Mirpur": 7.68
+    },
+    "routes": {
+      "A": "Banani to Mohakhali, 1 seat",
+      "B": "Farmgate to Mohakhali, 2 seats",
+      "C": "Mirpur to Uttara, 2 seats"
+    }
+  },
+  "steps": [
+    {
+      "label": "initial",
+      "http": null,
+      "teslaCapacity": 3,
+      "pools": [],
+      "requests": [],
+      "events": []
+    },
+    {
+      "label": "three requests created",
+      "http": null,
+      "teslaCapacity": 3,
+      "pools": [],
+      "requests": [
+        {
+          "id": "1",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 1
+        },
+        {
+          "id": "2",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 2
+        },
+        {
+          "id": "3",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 2
+        }
+      ],
+      "events": []
+    },
+    {
+      "label": "accept A",
+      "http": {
+        "status": 200,
+        "body": {
+          "request": {
+            "id": "1",
+            "pickupZoneId": "zone-banani",
+            "destinationZoneId": "zone-mohakhali",
+            "seats": 1,
+            "status": "MATCHED",
+            "farePaisa": 5731,
+            "paymentMethod": "CASH",
+            "poolId": "pool-1",
+            "createdAt": "2026-10-05T19:51:38.378Z"
+          }
+        }
+      },
+      "teslaCapacity": 3,
+      "pools": [
+        {
+          "id": "pool-1",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 1
+        }
+      ],
+      "requests": [
+        {
+          "id": "1",
+          "status": "MATCHED",
+          "poolId": "pool-1",
+          "seats": 1
+        },
+        {
+          "id": "2",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 2
+        },
+        {
+          "id": "3",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 2
+        }
+      ],
+      "events": [
+        {
+          "requestId": "1",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        }
+      ]
+    },
+    {
+      "label": "accept B",
+      "http": {
+        "status": 200,
+        "body": {
+          "request": {
+            "id": "2",
+            "pickupZoneId": "zone-farmgate",
+            "destinationZoneId": "zone-mohakhali",
+            "seats": 2,
+            "status": "MATCHED",
+            "farePaisa": 15072,
+            "paymentMethod": "CASH",
+            "poolId": "pool-2",
+            "createdAt": "2026-10-05T19:51:38.386Z"
+          }
+        }
+      },
+      "teslaCapacity": 3,
+      "pools": [
+        {
+          "id": "pool-1",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 1
+        },
+        {
+          "id": "pool-2",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 2
+        }
+      ],
+      "requests": [
+        {
+          "id": "1",
+          "status": "MATCHED",
+          "poolId": "pool-1",
+          "seats": 1
+        },
+        {
+          "id": "2",
+          "status": "MATCHED",
+          "poolId": "pool-2",
+          "seats": 2
+        },
+        {
+          "id": "3",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 2
+        }
+      ],
+      "events": [
+        {
+          "requestId": "1",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        },
+        {
+          "requestId": "2",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        }
+      ]
+    },
+    {
+      "label": "accept C",
+      "http": {
+        "status": 200,
+        "body": {
+          "request": {
+            "id": "3",
+            "pickupZoneId": "zone-mirpur",
+            "destinationZoneId": "zone-uttara",
+            "seats": 2,
+            "status": "MATCHED",
+            "farePaisa": 25224,
+            "paymentMethod": "CASH",
+            "poolId": "pool-3",
+            "createdAt": "2026-10-05T19:51:38.391Z"
+          }
+        }
+      },
+      "teslaCapacity": 3,
+      "pools": [
+        {
+          "id": "pool-1",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 1
+        },
+        {
+          "id": "pool-2",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 2
+        },
+        {
+          "id": "pool-3",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 2
+        }
+      ],
+      "requests": [
+        {
+          "id": "1",
+          "status": "MATCHED",
+          "poolId": "pool-1",
+          "seats": 1
+        },
+        {
+          "id": "2",
+          "status": "MATCHED",
+          "poolId": "pool-2",
+          "seats": 2
+        },
+        {
+          "id": "3",
+          "status": "MATCHED",
+          "poolId": "pool-3",
+          "seats": 2
+        }
+      ],
+      "events": [
+        {
+          "requestId": "1",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        },
+        {
+          "requestId": "2",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        },
+        {
+          "requestId": "3",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        }
+      ]
+    }
+  ]
+}

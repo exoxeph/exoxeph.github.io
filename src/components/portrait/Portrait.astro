@@ -1,0 +1,66 @@
+---
+// The author's portrait: the original photograph, lightly graded (crushed blacks, a very subtle dither, a faint
+// cool tint) in a thin circular frame. Identity first, style second; the name stays the hero.
+import { Image } from 'astro:assets';
+import large from '../../assets/portrait.webp'; // 380 px, for a 190 px display
+import small from '../../assets/portrait-sm.webp'; // 280 px, for a 140 px display
+
+interface Props {
+  /** Display size in px; the browser picks a standard or a high-density file (the source is exactly twice the display size). */
+  size?: number;
+  loading?: 'eager' | 'lazy';
+  class?: string;
+}
+const { size = 140, loading = 'lazy', class: extra = '' } = Astro.props;
+const compact = size <= 150;
+const shown = compact ? 140 : 190;
+---
+
+<div class={`portrait ${extra}`} style={`--p:${shown}px`}>
+  {/* Decorative on purpose: the name sits right beside it, so a description would only repeat the heading. */}
+  <Image
+    src={compact ? small : large}
+    alt=""
+    width={shown}
+    height={shown}
+    densities={[1, 2]}
+    format="webp"
+    quality={82}
+    {loading}
+    decoding="async"
+  />
+</div>
+
+<style is:global>
+  .portrait {
+    position: relative;
+    flex: none;
+    width: var(--p);
+    height: var(--p);
+    margin: 0;
+  }
+  .portrait img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+  /* A thin frame, like the rules around the Bench instruments; the portrait stays the subject. */
+  .portrait::before {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+  }
+  .portrait::after {
+    content: '';
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    width: 1px;
+    height: 9px;
+    background: var(--accent);
+    transform: translateX(-50%);
+  }
+</style>

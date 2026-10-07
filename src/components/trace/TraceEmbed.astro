@@ -1,0 +1,12 @@
+---
+import { getEntry } from 'astro:content';
+import Trace from './Trace.astro';
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const entry = await getEntry('traces', id);
+if (!entry) throw new Error(`<TraceEmbed id="${id}"> does not match a file in src/data/traces`);
+---
+
+<Trace id={id} trace={entry.data} />

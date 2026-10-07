@@ -1,0 +1,89 @@
+---
+import '../../styles/flow.css';
+// The Architecture section's component list: the deeper view of the same system the playable flow shows. Each node
+// carries data-arch-node so the flow's Inspector can light it, and an anchor so "Open in the architecture" lands here.
+import { architectureSchema } from '../../lib/architecture/schema';
+import pool from '../../data/architecture/ride-pooling-lifecycle.json';
+import speech from '../../data/architecture/speech-doc-extraction.json';
+import rag from '../../data/architecture/data-aware-rag.json';
+import email from '../../data/architecture/email-assistant.json';
+import EvidenceTag from '../evidence/EvidenceTag.astro';
+
+const project = Astro.locals.project;
+if (!project) throw new Error('<ArchitectureMap /> must render inside a project page');
+const byProject: Record<string, unknown> = {
+  'llm-email-pipeline': email,
+  'retrieval-orchestration': rag,
+  'speech-document-extraction': speech,
+  'ride-pooling-lifecycle': pool,
+};
+const raw = byProject[project.id];
+const nodes = raw
+  ? [...architectureSchema.parse(raw).nodes].sort((a, b) => (a.order ?? 99) - (b.order ?? 99))
+  : [];
+---
+
+{nodes.length > 0 && (
+  <ol class="arch" aria-label="Components of the system">
+    {nodes.map((n) => (
+      <li class="arch-node" id={`arch-${n.id}`} data-arch-node={n.id}>
+        <h3>{n.label}</h3>
+        <p>{n.role}</p>
+        <dl>
+          {n.io && (
+            <>
+              <dt>Input</dt>
+              <dd>{n.io.in}</dd>
+              <dt>Output</dt>
+              <dd>{n.io.out}</dd>
+            </>
+          )}
+          {n.why && (
+            <>
+              <dt>Why it exists</dt>
+              <dd>{n.why}</dd>
+            </>
+          )}
+          {n.decision && (
+            <>
+              <dt>Decision</dt>
+              <dd>{n.decision}</dd>
+            </>
+          )}
+          {n.control && (
+            <>
+              <dt>Control</dt>
+              <dd>{n.control}</dd>
+            </>
+          )}
+          {n.failure && (
+            <>
+              <dt>Failure mode</dt>
+              <dd>{n.failure}</dd>
+            </>
+          )}
+          {n.limitation && (
+            <>
+              <dt>Limitation</dt>
+              <dd>{n.limitation}</dd>
+            </>
+          )}
+          {n.evidence?.map((e) => (
+            <>
+              <dt>Evidence</dt>
+              <dd>
+                <EvidenceTag kind={e.state === 'verified' ? 'verified' : 'partial'} /> {e.text} {e.caveat}
+              </dd>
+            </>
+          ))}
+          {n.source && (
+            <>
+              <dt>Source</dt>
+              <dd class="mono">{n.source}</dd>
+            </>
+          )}
+        </dl>
+      </li>
+    ))}
+  </ol>
+)}

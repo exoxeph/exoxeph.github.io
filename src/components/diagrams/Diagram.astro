@@ -1,0 +1,25 @@
+---
+import EmailGate from './EmailGate.astro';
+import RepairLoop from './RepairLoop.astro';
+import ExtractionTable from './ExtractionTable.astro';
+import CapacityGauge from './CapacityGauge.astro';
+import Note from '../notes/Note.astro';
+import { diagramNotes } from '../notes/stageNotes';
+
+export type DiagramName = 'email' | 'rag' | 'speech' | 'pool';
+interface Props {
+  name: DiagramName;
+  id: string;
+}
+const { name, id } = Astro.props;
+---
+
+{name === 'email' && <EmailGate id={id} />}
+{name === 'rag' && <RepairLoop id={id} />}
+{name === 'speech' && <ExtractionTable id={id} />}
+{name === 'pool' && <CapacityGauge id={id} />}
+<div class="notes-slot">
+  {(diagramNotes[name] ?? []).map((n) => (
+    <Note {...n} />
+  ))}
+</div>

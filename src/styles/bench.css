@@ -1,0 +1,2492 @@
+.bench {
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.bench-inner {
+  position: relative;
+}
+.bench-defs {
+  position: absolute;
+  pointer-events: none;
+}
+.channel-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.bgrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+.stagecol {
+  min-width: 0;
+  padding: 16px 28px 0 0;
+}
+.channel {
+  display: none;
+}
+#ch-pool:checked ~ .bgrid .channel.pool,
+#ch-email:checked ~ .bgrid .channel.email,
+#ch-rag:checked ~ .bgrid .channel.rag,
+#ch-speech:checked ~ .bgrid .channel.speech {
+  display: block;
+}
+.chead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 2px 0 0;
+}
+.chead b {
+  font: 500 15px var(--sans);
+}
+.chead small {
+  font: 400 12px var(--mono);
+  color: var(--muted);
+  margin-left: 10px;
+}
+.header-inspect {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  text-decoration: underline;
+  font: 400 12px var(--mono);
+  min-height: 44px;
+  cursor: pointer;
+}
+.provenance {
+  font: 400 12px/1.4 var(--mono);
+  color: var(--muted);
+  max-width: 36ch;
+}
+.provenance summary {
+  cursor: pointer;
+  list-style: none;
+}
+.provenance summary::-webkit-details-marker {
+  display: none;
+}
+.provenance p {
+  margin: 6px 0;
+}
+.provenance .tag {
+  white-space: nowrap;
+}
+.tesla-stage {
+  position: relative;
+}
+.tesla-svg svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.tesla-svg.mobile {
+  display: none;
+}
+.bench svg text {
+  font: 400 12.5px var(--mono);
+  fill: var(--muted);
+}
+.bench svg .hi {
+  fill: var(--text);
+}
+.bench svg .tac {
+  fill: var(--accent);
+}
+.bench svg .tin {
+  fill: var(--invalid);
+}
+.bench svg .tpt {
+  fill: var(--partial);
+}
+.bench svg .ln {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.bench svg .mu {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 65%, var(--bg));
+  stroke-width: 1.2;
+}
+.bench svg .ac {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.bench svg .acf {
+  fill: var(--accent);
+}
+.bench svg .surf {
+  fill: var(--surface);
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.bench svg .surf.over {
+  fill: url(#bench-hatch);
+  stroke: var(--invalid);
+}
+.bench svg .hair {
+  stroke: var(--text);
+  stroke-width: 1;
+  opacity: 0.07;
+}
+.bench svg .okf {
+  fill: color-mix(in srgb, var(--verified) 20%, transparent);
+  stroke: var(--verified);
+  stroke-width: 1.3;
+}
+.bench svg .inv {
+  fill: none;
+  stroke: var(--invalid);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.bench svg .hatch {
+  fill: url(#bench-hatch);
+  stroke: var(--invalid);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 3;
+}
+.bench svg .sa {
+  stroke: var(--accent);
+}
+.bench svg .pending {
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.bench svg .refused .pending {
+  fill: url(#bench-hatch);
+  stroke: var(--invalid);
+}
+.bench svg .refused .pending-letter,
+.bench svg .refused .pending-label {
+  fill: var(--invalid);
+}
+.bench svg .accepted .pending {
+  fill: transparent;
+  stroke: var(--accent);
+}
+.bench svg .accepted .pending-letter,
+.bench svg .accepted .pending-label {
+  fill: var(--accent);
+}
+.bench svg .pending-label {
+  font-size: 11px;
+}
+.bench svg .notch {
+  fill: none;
+  stroke: var(--invalid);
+}
+.bench svg .grip {
+  fill: var(--surface);
+  stroke: var(--invalid);
+  stroke-width: 1.4;
+}
+.bench svg .grip-lines {
+  stroke: var(--invalid);
+  stroke-width: 1.2;
+}
+.bench svg .hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+}
+.bench svg [role='button'],
+.bench svg [role='slider'] {
+  cursor: pointer;
+}
+.bench svg [role='button']:focus-visible,
+.bench svg [role='slider']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+.bench svg [data-handle] {
+  touch-action: none;
+}
+.bench svg .send-circle {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.5;
+}
+.bench svg .send-arrow {
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 1.7;
+}
+.bench svg .wall-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+.bench svg .capacity {
+  font-size: 14px;
+}
+.bench svg .committed {
+  font-size: 13px;
+}
+.bench svg .code {
+  font: 500 96px var(--mono);
+  letter-spacing: -0.03em;
+}
+.bench svg .code.over-code {
+  font-size: 48px;
+}
+.bench svg .word {
+  font: 400 30px var(--serif);
+  fill: var(--text);
+}
+.bench svg .equation {
+  font-size: 13px;
+}
+.bench svg .readout.stale {
+  /* The "if sent" preview is dimmed, but still readable: 0.4 measured 2.2 to 1, 0.8 clears 4.5 to 1. */
+  opacity: 0.8;
+}
+.bench svg .preview {
+  font-size: 12px;
+}
+.bench svg .selected-pool .surf {
+  stroke: var(--accent);
+}
+.bench svg .pool-actions button {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--text);
+  font: 400 12px var(--mono);
+  min-height: 44px;
+  cursor: pointer;
+}
+.bench svg .pool-actions div {
+  display: flex;
+}
+.reset {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.traces {
+  border-top: 1px solid var(--rule);
+}
+.tr {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 150px;
+  align-items: center;
+  gap: 16px;
+  min-height: 58px;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+}
+.tr:last-child {
+  border-bottom: 0;
+}
+.tr b {
+  font: 500 14px var(--sans);
+  color: var(--text);
+}
+.tr small {
+  display: block;
+  font: 400 12px var(--mono);
+  color: var(--muted);
+}
+.tr svg {
+  height: 34px;
+}
+.tr .flag {
+  font: 400 12px var(--mono);
+  color: var(--muted);
+  text-align: right;
+}
+#ch-pool:checked ~ .bgrid .tr-pool,
+#ch-email:checked ~ .bgrid .tr-email,
+#ch-rag:checked ~ .bgrid .tr-rag,
+#ch-speech:checked ~ .bgrid .tr-speech {
+  display: none;
+}
+#ch-pool:focus-visible ~ .bgrid .tr-pool,
+#ch-email:focus-visible ~ .bgrid .tr-email,
+#ch-rag:focus-visible ~ .bgrid .tr-rag,
+#ch-speech:focus-visible ~ .bgrid .tr-speech {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+#ch-pool:focus-visible ~ .bgrid .channel.pool .chead,
+#ch-email:focus-visible ~ .bgrid .channel.email .chead,
+#ch-rag:focus-visible ~ .bgrid .channel.rag .chead,
+#ch-speech:focus-visible ~ .bgrid .channel.speech .chead {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+.chips {
+  display: none;
+}
+.tape {
+  padding: 16px 0 16px 0;
+  font: 400 12.5px/1.45 var(--mono);
+  color: var(--muted);
+}
+.tape-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tape h3 {
+  margin: 0 0 4px;
+  font: 500 12px var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.tape button,
+.inspector button {
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: 400 12px var(--mono);
+  text-decoration: underline;
+  cursor: pointer;
+  min-height: 44px;
+}
+.tape .ref {
+  margin: 0 0 10px;
+  font: 400 12px var(--mono);
+}
+.visitor-ref {
+  display: none;
+}
+#ch-email:checked ~ .bgrid .pool-ref,
+#ch-rag:checked ~ .bgrid .pool-ref,
+#ch-speech:checked ~ .bgrid .pool-ref {
+  display: none;
+}
+#ch-email:checked ~ .bgrid .visitor-ref,
+#ch-rag:checked ~ .bgrid .visitor-ref,
+#ch-speech:checked ~ .bgrid .visitor-ref {
+  display: inline;
+}
+.visitor-entries,
+.recorded-entries {
+  list-style: none;
+}
+.recorded-entries {
+  border-top: 1px solid var(--rule);
+}
+.ent {
+  display: grid;
+  grid-template-columns: 25px 1fr;
+  gap: 8px;
+  padding: 9px 0;
+  border-top: 1px solid var(--rule);
+}
+.recorded-entries .ent:first-child {
+  border-top: 0;
+}
+.ent b {
+  display: block;
+  font: 500 13px var(--mono);
+  color: var(--text);
+}
+.ent div > span:not(.tag) {
+  display: block;
+}
+.ent .tag {
+  margin-top: 4px;
+}
+.ent.rec b {
+  color: var(--muted);
+}
+.entry-index {
+  font: 400 12px var(--mono);
+  color: var(--muted);
+}
+.entry-limit {
+  color: var(--accent);
+  font: 400 12px var(--mono);
+}
+.bench .empty {
+  padding: 12px 0;
+  border-top: 1px dashed var(--rule);
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.inspector {
+  border-top: 1px solid var(--rule);
+  padding: 20px 0 26px;
+}
+.inspector[hidden] {
+  display: none;
+}
+.inspector [hidden] {
+  display: none;
+}
+.inspector-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.inspector h3 {
+  font-size: 30px;
+}
+.inspector dl {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 14px 24px;
+  margin: 14px 0 0;
+  font-size: 15px;
+}
+.inspector dt {
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.inspector dd {
+  margin: 0;
+  max-width: 64ch;
+}
+.inspector dd p {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 8px;
+}
+.inspector .source {
+  font: 400 12px var(--mono);
+}
+.speech-stage {
+  padding: 22px 0 30px;
+  min-width: 0;
+}
+.speech-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+  margin-bottom: 8px;
+}
+.speech-top > span {
+  white-space: nowrap;
+}
+.speech-presets {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.speech-presets button {
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+  padding: 3px 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.speech-presets button[aria-pressed='true'] {
+  color: var(--text);
+  border-color: var(--text);
+}
+.speech-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.speech-line-width {
+  width: max(100%, 82ch);
+  font: 400 16px var(--mono);
+}
+.speech-line-width input {
+  display: block;
+  width: 100%;
+  height: 44px;
+  border: 0;
+  border-top: 1px solid #4a4c50;
+  border-bottom: 1px solid #4a4c50;
+  border-radius: 0;
+  padding: 0;
+  outline-offset: -3px;
+  background-color: #14161a;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(1ch - 1px),
+    rgba(236, 233, 225, 0.09) calc(1ch - 1px) 1ch
+  );
+  color: var(--text);
+  font: 400 16px/44px var(--mono);
+  white-space: pre;
+}
+.speech-brackets {
+  position: relative;
+  height: 64px;
+  font: 400 11px var(--mono);
+}
+.speech-bracket {
+  position: absolute;
+  top: 6px;
+  height: 8px;
+  border: 1.5px solid #6b6c6a;
+  border-top: 0;
+  display: block;
+}
+.speech-bracket > span {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  white-space: nowrap;
+  font: 400 11px var(--mono);
+}
+.speech-bracket-button .speech-bracket > span {
+  top: 26px;
+}
+.speech-limit {
+  position: absolute;
+  left: 0;
+  top: 48px;
+  color: var(--accent);
+  white-space: nowrap;
+  font: 400 11px var(--mono);
+}
+.speech-bracket.kept {
+  border-color: var(--verified);
+}
+.speech-bracket.kept > span {
+  color: var(--verified);
+}
+.speech-bracket.invalid {
+  border-color: var(--invalid);
+  border-style: dashed;
+}
+.speech-bracket.invalid > span {
+  color: var(--invalid);
+}
+.speech-bracket.invalid > span {
+  font-size: 10px;
+}
+.speech-bracket.muted > span {
+  color: var(--muted);
+}
+.speech-bracket-button {
+  position: absolute;
+  top: 0;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+.speech-bracket-button .speech-bracket {
+  pointer-events: none;
+}
+.speech-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 24px;
+  margin-top: 6px;
+}
+.speech-table {
+  min-width: 0;
+  border-top: 1px solid var(--rule);
+  font: 400 12.5px var(--mono);
+}
+.speech-tr {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.25fr) 30px;
+  align-items: center;
+  min-height: 33px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+}
+.speech-tr span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.speech-tr.speech-header {
+  min-height: 26px;
+  color: #85857f;
+  font-size: 11px;
+}
+.speech-tr.edited {
+  background: color-mix(in srgb, var(--verified) 8%, transparent);
+}
+.speech-tr.omitted {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6px;
+  color: var(--invalid);
+  background: repeating-linear-gradient(135deg, rgba(242, 141, 123, 0.16) 0 2px, transparent 2px 7px);
+}
+.speech-status {
+  display: none;
+}
+.speech-readout {
+  padding-top: 6px;
+}
+.speech-number {
+  white-space: nowrap;
+  font: 500 64px/1 var(--mono);
+  letter-spacing: -0.03em;
+  color: var(--invalid);
+}
+.speech-number.all-kept {
+  color: var(--text);
+}
+.speech-word {
+  font: 400 28px var(--serif);
+  margin-top: 4px;
+}
+.speech-explain {
+  font: 400 13px var(--mono);
+  color: var(--muted);
+  margin-top: 2px;
+}
+.speech-inspector .speech-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+.speech-inspector .speech-tabs button {
+  text-decoration: none;
+  padding: 0 10px;
+}
+.speech-inspector .speech-tabs button[aria-pressed='true'] {
+  border-bottom: 2px solid var(--accent);
+}
+.speech-inspector dl[hidden] {
+  display: none;
+}
+.rag-stage {
+  padding: 22px 0 24px;
+  min-width: 0;
+}
+.rag-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.rag-top > span {
+  white-space: nowrap;
+}
+.rag-chips {
+  display: flex;
+  gap: 6px;
+}
+.rag-chips button {
+  min-height: 44px;
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--muted);
+  padding: 3px 8px;
+  font: 400 12px var(--mono);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.rag-chips button[aria-pressed='true'] {
+  color: var(--text);
+  border-color: var(--text);
+}
+.rag-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.rag-art.mobile {
+  display: none;
+}
+.rag-svg text.rag-tick {
+  font-size: 11px;
+}
+.rag-svg text.rag-threshold {
+  fill: var(--accent);
+  font-size: 14px;
+}
+.rag-svg text.rag-query {
+  font-size: 12px;
+}
+.rag-svg text.rag-score {
+  font: 500 96px var(--mono);
+  letter-spacing: -0.03em;
+  fill: var(--partial);
+}
+.rag-svg text.rag-score.accepted {
+  fill: var(--text);
+}
+.rag-svg text.rag-word {
+  font: 400 28px var(--serif);
+  fill: var(--text);
+}
+.rag-svg text.rag-equation {
+  font-size: 13px;
+}
+.rag-svg text.rag-route-label {
+  font-size: 11px;
+}
+.rag-svg text.rag-repair-copy {
+  font-size: 12px;
+}
+.rag-svg text.rag-limit {
+  fill: var(--accent);
+  font-size: 11px;
+}
+.rag-svg [role='slider'] {
+  cursor: ew-resize;
+  outline: none;
+}
+.rag-svg [role='slider']:focus-visible .rag-hit {
+  stroke: var(--accent);
+  stroke-width: 2px;
+}
+.rag-assumption {
+  margin: 0;
+  font: 400 12px var(--mono);
+  color: var(--muted);
+}
+.rag-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+.rag-tabs button {
+  text-decoration: none;
+  padding: 0 10px;
+}
+.rag-tabs button[aria-pressed='true'] {
+  border-bottom: 2px solid var(--accent);
+}
+.rag-inspector dl[hidden] {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bench svg .readout {
+    transition: opacity 160ms;
+  }
+  .bench svg .wall-ring.pulse {
+    animation: bench-pulse 600ms 1;
+  }
+  .bench svg .new-pool .pool-letter {
+    animation: bench-in 220ms 1;
+  }
+}
+@keyframes bench-pulse {
+  50% {
+    opacity: 1;
+    stroke-width: 3;
+  }
+}
+@keyframes bench-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 860px) {
+  .rag-top {
+    display: block;
+  }
+  .rag-top > span {
+    white-space: normal;
+  }
+  .rag-chips {
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .rag-art.desktop {
+    display: none;
+  }
+  .rag-art.mobile {
+    display: block;
+  }
+  .rag-svg text.rag-score {
+    font-size: 48px;
+  }
+  .rag-svg text.rag-word.mobile-word {
+    font-size: 16px;
+  }
+  .rag-svg text.rag-equation {
+    font-size: 10px;
+  }
+  .rag-svg text.rag-repair-copy {
+    font-size: 8.5px;
+  }
+  .rag-svg text.rag-query {
+    font-size: 8px;
+  }
+  .speech-top {
+    display: block;
+  }
+  .speech-top > span {
+    white-space: normal;
+  }
+  .speech-presets {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+  .speech-results {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .speech-tr {
+    grid-template-columns: minmax(100px, 1fr) 110px 70px;
+  }
+  .speech-tr span:nth-child(3),
+  .speech-tr span:nth-child(4),
+  .speech-tr span:nth-child(5) {
+    display: none;
+  }
+  .speech-tr .speech-status {
+    display: block;
+  }
+  .speech-readout {
+    padding: 10px 0 20px;
+  }
+  .bgrid {
+    grid-template-columns: 1fr;
+  }
+  .stagecol {
+    padding: 14px 0 0;
+  }
+  .tape {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+    padding: 14px 0;
+  }
+  .tesla-svg.desktop {
+    display: none;
+  }
+  .tesla-svg.mobile {
+    display: block;
+  }
+  .traces {
+    display: none;
+  }
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-bottom: 1px solid var(--rule);
+  }
+  .chips label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 8px 2px;
+    text-align: center;
+    border-right: 1px solid var(--rule);
+    font: 500 12px var(--sans);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .chips label:last-child {
+    border-right: 0;
+  }
+  #ch-pool:checked ~ .chips label[for='ch-pool'],
+  #ch-email:checked ~ .chips label[for='ch-email'],
+  #ch-rag:checked ~ .chips label[for='ch-rag'],
+  #ch-speech:checked ~ .chips label[for='ch-speech'] {
+    color: var(--text);
+    box-shadow: inset 0 -2px var(--accent);
+  }
+  #ch-pool:focus-visible ~ .chips label[for='ch-pool'],
+  #ch-email:focus-visible ~ .chips label[for='ch-email'],
+  #ch-rag:focus-visible ~ .chips label[for='ch-rag'],
+  #ch-speech:focus-visible ~ .chips label[for='ch-speech'] {
+    outline: 2px solid var(--accent);
+    outline-offset: -3px;
+  }
+  .bench svg .code {
+    font-size: 66px;
+    letter-spacing: -0.02em;
+  }
+  .bench svg .code.over-code {
+    font-size: 36px;
+  }
+  .bench svg .word {
+    font-size: 24px;
+  }
+  .bench svg .equation {
+    font-size: 11.5px;
+  }
+  .bench svg .committed {
+    font-size: 11.5px;
+  }
+  .inspector dl {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .inspector dd {
+    margin-bottom: 12px;
+  }
+}
+
+/* Email channel: quiet by design, validation is executed and the checker is recorded only. */
+.email-stage {
+  display: block;
+}
+.email-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 10px;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.email-top select,
+.email-field select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--text);
+  font: 400 12px var(--mono);
+}
+.email-grid {
+  display: grid;
+  grid-template-columns: 300px 130px minmax(0, 1fr);
+  border-top: 1px solid var(--rule);
+}
+.email-builder {
+  display: grid;
+  gap: 12px;
+  padding: 14px 18px 14px 0;
+  border-right: 1px solid var(--rule);
+}
+.email-field > span {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--muted);
+  font: 400 11px var(--mono);
+}
+.email-field textarea {
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  color: var(--text);
+  font: 400 15px/1.4 var(--sans);
+  resize: none;
+}
+.email-fact {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+}
+.email-fact input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: 400 14px var(--sans);
+}
+.email-fact button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: 400 18px var(--mono);
+  cursor: pointer;
+}
+.email-add {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: 400 12px var(--mono);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.email-gate {
+  display: block;
+  align-self: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.email-gate svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.email-gate svg text {
+  fill: var(--muted);
+  font: 400 11px var(--mono);
+}
+.email-gate .gate-bad {
+  stroke: var(--invalid);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.email-checker {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 120px;
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px dashed color-mix(in srgb, var(--muted) 55%, transparent);
+  background-color: color-mix(in srgb, var(--surface) 40%, transparent);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.email-checker-label {
+  color: var(--text);
+  font: 500 13px var(--mono);
+}
+.email-checker-label small {
+  display: block;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.checker-lines .main {
+  display: block;
+  font: 500 14px var(--mono);
+}
+.checker-lines .sub {
+  display: block;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.checker-lines.asks .main {
+  color: var(--accent);
+}
+.checker-lines.miss .main {
+  color: var(--invalid);
+}
+.checker-lines.idle .main {
+  color: var(--muted);
+  font-weight: 400;
+}
+.email-limit {
+  color: var(--accent);
+  font: 400 12px var(--mono);
+}
+.email-limit::before {
+  content: '';
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.5rem;
+  background: currentColor;
+  transform: rotate(45deg) scale(0.85);
+}
+.email-readout {
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.email-number {
+  font: 500 64px/1 var(--mono);
+  letter-spacing: -0.03em;
+}
+.email-number.ok {
+  color: var(--text);
+}
+.email-number.bad {
+  color: var(--invalid);
+}
+.email-word {
+  margin-top: 4px;
+  font: 400 28px var(--serif);
+}
+.email-explain {
+  margin-top: 4px;
+  color: var(--muted);
+  font: 400 13px var(--mono);
+}
+.email-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+.email-tabs button[aria-pressed='true'] {
+  border-color: var(--text);
+  color: var(--text);
+}
+@media (max-width: 860px) {
+  .email-grid {
+    grid-template-columns: 1fr;
+  }
+  .email-builder {
+    padding-right: 0;
+    border-right: 0;
+  }
+  .email-gate {
+    width: 150px;
+    margin: 0 auto;
+  }
+  .email-checker {
+    min-height: 0;
+    margin: 0 0 14px;
+  }
+}
+.email-top select {
+  flex: 0 1 360px;
+  min-width: 0;
+  width: 100%;
+  text-overflow: ellipsis;
+}
+@media (max-width: 860px) {
+  .email-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .email-top select {
+    flex: none;
+  }
+}
+
+/* Chapters: the bench stays pinned while the projects scroll beside it. */
+.sidecol {
+  min-width: 0;
+  padding-left: 22px;
+  border-left: 1px solid var(--rule);
+}
+.chapters {
+  margin-top: 8px;
+}
+.chapter {
+  min-height: calc(100vh - 160px);
+  padding: 28px 0 40px;
+  border-top: 1px solid var(--rule);
+  scroll-margin-top: 80px;
+}
+.chapter .csub {
+  margin: 6px 0 14px;
+  color: var(--muted);
+  font: 400 16px/1.45 var(--sans);
+}
+.cblock {
+  margin: 0 0 14px;
+}
+.cblock p {
+  margin: 0;
+}
+.operate {
+  display: none;
+}
+.routemap {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.routemap li {
+  position: relative;
+  padding-left: 18px;
+  border-left: 1px solid var(--rule);
+}
+.routemap details {
+  min-height: 44px;
+}
+.routemap summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  align-items: baseline;
+  min-height: 44px;
+  padding: 6px 0;
+  cursor: pointer;
+  list-style: none;
+}
+.routemap summary::-webkit-details-marker {
+  display: none;
+}
+.routemap summary i {
+  position: absolute;
+  left: -5px;
+  width: 9px;
+  height: 9px;
+  margin-top: 8px;
+  border: 1.5px solid var(--text);
+  border-radius: 50%;
+  background: var(--paper);
+}
+.routemap details[open] > summary i {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.rm-label {
+  font: 500 15px var(--sans);
+  grid-column: 1 / -1;
+}
+.rm-role {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font: 400 14px/1.4 var(--sans);
+}
+.rm-body {
+  padding: 0 0 10px;
+}
+.rm-body p {
+  margin: 0 0 6px;
+  font: 400 14px/1.5 var(--sans);
+}
+.rm-more summary {
+  display: block;
+  min-height: 44px;
+  color: var(--text);
+  font: 400 12px var(--mono);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rm-more dl {
+  margin: 0 0 6px;
+}
+.rm-more dt {
+  margin-top: 8px;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.rm-more dd {
+  margin: 2px 0 0;
+  font: 400 14px/1.5 var(--sans);
+}
+.rm-more dd p {
+  margin: 0 0 4px;
+}
+.rm-more .source {
+  font: 400 12px var(--mono);
+}
+.rm-show {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: 400 12px var(--mono);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.clinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 10px 0 0;
+}
+.clinks a,
+.chapters .all a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--text);
+  text-underline-offset: 3px;
+}
+.chapters .all {
+  margin: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+}
+
+/* What you tested */
+.bench-end {
+  padding: 28px 0 56px;
+  border-top: 1px solid var(--rule);
+}
+.bench-end h3 {
+  margin: 0 0 10px;
+  font: 400 28px/1.15 var(--serif);
+}
+.end-empty,
+.end-summary {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font: 400 13px var(--mono);
+}
+.end-list {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.end-list li {
+  display: flex;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid var(--rule);
+  font: 400 12.5px/1.45 var(--mono);
+  color: var(--muted);
+}
+.end-list b {
+  display: block;
+  color: var(--text);
+  font-weight: 500;
+}
+.end-list .limit-flag {
+  display: block;
+  color: var(--accent);
+}
+.end-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+}
+.end-copy {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: 400 12px var(--mono);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.end-copied {
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+
+/* The inspector is a drawer, so it is reachable at any scroll position. */
+.inspector {
+  position: fixed;
+  top: 64px;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  width: min(440px, 100vw);
+  padding: 20px 24px 28px;
+  overflow: auto;
+  border-top: 0;
+  border-left: 1px solid var(--rule);
+  background: var(--paper);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .inspector {
+    animation: drawer-in 220ms var(--ease);
+  }
+}
+@keyframes drawer-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+
+@media (min-width: 1000px) {
+  /* Pinned only when scripts can keep it in step with the chapters. */
+  .bench[data-live] .stagecol {
+    position: sticky;
+    z-index: 20;
+    top: 20px;
+    align-self: start;
+    max-height: calc(100vh - 36px);
+    overflow-y: auto;
+  }
+}
+@media (max-width: 999px) {
+  .sidecol {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .chapter {
+    min-height: 0;
+  }
+  .operate {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text);
+    font: 400 12px var(--mono);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+}
+@media (max-width: 860px) {
+  .inspector {
+    top: auto;
+    width: 100%;
+    max-height: 78vh;
+    border-top: 1px solid var(--rule);
+    border-left: 0;
+  }
+  .chips {
+    position: sticky;
+    top: 64px;
+    z-index: 20;
+    background: var(--paper);
+  }
+}
+
+/* Short viewports: the thin traces collapse to a one row channel switcher so the pinned stage never overflows. */
+@media (min-width: 861px) and (max-height: 1040px) {
+  .traces {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--rule);
+  }
+  .traces .tr {
+    display: block;
+    height: auto;
+    min-height: 48px;
+    padding: 8px 10px 8px 0;
+    border-bottom: 0;
+  }
+  .traces .tr svg,
+  .traces .tr .flag {
+    display: none;
+  }
+}
+
+/* Research channel: public mechanics only, with the withheld region designed as part of the page. */
+#ch-research:checked ~ .bgrid .channel.research {
+  display: block;
+}
+#ch-research:checked ~ .bgrid .tr-research {
+  display: none;
+}
+#ch-research:focus-visible ~ .bgrid .tr-research,
+#ch-research:focus-visible ~ .bgrid .channel.research .chead {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+.chips[style*='--n'] {
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+}
+.research-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 0;
+  margin-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.research-toy {
+  padding: 14px 18px 14px 0;
+  border-right: 1px solid var(--rule);
+}
+.research-label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.research-tr {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  align-items: center;
+  min-height: 34px;
+  border-bottom: 1px solid var(--rule);
+  font: 400 13px var(--mono);
+}
+.research-head {
+  color: #85857f;
+  font-size: 11px;
+}
+.research-tr.is-off [data-research-merged] {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.research-alpha {
+  display: block;
+  margin: 14px 0 6px;
+  font: 400 12px var(--mono);
+  color: var(--muted);
+}
+.research-alpha b {
+  color: var(--text);
+  font-weight: 500;
+}
+.research-alpha input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--accent);
+}
+.research-mask {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: 400 12px var(--mono);
+  color: var(--muted);
+}
+.research-mask legend {
+  padding: 0;
+  margin-bottom: 2px;
+}
+.research-mask label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--text);
+}
+.research-mask input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+.research-formula {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font: 400 12px var(--mono);
+}
+.research-sealed {
+  padding: 18px 0 18px 22px;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--muted) 10%, transparent) 0 2px,
+    transparent 2px 8px
+  );
+  color: var(--muted);
+  font: 400 13px/1.5 var(--mono);
+}
+.research-sealed-title {
+  margin: 0 0 8px;
+  color: var(--text);
+  font: 400 28px var(--serif);
+}
+.research-sealed ul {
+  margin: 0 0 12px;
+  padding-left: 18px;
+}
+@media (max-width: 860px) {
+  .research-grid {
+    grid-template-columns: 1fr;
+  }
+  .research-toy {
+    padding-right: 0;
+    border-right: 0;
+  }
+  .research-sealed {
+    padding-left: 12px;
+  }
+}
+
+/* Drawer content: a single column so labels never collide with the page behind. */
+.inspector dl,
+.inspector dl[hidden] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.inspector dl:not([hidden]) {
+  display: grid;
+}
+.inspector dt {
+  margin-top: 14px;
+}
+.inspector dd {
+  max-width: none;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+.inspector dd p {
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+/* Phase 14R-C: chapter identity, beats, apparatus details and discovery payoffs. */
+.chapter {
+  min-height: 0;
+  padding: 0 0 28px;
+  border-top: 0;
+  scroll-margin-top: 20px;
+}
+.chapter + .chapter {
+  margin-top: 8px;
+}
+.cid {
+  position: sticky;
+  top: 20px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0 8px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+}
+.cid p {
+  margin: 0;
+}
+.cid-title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ctitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 500 14px/1.25 var(--sans);
+}
+.cid-mech {
+  color: var(--muted);
+  font: 400 11px var(--mono);
+}
+.cid-beat {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+.cid-beat-name {
+  color: var(--muted);
+  font: 400 11px var(--mono);
+}
+.cid-ticks {
+  display: flex;
+  gap: 4px;
+}
+.cid-ticks i {
+  display: block;
+  width: 14px;
+  height: 2px;
+  background: var(--rule);
+}
+.cid-ticks i.on {
+  background: var(--accent);
+}
+.cblock {
+  min-height: 112px;
+  padding: 20px 0 6px;
+}
+.chapter h3.cq {
+  margin: 0 0 8px;
+  font: 400 30px/1.12 var(--serif);
+}
+.chapter .csub {
+  margin: 0 0 14px;
+}
+.chapter .operate {
+  display: none;
+}
+
+/* The bench as one object: a measurement edge and registration marks. */
+.bench::before {
+  content: '';
+  display: block;
+  height: 7px;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--text) 20%, transparent) 0 1px,
+    transparent 1px 12px
+  );
+}
+.stagecol .channel {
+  position: relative;
+}
+.stagecol .channel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background:
+    linear-gradient(var(--muted), var(--muted)) left top / 14px 1px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) left top / 1px 14px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) right top / 14px 1px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) right top / 1px 14px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) left bottom / 14px 1px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) left bottom / 1px 14px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) right bottom / 14px 1px no-repeat,
+    linear-gradient(var(--muted), var(--muted)) right bottom / 1px 14px no-repeat;
+}
+.tape .recorded-entries {
+  border-top: 1px dashed var(--rule);
+}
+
+/* Tesla payoff: the wall breaks where the block crosses it, with one annotation. */
+.bench svg .wall-breach {
+  fill: none;
+  stroke: var(--invalid);
+  stroke-width: 4;
+  stroke-dasharray: 7 6;
+}
+.bench svg .annotation {
+  fill: var(--text);
+  font: 400 12px var(--mono);
+}
+
+/* Extraction payoff: a success that is wrong looks like the failure it is. */
+.speech-number.blind {
+  color: var(--invalid);
+}
+.speech-tr.misread {
+  background: color-mix(in srgb, var(--invalid) 12%, transparent);
+  color: var(--text);
+}
+.speech-tr.misread .speech-status {
+  color: var(--invalid);
+}
+
+/* What you tested */
+.end-group {
+  margin: 14px 0 4px;
+  color: var(--text);
+  font: 500 13px var(--sans);
+}
+.end-list > li > ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.end-controls {
+  margin: 0 0 10px;
+}
+.end-controls[hidden] {
+  display: none;
+}
+.end-controls p:not(.end-group) {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font: 400 13px/1.45 var(--sans);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .visitor-entries li:first-child {
+    animation: entry-in 160ms var(--ease);
+  }
+  .cid-ticks i {
+    transition: background-color 160ms var(--ease);
+  }
+}
+@keyframes entry-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 999px) {
+  .cid {
+    top: 112px;
+  }
+  .chapter .operate {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    min-height: 44px;
+    margin: -6px 0 -6px 8px;
+    padding: 0;
+    font: 400 11px var(--mono);
+  }
+  .chapter .cid-beat {
+    display: none;
+  }
+}
+
+/* Chapter text: same words, easier to scan. A big index and question, numbered beats, and the three beats a
+   recruiter looks for (decision, evidence, limitation) given their own treatment. */
+.chapter {
+  counter-reset: beat;
+}
+.cidx {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--accent);
+  font: 500 12px var(--mono);
+  letter-spacing: 0.14em;
+}
+.cidx::after {
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  margin-left: 12px;
+  background: var(--accent);
+  vertical-align: middle;
+}
+.chapter h3.cq {
+  margin-bottom: 14px;
+  font-size: clamp(2.1rem, 3.3vw, 2.9rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.chapter .csub {
+  color: var(--text);
+  font-size: 1.06rem;
+  opacity: 0.86;
+}
+.cblock h4 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+  color: var(--accent);
+  font: 500 11px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.cblock h4::before {
+  content: counter(beat);
+  counter-increment: beat;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+.cblock p {
+  font-size: 1.06rem;
+  line-height: 1.55;
+}
+.rm-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.chapter:not([data-chapter='research']) .cblock[data-beat='2'] p {
+  padding-left: 16px;
+  border-left: 2px solid var(--accent);
+  font: 400 clamp(1.3rem, 1.9vw, 1.6rem) / 1.3 var(--serif);
+}
+.chapter:not([data-chapter='research']) .cblock[data-beat='3'] p {
+  padding: 14px 16px;
+  border-left: 2px solid var(--verified);
+  background: color-mix(in srgb, var(--verified) 8%, transparent);
+}
+.chapter:not([data-chapter='research']) .cblock[data-beat='4'] p:not(.clinks) {
+  padding: 12px 16px;
+  border-left: 2px dashed var(--invalid);
+  background: repeating-linear-gradient(135deg, rgba(242, 141, 123, 0.07) 0 2px, transparent 2px 8px);
+}
+.clinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 18px;
+}
+.clinks .btn {
+  text-decoration: none;
+}
+
+/* The steps are buttons, so they look like buttons: a bordered row, a plus that turns into a minus, a hover state. */
+.rm-hint {
+  margin: 0 0 8px !important;
+  color: var(--muted);
+  font: 400 12px var(--mono) !important;
+}
+.rm-hint::before {
+  content: '\2193  ';
+  color: var(--accent);
+}
+.routemap li {
+  padding-bottom: 4px;
+}
+.routemap summary {
+  position: relative;
+  grid-template-columns: 1fr;
+  margin: 2px 0;
+  padding: 10px 46px 10px 14px;
+  border: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  transition:
+    border-color 120ms var(--ease),
+    background-color 120ms var(--ease);
+}
+.routemap summary:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.routemap summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.routemap summary::after {
+  content: '+';
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  color: var(--text);
+  font: 400 18px/1 var(--mono);
+  transform: translateY(-50%);
+}
+.routemap summary:hover::after {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.routemap details[open] > summary {
+  border-color: var(--accent);
+}
+.routemap details[open] > summary::after {
+  content: '\2212';
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.routemap .rm-body {
+  padding: 8px 14px 12px;
+}
+.routemap .rm-more summary {
+  padding: 0;
+  border: 0;
+  background: none;
+  margin: 0;
+}
+.routemap .rm-more summary::after {
+  content: none;
+}
+
+/* Sticky project identity: the one label that stays on screen while a chapter is read, so it is made to be seen. */
+.cid {
+  gap: 14px;
+  justify-content: flex-start;
+  padding: 12px 0 11px;
+  border-top: 2px solid var(--accent);
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--bg) 94%, var(--accent));
+  box-shadow: 0 10px 14px -12px rgba(0, 0, 0, 0.9);
+}
+.cid-n {
+  flex: none;
+  color: var(--accent);
+  font: 500 30px/1 var(--mono);
+  letter-spacing: -0.04em;
+}
+.cid-title {
+  flex: 1;
+  min-width: 0;
+}
+.ctitle {
+  font: 600 clamp(1.05rem, 1.5vw, 1.3rem) / 1.2 var(--sans);
+  letter-spacing: -0.005em;
+}
+.cid-mech {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font: 500 11px var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cid-beat {
+  margin-left: auto;
+  gap: 7px;
+}
+.cid-beat-name {
+  color: var(--text);
+  font: 500 12px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cid-ticks i {
+  width: 22px;
+  height: 3px;
+}
+@media (max-width: 999px) {
+  .cid-n {
+    font-size: 22px;
+  }
+  .ctitle {
+    font-size: 1rem;
+  }
+}
+
+/* The title wraps instead of being cut off, and the beat progress gets its own line. */
+.cid {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  row-gap: 8px;
+}
+.ctitle {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+.cid-beat {
+  flex: 1 0 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule);
+}
+@media (max-width: 999px) {
+  .cid {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+}
+
+/* Cover the strip above the pinned header so chapter text does not show through it. */
+@media (min-width: 1000px) {
+  .cid {
+    box-shadow:
+      0 -20px 0 0 var(--paper),
+      0 10px 14px -12px rgba(0, 0, 0, 0.9);
+  }
+}
+
+/* Phone fixes. The stage header takes two rows (title, then the controls) instead of squeezing the title into three
+   lines; the provenance tag may wrap; standalone links get a larger hit area that does not move the layout. */
+@media (max-width: 699px) {
+  .chead {
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 4px;
+  }
+  .chead > div:first-child {
+    flex: 1 0 100%;
+  }
+  .chead .header-inspect {
+    margin-left: 0;
+  }
+  .provenance {
+    max-width: none;
+  }
+  .provenance .tag {
+    white-space: normal;
+  }
+  .provenance summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    min-height: 36px;
+    align-items: center;
+  }
+}
+@media (max-width: 899px) {
+  :where(main a, footer a, header a.mark):not(.btn):not(.tr):not(.skip):not(.rm-show) {
+    padding-block: 12px;
+  }
+}
+
+/* Narrow desktops: control rows wrap instead of running past the stage. */
+@media (max-width: 1179px) {
+  .rag-top,
+  .speech-top,
+  .email-top {
+    flex-wrap: wrap;
+  }
+  .speech-presets {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+/* Story flow. The active chapter lights its header; the stage hands over from one system to the next (the outgoing
+   diagram lifts away as a ghost, the incoming one rises in, its parts staggered); each chapter ends by pointing at
+   the next system. All of it is skipped for reduced motion, and nothing animates on first load. */
+.chapter .cid {
+  border-top-color: var(--rule);
+  transition: border-top-color 360ms var(--ease);
+}
+.chapter .cid-n {
+  color: var(--muted);
+  transition: color 360ms var(--ease);
+}
+.chapter.is-active .cid {
+  border-top-color: var(--accent);
+}
+.chapter.is-active .cid-n {
+  color: var(--accent);
+}
+.stagecol {
+  position: relative;
+}
+.stagecol > .channel.ghost {
+  position: absolute;
+  top: 16px;
+  right: 28px;
+  left: 0;
+  display: block;
+  pointer-events: none;
+}
+.cnext {
+  margin: 34px 0 0;
+}
+.cnext a {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 14px;
+  align-items: baseline;
+  padding: 14px 0 12px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--text);
+  text-decoration: none;
+}
+.cnext-k {
+  grid-column: 1 / -1;
+  color: var(--accent);
+  font: 500 11px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.cnext-q {
+  font: 400 1.25rem / 1.2 var(--serif);
+}
+.cnext-a {
+  color: var(--accent);
+  font: 400 1.4rem var(--mono);
+  transition: transform 220ms var(--ease);
+}
+.cnext a:hover .cnext-a,
+.cnext a:focus-visible .cnext-a {
+  transform: translateX(6px);
+}
+.cnext a:hover {
+  border-color: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html[data-stage-moved] .stagecol > .channel:not(.ghost) {
+    animation: stage-in 460ms var(--ease) both;
+  }
+  html[data-stage-moved] .stagecol > .channel:not(.ghost) .chead {
+    animation: rise 380ms var(--ease) 60ms both;
+  }
+  html[data-stage-moved] .stagecol > .channel:not(.ghost) > :not(.chead, .notes-layer) {
+    animation: rise 460ms var(--ease) 150ms both;
+  }
+  html[data-stage-moved] .stagecol > .channel:not(.ghost) .notes-layer {
+    animation: notes-wait 700ms linear both;
+  }
+  .stagecol > .channel.ghost {
+    animation: stage-out 260ms var(--ease) both;
+  }
+}
+@keyframes notes-wait {
+  0%,
+  70% {
+    opacity: 0.001;
+  }
+}
+@keyframes stage-in {
+  from {
+    transform: translateY(10px);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0.001;
+    transform: translateY(16px);
+  }
+}
+@keyframes stage-out {
+  to {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+}
+
+/* The pinned chapter header is a card: its content gets room from the edges instead of touching them. */
+.cid {
+  padding: 14px 16px 13px;
+}
+@media (max-width: 520px) {
+  .cid {
+    padding-inline: 14px;
+  }
+}
+
+/* Accessibility: keyboard focus must never land under the sticky chapter identity or chips. Focusable elements in the
+   chapter column scroll to just below them (desktop: 20px plus an identity up to about 160px; phones: navbar gap, chips
+   and identity). The stage gets no margin: on desktop it is pinned and always in view, and its controllers re-focus a
+   control after each change, so a margin there would scroll the page on every keystroke. */
+.sidecol
+  :where(
+    a[href],
+    button,
+    summary,
+    input:not(.channel-radio):not(.flow-radio),
+    select,
+    textarea,
+    [tabindex],
+    [role='button'],
+    [role='slider']
+  ) {
+  scroll-margin-top: 215px;
+}
+/* On a short or heavily zoomed viewport the sticky identity and chips would cover most of the screen (400 percent zoom
+   is about 256px tall), so they scroll with the page there. */
+@media (max-height: 599px) {
+  .chips,
+  .chapter .cid {
+    position: static;
+    box-shadow: none;
+  }
+  .sidecol
+    :where(
+      a[href],
+      button,
+      summary,
+      input:not(.channel-radio):not(.flow-radio),
+      select,
+      textarea,
+      [tabindex],
+      [role='button'],
+      [role='slider']
+    ) {
+    scroll-margin-top: 84px;
+  }
+}
+
+/* Without scripts the Bench cannot be operated: say so, and keep the controls that need scripts out of sight and out of the tab order until the scripts have run (visibility keeps the layout steady). */
+.nojs-note {
+  margin: 0 0 12px;
+  max-width: 70ch;
+  color: var(--muted);
+}
+.bench:not([data-live]) :is(.header-inspect, .reset) {
+  visibility: hidden;
+}
+
+/* Forced colors drop box-shadows and fills, so the active system is marked with the system selection colors. */
+@media (forced-colors: active) {
+  #ch-pool:checked ~ .chips label[for='ch-pool'],
+  #ch-email:checked ~ .chips label[for='ch-email'],
+  #ch-rag:checked ~ .chips label[for='ch-rag'],
+  #ch-speech:checked ~ .chips label[for='ch-speech'] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* Phase 18, phones. Sticky stack: the system chips sit at the very top (the navbar overlays them only while it is shown,
+   on scroll up) and the chapter identity sits right under them and is compact, so a phone never spends a third of its
+   height on pinned labels. The ending slides over the chips instead of hiding underneath them. */
+@media (max-width: 999px) {
+  .bench .chips {
+    top: 0;
+  }
+  .bench .chapter .cid {
+    top: 49px;
+    gap: 10px;
+    padding: 8px 14px 7px;
+  }
+  .bench .cid-n {
+    font-size: 20px;
+  }
+  .bench .ctitle {
+    font-size: 0.95rem;
+    line-height: 1.18;
+  }
+  .bench .cid-mech {
+    margin-top: 3px;
+    padding: 0 6px;
+    font-size: 10px;
+  }
+  .sidecol
+    :where(
+      a[href],
+      button,
+      summary,
+      input:not(.channel-radio):not(.flow-radio),
+      select,
+      textarea,
+      [tabindex],
+      [role='button'],
+      [role='slider']
+    ) {
+    scroll-margin-top: 150px;
+  }
+  /* Tabbing backwards onto a stage button or summary must not leave it under the sticky chips (Phase 17, R4). Only
+     buttons and summaries: the sliders and radios re-take focus while they are operated, and a margin there would
+     scroll the page on every keystroke. */
+  .stagecol .channel :where(button, summary) {
+    scroll-margin-top: 64px;
+  }
+  .bench-end {
+    position: relative;
+    z-index: 25;
+    background: var(--bg);
+  }
+  /* Each beat shows its own picture: the inspection frames, moved into the chapter by script (see chapters.ts). */
+  .cblock > .df[data-inline] {
+    display: grid;
+    margin: 16px 0 0;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    /* Twenty diagrams sit in the chapters on a phone; the ones off screen are not laid out or painted until near. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 280px;
+  }
+  .cblock > .df[data-inline] .df-art {
+    padding: 12px 10px 8px;
+  }
+}
+
+/* Touch: primary controls reach a 44px target without changing how they look. */
+@media (pointer: coarse) {
+  .flow-tabs label,
+  .chead .header-inspect,
+  .reset,
+  .inspector-head button,
+  .tape button:not([hidden]),
+  .end-copy:not([hidden]),
+  .provenance summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .provenance summary {
+    display: flex;
+  }
+}
+
+/* The inspector on a phone is a bottom sheet: it keeps its header (with Close) in view while its content scrolls, keeps
+   its scrolling to itself, and has a clear top edge. */
+@media (max-width: 860px) {
+  .inspector {
+    overscroll-behavior: contain;
+    max-height: min(78vh, 78dvh);
+    box-shadow: 0 -18px 36px -14px rgba(0, 0, 0, 0.75);
+  }
+  .inspector-head {
+    position: sticky;
+    top: -20px;
+    z-index: 1;
+    margin: -20px -24px 10px;
+    padding: 12px 24px 10px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+}
+
+/* Phone: the closing read-back stacks (system name above its tests) instead of a narrow two-column ledger, and the
+   sliders keep their drags to themselves so a horizontal drag never turns into a page scroll. */
+@media (max-width: 999px) {
+  .end-list > li {
+    display: block;
+    padding: 6px 0 8px;
+  }
+  .end-list > li > ol li {
+    padding: 6px 0;
+    border-top: 0;
+  }
+  .end-group {
+    margin: 8px 0 2px;
+  }
+}
+.bench svg [data-rag-slider] {
+  touch-action: none;
+}
+
+/* Phone: each test-log entry is two lines (what, then the result and where it came from) instead of three, so the log
+   reads as a compact tape and not a ledger. */
+@media (max-width: 999px) {
+  .tape li > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 10px;
+  }
+  .tape li > div > b {
+    flex: 1 0 100%;
+  }
+  .tape li {
+    padding-block: 7px;
+  }
+}
+
+/* Phase 19: the plain-English sentence leads the chapter; the technical statement of the same project sits under it. */
+/* Phase 19R: every chapter reads recruiter first (what goes wrong, why it matters, what it does, my part), and the
+   engineering wording sits one click beneath each plain statement. */
+.chapter .cwho {
+  margin: 0 0 16px;
+  padding: 7px 0 7px 12px;
+  border-left: 2px solid var(--rule);
+  color: var(--text);
+  font: 400 14px/1.5 var(--sans);
+  opacity: 0.9;
+}
+.chapter .cstory {
+  display: grid;
+  gap: 2px;
+  margin: 0 0 12px;
+}
+.chapter .cstory dt {
+  margin-top: 8px;
+  color: var(--muted);
+  font: 400 10.5px/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.chapter .cstory dd {
+  margin: 0;
+  color: var(--text);
+  font: 400 1rem/1.5 var(--sans);
+}
+.chapter .cdeep {
+  margin: 8px 0 14px;
+  color: var(--muted);
+}
+.chapter .cdeep > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  cursor: pointer;
+  color: var(--muted);
+  font: 400 11px/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.chapter .cdeep > summary:hover {
+  color: var(--text);
+}
+.chapter .cdeep[open] > summary {
+  color: var(--text);
+}
+.chapter .cdeep p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font: 400 13px/1.5 var(--sans);
+}
+.chapter .cdeep .cstack {
+  font: 400 12px/1.5 var(--mono);
+}
+
+.chapter .cdeep > summary::after {
+  content: '+';
+  margin-left: 4px;
+}
+.chapter .cdeep[open] > summary::after {
+  content: '-';
+}
+
+/* Phase 19R-B: the four story frames are taller than the placeholder used for the other inline frames, so they render
+   normally (content-visibility would overlap the block below them while skipped). */
+.cblock > .df.df-story[data-inline] {
+  content-visibility: visible;
+}

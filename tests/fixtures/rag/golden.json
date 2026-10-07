@@ -1,0 +1,436 @@
+{
+  "commit": "f19556672e778a503d79af854147b2697bffda48",
+  "cases": [
+    {
+      "draftScore": 0,
+      "threshold": 0.5,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.0,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.5,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.5,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.65,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.65,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.7,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.7,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.71,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.71,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.719,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.719,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.72,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.72,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.721,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.721,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.73,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.73,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.8,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.8,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 1.0,
+      "threshold": 0.5,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 1.0,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0,
+      "threshold": 0.72,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.0,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.5,
+      "threshold": 0.72,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.5,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.65,
+      "threshold": 0.72,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.65,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.7,
+      "threshold": 0.72,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.7,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.71,
+      "threshold": 0.72,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.71,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.719,
+      "threshold": 0.72,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.719,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.72,
+      "threshold": 0.72,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.72,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.721,
+      "threshold": 0.72,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.721,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.73,
+      "threshold": 0.72,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.73,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0.8,
+      "threshold": 0.72,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 0.8,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 1.0,
+      "threshold": 0.72,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 1.0,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    },
+    {
+      "draftScore": 0,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.0,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.5,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.5,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.65,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.65,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.7,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.7,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.71,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.71,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.719,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.719,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.72,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.72,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.721,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.721,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.73,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.73,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 0.8,
+      "threshold": 0.9,
+      "repaired": true,
+      "accepted": false,
+      "finalScore": 0.8,
+      "repairSearch": {
+        "top_k": 8,
+        "bm25_weight": 0.7,
+        "vector_weight": 0.3
+      },
+      "repairPruneOverlap": 2,
+      "repairTemplate": "constrained",
+      "repairTemperature": 0.1
+    },
+    {
+      "draftScore": 1.0,
+      "threshold": 0.9,
+      "repaired": false,
+      "accepted": true,
+      "finalScore": 1.0,
+      "repairSearch": null,
+      "repairPruneOverlap": null,
+      "repairTemplate": null,
+      "repairTemperature": null
+    }
+  ]
+}

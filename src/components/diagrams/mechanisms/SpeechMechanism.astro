@@ -1,0 +1,33 @@
+---
+const { id } = Astro.props;
+---
+
+<svg class="dg mech-svg" viewBox="0 0 280 112" role="img" aria-labelledby={`${id}-t ${id}-d`}>
+  <title id={`${id}-t`}>Speech and report parse that omits unparseable rows</title>
+  <desc id={`${id}-d`}>
+    Audio and a report are parsed into a table. A row whose value parses is kept with its raw line. A row
+    whose value cannot be parsed is omitted instead of guessed.
+  </desc>
+  <path class="ln" d="M4 24L12 18L20 30L28 14L36 32L44 20L52 28L60 22L68 27L84 24" />
+  <rect class="ln" x="8" y="46" width="60" height="32" />
+  <path class="mu" d="M14 55H60M14 62H52M14 69H58" />
+  <path class="ln" d="M84 24L100 40M68 62L100 50" />
+  <rect class="ln" x="100" y="34" width="46" height="24" />
+  <text class="t hi" x="123" y="50" text-anchor="middle">
+    parse
+  </text>
+  <path class="ln" d="M146 46H170" />
+  <rect class="ln" x="170" y="22" width="100" height="48" />
+  <path class="mu" d="M203 22V70M236 22V70M170 38H270M170 54H270" />
+  <rect class="speech-filled a" x="237" y="55" width="32" height="14" />
+  <g class="b">
+    <rect class="pt" x="237" y="55" width="32" height="14" />
+    <path class="mu" d="M8 87H42" />
+    <text class="t hi" x="8" y="104" text-anchor="start">
+      raw line kept
+    </text>
+    <text class="t hi" x="270" y="88" text-anchor="end">
+      unparseable row omitted
+    </text>
+  </g>
+</svg>

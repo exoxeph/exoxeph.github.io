@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.ts';
+---
+
+<Base
+  title={`Not found | ${site.name}`}
+  description="This address does not match a page on this site."
+  noindex
+>
+  <div class="wrap nf">
+    <p class="mono code">404</p>
+    <h1>No page matches this address</h1>
+    <p class="lede">
+      The request reached a state this site does not define, so nothing was changed. Try one of the pages that
+      does exist.
+    </p>
+    <div class="recorded" role="group" aria-label="Response for this request">
+      <span class="tag control">
+        <i aria-hidden="true"></i>Rejected transition
+      </span>
+      <dl class="mono">
+        <dt>Response</dt>
+        <dd>HTTP 404</dd>
+        <dt>Route</dt>
+        <dd>not defined</dd>
+        <dt>State changed</dt>
+        <dd>none</dd>
+      </dl>
+    </div>
+    <ul class="mono">
+      <li>
+        <a href="/">Home</a>
+      </li>
+      <li>
+        <a href="/work/">Work</a>
+      </li>
+      <li>
+        <a href="/about/">About</a>
+      </li>
+      <li>
+        <a href="/contact/">Contact</a>
+      </li>
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    padding-top: clamp(56px, 10vw, 140px);
+    padding-bottom: var(--s5);
+  }
+  .code {
+    color: var(--partial);
+    letter-spacing: 0.05em;
+    margin: 0 0 1rem;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 4.6vw, 3.6rem);
+    margin-bottom: 1.2rem;
+    max-width: 18ch;
+  }
+  .lede {
+    font: 400 1.25rem / 1.5 var(--serif);
+    max-width: 46ch;
+    margin: 0 0 1.6rem;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.6rem;
+    margin: 0;
+  }
+  .recorded {
+    border-top: 2px solid var(--rule-strong);
+    padding-top: 1rem;
+    margin: 0 0 1.8rem;
+    max-width: 420px;
+  }
+  .recorded dl {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    margin: 0.8rem 0 0;
+  }
+  .recorded dt,
+  .recorded dd {
+    margin: 0;
+    padding: 0.35rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .recorded dt {
+    color: var(--muted);
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+// A hand-drawn marginal note with an arrow. Two modes:
+//  - anchored (`to` given): the note is placed against a real element and its arrow is redrawn to that element's
+//    current position by src/lib/notes/place.ts, so it follows the stage as it changes;
+//  - fixed (no `to`): x/y place the note and dir picks a preset arrow, for static diagrams.
+export interface Props {
+  t: string;
+  to?: string;
+  at?: 'tl' | 'tc' | 'tr' | 'ml' | 'c' | 'mr' | 'bl' | 'bc' | 'br';
+  dx?: number;
+  dy?: number;
+  tx?: number;
+  ty?: number;
+  text?: boolean;
+  x?: string;
+  y?: string;
+  dir?: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+  r?: number;
+  w?: string;
+  len?: number;
+  cls?: string;
+}
+const {
+  t,
+  to,
+  at = 'c',
+  dx = 0,
+  dy = 0,
+  tx = 0,
+  ty = 0,
+  text = false,
+  x = '0',
+  y = '0',
+  dir = 'se',
+  r = -2,
+  w,
+  len = 1,
+  cls = '',
+} = Astro.props;
+
+// One loose, wobbly arrow per direction family; the others are mirrors of these.
+const curves: Record<string, { d: string; head: string; box: string }> = {
+  se: { d: 'M5 4C8 28 22 47 50 51', head: 'M40 42L52 51L39 58', box: '0 0 60 62' },
+  s: { d: 'M30 3C24 20 36 36 30 54', head: 'M21 45L30 57L39 45', box: '0 0 60 62' },
+  e: { d: 'M3 30C20 24 36 36 55 30', head: 'M46 21L57 30L46 39', box: '0 0 60 62' },
+};
+const family =
+  dir === 'se' || dir === 'sw' || dir === 'ne' || dir === 'nw'
+    ? 'se'
+    : dir === 's' || dir === 'n'
+      ? 's'
+      : 'e';
+const c = curves[family]!;
+const maxw = w ? `max-width:${w};` : '';
+---
+
+{to ? (
+  <span
+    class={`note note-dyn ${cls}`}
+    data-note
+    aria-hidden="true"
+    data-to={to}
+    data-at={at}
+    data-dx={dx}
+    data-dy={dy}
+    data-tx={tx}
+    data-ty={ty}
+    data-text={text ? '1' : '0'}
+    style={`--rot:${r}deg;${maxw}`}
+  >
+    <span class="note-t">{t}</span>
+  </span>
+) : (
+  <span
+    class={`note note-${dir} ${cls}`}
+    data-note
+    aria-hidden="true"
+    style={`left:${x};top:${y};--rot:${r}deg;--len:${len};${maxw}`}
+  >
+    <span class="note-t">{t}</span>
+    <svg class="note-a" viewBox={c.box} aria-hidden="true" focusable="false">
+      <path d={c.d} />
+      <path d={c.head} />
+    </svg>
+  </span>
+)}
+
+<script>
+  import '../../lib/notes/place';
+</script>

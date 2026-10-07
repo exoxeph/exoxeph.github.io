@@ -1,0 +1,38 @@
+---
+import EvidenceTag from '../evidence/EvidenceTag.astro';
+import { RECORDED_RUN } from '../../lib/bench/tesla';
+---
+
+<aside class="tape" aria-label="Test log">
+  <div class="tape-head">
+    <h3>Test log</h3>
+    <button type="button" data-clear hidden>
+      clear
+    </button>
+  </div>
+  <p class="ref">
+    <span class="pool-ref">Recorded run, then yours</span>
+    <span class="visitor-ref">Your tests</span>
+  </p>
+  <ol class="visitor-entries" aria-label="Your tests"></ol>
+  <ol class="recorded-entries" aria-label="Recorded run">
+    {RECORDED_RUN.map((entry, index) => (
+      <li class="ent rec">
+        <span class="entry-index">{String(index + 1).padStart(2, '0')}</span>
+        <div>
+          <b>
+            {entry.id} requests {entry.seats} {entry.seats === 1 ? 'seat' : 'seats'}
+          </b>
+          <span>
+            {entry.code === 200 ? 'accepted' : 'refused'}, {entry.committed} of 3
+          </span>
+          <EvidenceTag kind="replay" />
+        </div>
+      </li>
+    ))}
+  </ol>
+  <p class="empty" data-empty>
+    Your tests appear here.
+  </p>
+  <p class="visually-hidden" aria-live="polite" data-log-live></p>
+</aside>

@@ -1,0 +1,37 @@
+---
+/** Attribution ledger for the current project (technical context, not a warning box). */
+const project = Astro.locals.project;
+if (!project) throw new Error('<Ledger /> must render inside a project page');
+const c = project.data.contribution;
+const BASIS: Record<string, string> = {
+  'commit-attributed': 'Basis: commit history.',
+  'blame-attributed': 'Basis: file-level authorship.',
+  'user-stated': 'Basis: my own statement.',
+};
+---
+
+<dl class="ledger">
+  <dt>Role</dt>
+  <dd>{c.role}</dd>
+  <dt>Personal</dt>
+  <dd>
+    {c.personal}
+    <span class="basis">{BASIS[c.basis]}</span>
+  </dd>
+  <dt>Team</dt>
+  <dd>{c.team ?? 'None.'}</dd>
+  <dt>Upstream</dt>
+  <dd>{c.upstream ?? 'None recorded.'}</dd>
+  {c.aiAssistance && (
+    <>
+      <dt>Development process</dt>
+      <dd>{c.aiAssistance}</dd>
+    </>
+  )}
+  {c.provenance && (
+    <>
+      <dt>Provenance</dt>
+      <dd>{c.provenance}</dd>
+    </>
+  )}
+</dl>

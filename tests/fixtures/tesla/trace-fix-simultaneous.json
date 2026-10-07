@@ -1,0 +1,149 @@
+{
+  "scenario": "simultaneous",
+  "ids": {
+    "A": "1",
+    "B": "2",
+    "C": "3"
+  },
+  "steps": [
+    {
+      "label": "initial",
+      "http": null,
+      "teslaCapacity": 3,
+      "pools": [],
+      "requests": [],
+      "events": []
+    },
+    {
+      "label": "accept A",
+      "http": {
+        "status": 200,
+        "body": {
+          "request": {
+            "id": "1",
+            "pickupZoneId": "zone-banani",
+            "destinationZoneId": "zone-mohakhali",
+            "seats": 1,
+            "status": "MATCHED",
+            "farePaisa": 5731,
+            "paymentMethod": "CASH",
+            "poolId": "pool-1",
+            "createdAt": "2026-10-05T19:51:40.666Z"
+          }
+        }
+      },
+      "teslaCapacity": 3,
+      "pools": [
+        {
+          "id": "pool-1",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 1
+        }
+      ],
+      "requests": [
+        {
+          "id": "1",
+          "status": "MATCHED",
+          "poolId": "pool-1",
+          "seats": 1
+        },
+        {
+          "id": "2",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 2
+        },
+        {
+          "id": "3",
+          "status": "REQUESTED",
+          "poolId": null,
+          "seats": 2
+        }
+      ],
+      "events": [
+        {
+          "requestId": "1",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        }
+      ]
+    },
+    {
+      "label": "accept B and C at the same time",
+      "http": null,
+      "teslaCapacity": 3,
+      "pools": [
+        {
+          "id": "pool-1",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 1
+        },
+        {
+          "id": "pool-2",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 2
+        },
+        {
+          "id": "pool-3",
+          "teslaId": "tesla-1",
+          "status": "OPEN",
+          "seatsTaken": 2
+        }
+      ],
+      "requests": [
+        {
+          "id": "1",
+          "status": "MATCHED",
+          "poolId": "pool-1",
+          "seats": 1
+        },
+        {
+          "id": "2",
+          "status": "MATCHED",
+          "poolId": "pool-2",
+          "seats": 2
+        },
+        {
+          "id": "3",
+          "status": "MATCHED",
+          "poolId": "pool-3",
+          "seats": 2
+        }
+      ],
+      "events": [
+        {
+          "requestId": "1",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        },
+        {
+          "requestId": "2",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        },
+        {
+          "requestId": "3",
+          "from": "REQUESTED",
+          "to": "MATCHED",
+          "outcome": "SUCCESS"
+        }
+      ],
+      "parallel": [
+        {
+          "id": "B",
+          "status": 200
+        },
+        {
+          "id": "C",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

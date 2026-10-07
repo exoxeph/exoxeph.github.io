@@ -1,0 +1,87 @@
+{
+  "project": "speech-doc-extraction",
+  "nodes": [
+    {
+      "id": "ocr",
+      "label": "OCR",
+      "order": 1,
+      "role": "A provider reads a photographed report into text lines. A mock provider is the default and Tesseract is the real one.",
+      "decision": "Provider adapters with mock defaults.",
+      "limitation": "OCR degrades on rotated or angled images, and raw outputs are not committed."
+    },
+    {
+      "id": "lab-gate",
+      "label": "Lab report check",
+      "order": 2,
+      "role": "A conservative detector decides whether the text looks like a lab report. If not, the type is unknown and zero rows are returned.",
+      "decision": "Conservative non-lab detection.",
+      "evidence": [
+        {
+          "state": "partially-verified",
+          "text": "A receipt returned the type unknown and 0 rows.",
+          "caveat": "Tested on one image; author-reported."
+        }
+      ]
+    },
+    {
+      "id": "metadata",
+      "label": "Metadata",
+      "order": 3,
+      "role": "Reads patient, date and lab fields where present. With the header cropped out, metadata is null.",
+      "evidence": [
+        {
+          "state": "partially-verified",
+          "text": "With the header cropped out, metadata is null and 4 rows are recovered.",
+          "caveat": "Author-reported README tables."
+        }
+      ]
+    },
+    {
+      "id": "value-normalizer",
+      "label": "Value parser",
+      "role": "Reads the value column as a plain number, a qualified number, a range or a scientific value. Anything that matches none of those forms returns no value.",
+      "why": "A value that does not match a known form is not repaired or guessed.",
+      "io": {
+        "in": "The value text of one row.",
+        "out": "A value with its kind, operator, numbers and the raw text, or none."
+      },
+      "decision": "Reject malformed values, and do not correct OCR using knowledge of the source document.",
+      "failure": "A wrong value that is still well formed parses as valid, for example <8.5 read in place of <0.5.",
+      "control": "No match returns none, and the row is omitted.",
+      "evidence": [
+        {
+          "state": "partially-verified",
+          "text": "The README records Tesseract reading CRP <0.5 as RP <8.5 and 1.2 x 10^3 as 1.2 x 1043.",
+          "caveat": "Author-reported evaluation; raw OCR outputs are not committed."
+        }
+      ],
+      "limitation": "There is no confidence measure, so the parser cannot detect a misread that is still a valid number.",
+      "source": "app/services/value_normalizer.py",
+      "order": 4
+    },
+    {
+      "id": "row-omission",
+      "label": "Row omission",
+      "role": "Drops a row whose value does not parse. A row that does parse keeps its raw line.",
+      "why": "A made-up value is worse than a missing row.",
+      "io": {
+        "in": "A parsed value, or none.",
+        "out": "A result row with its raw line, or no row."
+      },
+      "decision": "Omit rather than guess.",
+      "failure": "An omitted row is silent: the response does not list what was dropped.",
+      "control": "A value of none returns no row.",
+      "evidence": [
+        {
+          "state": "partially-verified",
+          "text": "Recorded examples: with the header cropped out, 4 rows are recovered; a receipt returns the type unknown and 0 rows.",
+          "caveat": "Author-reported README tables."
+        }
+      ],
+      "limitation": "The OCR text of dropped rows is not returned.",
+      "source": "app/services/report_parser.py",
+      "order": 5
+    }
+  ],
+  "edges": []
+}

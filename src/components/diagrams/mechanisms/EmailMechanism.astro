@@ -1,0 +1,42 @@
+---
+const { id } = Astro.props;
+---
+
+<svg class="dg mech-svg" viewBox="0 0 280 100" role="img" aria-labelledby={`${id}-t ${id}-d`}>
+  <title id={`${id}-t`}>Email validation gate</title>
+  <desc id={`${id}-d`}>
+    A clear request passes validation, generates an email, which the evaluation runner can later judge. An
+    ambiguous request takes the ask first branch and generates nothing.
+  </desc>
+  <text class="t" x="4" y="14">
+    input
+  </text>
+  <text class="t" x="70" y="14">
+    validate
+  </text>
+  <g class="email-downstream">
+    <text class="t" x="150" y="14">
+      generate
+    </text>
+    <text class="t" x="228" y="14">
+      eval
+    </text>
+    <path class="ln" d="M108 42H150" />
+    <rect class="ln" x="150" y="32" width="44" height="20" />
+    <path class="ln" d="M194 42H226" />
+    <rect class="ln" x="226" y="32" width="34" height="20" />
+    <path class="tk" d="M232 24V30M242 24V30M252 24V30" />
+  </g>
+  <rect class="ln" x="4" y="32" width="34" height="20" />
+  <path class="ln" d="M38 42H84" />
+  <path class="ln" d="M96 30L108 42L96 54L84 42Z" />
+  <text class="t hi a" x="150" y="79">
+    writes the email
+  </text>
+  <g class="b email-branch">
+    <path class="ac draw" d="M96 54V74M92 69L96 74L100 69" />
+    <text class="t ac" x="104" y="84">
+      ask first
+    </text>
+  </g>
+</svg>

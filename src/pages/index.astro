@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Bench from '../components/bench/Bench.astro';
+import Hero from '../components/hero/Hero.astro';
+import { site } from '../data/site.ts';
+
+const research = await getCollection('research', (r) => r.data.status === 'published');
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  jobTitle: site.role,
+  url: site.url,
+  sameAs: [site.links.github, site.links.linkedin].filter(Boolean),
+};
+---
+
+<Base title={site.title} description={site.description} jsonLd={person}>
+  <a slot="skip" class="skip" href="#site-footer">
+    Skip the Bench, to résumé and contact
+  </a>
+  <Hero />
+  <Bench />
+
+  {research.length > 0 && (
+    <section class="s" id="research" aria-labelledby="research-h">
+      <div class="wrap">
+        <h2 id="research-h">Research</h2>
+        <div class="note">
+          <p>{research[0]?.data.description}</p>
+          <p>
+            <a class="arrow-link" href="/research/">
+              Research overview →
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .s {
+    padding: var(--s5) 0;
+    border-top: 1px solid var(--rule);
+  }
+  .s h2 {
+    margin-bottom: 1rem;
+  }
+  .note {
+    border-left: 2px solid var(--rule-strong);
+    padding-left: 1.4rem;
+    max-width: 62ch;
+    margin-top: 1.6rem;
+  }
+  @media (max-width: 900px) {
+    .s {
+      padding: var(--s4) 0;
+    }
+  }
+</style>

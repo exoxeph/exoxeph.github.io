@@ -1,0 +1,836 @@
+---
+// Inspection deck: the lower half of the pinned stage. One frame per narrative beat and project, each drawn
+// from that project's own mechanics. All frames are server rendered; scrolling only selects one (CSS keyed on
+// bench[data-beat] and the checked channel), so there is no script cost and no hijacking.
+// Nothing here runs a model or invents a measurement: it restates recorded or documented facts.
+//
+// Phase 19R: every frame answers, in this order, what came in, what was wrong, what the system did and what
+// happened, in plain words. The engineering detail (routes, thresholds, status names, raw messages) is still
+// here, one click deeper inside the frame, so the recruiter layer comes first and the inspection layer stays.
+import { TONES } from '../../lib/bench/email';
+import { scenarios } from '../../lib/bench/email-stage';
+import { recorded } from '../../lib/bench/rag-stage';
+import { presets } from '../../lib/bench/speech-stage';
+
+import { bar } from '../../lib/bench/deck';
+import Note from '../notes/Note.astro';
+import { deckNotes } from '../notes/stageNotes';
+
+const emailExample = scenarios.find((s) => s.id === 3)!;
+const emailMatch = scenarios.map((s) => (s.recordedGated === 'clarification') === s.expectedClarify);
+const matchCount = emailMatch.filter(Boolean).length;
+const miss = scenarios.find((s) => s.id === 4)!;
+
+// Phase 19R-B story strips. Recorded judge scores for scenario 3, from the project's committed results (one run):
+// the single prompt wrote an email anyway (2.33 of 5); the checked pipeline asked first (5.0 of 5).
+const judged = { wrote: 2.33, asked: 5.0 };
+const ragFinal = recorded.find((q) => q.id === 'q3')!;
+const passedFirst = recorded.filter((q) => q.accepted && !q.repaired).length;
+
+const threshold = 0.72;
+const pos = (score: number) => `${(score * 100).toFixed(1)}%`;
+const steps = ['retrieve', 'rerank', 'prune', 'contextualize', 'generate', 'verify'];
+const states = ['REQUESTED', 'MATCHED', 'DRIVER_ARRIVED', 'STARTED', 'COMPLETED'];
+
+const cols = (line: string) => line.trim().split(/\s{2,}/);
+const qualified = cols(presets.qualified);
+const lt85 = cols(presets['<8.5 misread']);
+const sci = cols(presets['1.2 x 1043 misread']);
+const fieldNames = ['test', 'value', 'unit', 'range', 'flag'];
+
+const poolDecision = bar(
+  [
+    { s: 0, n: 1, label: 'A' },
+    { s: 1, n: 2, label: 'B' },
+    { s: 3, n: 2, label: 'C', kind: 'bad' },
+  ],
+  'The guard adds up every active pool of the vehicle: 3 committed + 2 requested &gt; 3.',
+);
+const poolWithout = bar(
+  [
+    { s: 0, n: 1, label: 'A' },
+    { s: 1, n: 2, label: 'B' },
+    { s: 3, n: 2, label: 'C', kind: 'bad' },
+  ],
+  'Without the guard: 5 of 3.',
+);
+const poolWith = bar(
+  [
+    { s: 0, n: 1, label: 'A' },
+    { s: 1, n: 2, label: 'B' },
+  ],
+  'With the guard: 3 of 3.',
+);
+const poolRace = bar(
+  [
+    { s: 0, n: 1, label: 'A' },
+    { s: 1, n: 2, label: 'B', kind: 'bad' },
+    { s: 3, n: 2, label: 'C', kind: 'bad' },
+  ],
+  'Both passed the check: 5 of 3.',
+);
+---
+
+<div class="deck" data-deck>
+  <div class="deck-rule" aria-hidden="true">
+    <span>Inspection</span>
+    <span class="deck-ticks">
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </span>
+  </div>
+  <div class="deck-frames">
+    <figure class="df df-story" data-ch="pool" data-b="0">
+      {deckNotes['pool-0'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['pool-0']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <div class="story story-pool">
+          <div class="story-head">
+            <b>Ride pooling</b> Blocks requests over capacity, except two at once.
+            <span class="dtag story-tag">recorded run</span>
+          </div>
+          <ol class="story-ledger">
+            <li>
+              <div class="lg-k">Start: a car with 3 seats</div>
+              <div class="seats" aria-hidden="true">
+                <i class="seat on">A</i>
+                <i class="seat" />
+                <i class="seat" />
+              </div>
+              <div class="lg-r">1 of 3 taken</div>
+            </li>
+            <li>
+              <div class="lg-k">A request for 2 seats</div>
+              <div class="seats" aria-hidden="true">
+                <i class="seat on">A</i>
+                <i class="seat on">B</i>
+                <i class="seat on">B</i>
+              </div>
+              <div class="lg-r ok">3 of 3: accepted</div>
+            </li>
+            <li>
+              <div class="lg-k">2 more seats requested</div>
+              <div class="seats" aria-hidden="true">
+                <i class="seat on">A</i>
+                <i class="seat on">B</i>
+                <i class="seat on">B</i>
+                <i class="seat ghost">C</i>
+                <i class="seat ghost">C</i>
+              </div>
+              <div class="lg-r no">
+                would be 5 of 3: refused <small>car stays 3 of 3 · HTTP 409</small>
+              </div>
+            </li>
+            <li class="lg-climax">
+              <div class="lg-k">Back at 1 of 3: two requests for 2 seats at the same moment</div>
+              <div class="lg-main">
+                <div class="lg-lanes">
+                  <div>request 1 reads “1 of 3”: fits, so it books</div>
+                  <div>request 2 reads “1 of 3”: fits, so it books</div>
+                </div>
+                <div class="seats" aria-hidden="true">
+                  <i class="seat on">A</i>
+                  <i class="seat on">B</i>
+                  <i class="seat on">B</i>
+                  <i class="seat bad">C</i>
+                  <i class="seat bad">C</i>
+                </div>
+              </div>
+              <div class="lg-r no">5 of 3 observed</div>
+            </li>
+          </ol>
+          <details class="d-deep">
+            <summary>Engineering mechanism</summary>
+            <p>
+              Every status change goes through one transition table (REQUESTED, MATCHED, DRIVER_ARRIVED,
+              STARTED, COMPLETED). The capacity guard runs inside the accept transaction and adds up the seats
+              of every active pool of the vehicle; a refusal is HTTP 409. Two simultaneous accepts can both
+              pass because the check reads, then writes (seen under an in-memory database mock).
+            </p>
+          </details>
+        </div>
+      </div>
+    </figure>
+    <figure class="df" data-ch="pool" data-b="1">
+      {deckNotes['pool-1'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['pool-1']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">Another request for 2 seats</p>
+        <Fragment set:html={poolDecision} />
+        <p class="d-verdict">
+          <b>Refused</b>
+          <span>
+            3 + 2 is more than 3, so the car stays at 3 of 3. <small>HTTP 409</small>
+          </span>
+        </p>
+        <details class="d-deep">
+          <summary>Where the check sits in a request's life</summary>
+          <ol class="d-rail">
+            {states.map((state, i) => (
+              <li class={i === 1 ? 'on' : ''}>
+                <i />
+                <span>{state}</span>
+                {i === 1 && <em>accept: capacity guard</em>}
+              </li>
+            ))}
+          </ol>
+          <p class="d-rail-note">
+            Every change goes through one transition table. Cancellation is allowed before the ride starts.
+          </p>
+        </details>
+      </div>
+      <figcaption>
+        <span class="dtag">from project docs</span>The check runs when a driver accepts, not when the rider
+        asks.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="pool" data-b="2">
+      {deckNotes['pool-2'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['pool-2']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">Count the whole car, not each group</p>
+        <ol class="d-outcomes">
+          <li>
+            <span class="mono">each group on its own</span>
+            <em>looks fine</em>
+            <b class="out kept">passes</b>
+          </li>
+          <li>
+            <span class="mono">the whole car added up</span>
+            <em>3 + 2 is more than 3</em>
+            <b class="out omit">refused</b>
+          </li>
+        </ol>
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>A check on each group passed while the car was over capacity, so
+        the check moved up to the whole vehicle.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="pool" data-b="3">
+      {deckNotes['pool-3'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['pool-3']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">Before and after the seat check was added</p>
+        <Fragment set:html={poolWithout} />
+        <Fragment set:html={poolWith} />
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>Recorded before and after the change. Mock database, not a real
+        one.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="pool" data-b="4">
+      {deckNotes['pool-4'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['pool-4']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">Two requests at the same moment</p>
+        <p class="d-plain">
+          Each request checks the seats, sees room, then books. Neither sees the other, so both get in.
+        </p>
+        <div class="d-race">
+          <p>
+            <span>accept 1</span>
+            <i>reads 1 of 3</i>
+            <i>passes</i>
+            <i>writes</i>
+          </p>
+          <p>
+            <span>accept 2</span>
+            <i>reads 1 of 3</i>
+            <i>passes</i>
+            <i>writes</i>
+          </p>
+        </div>
+        <Fragment set:html={poolRace} />
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>Requests accepted at the same moment are not covered by the
+        check. Seen under the mock; a real database was not run.
+      </figcaption>
+    </figure>
+
+    <figure class="df df-story" data-ch="email" data-b="0">
+      {deckNotes['email-0'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['email-0']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <div class="story story-email">
+          <div class="story-head">
+            <b>Email</b> Checks the request before the AI writes.
+            <span class="dtag story-tag">recorded run</span>
+          </div>
+          <div class="story-gate">
+            <div class="gt-box gt-req">
+              <blockquote class="st-bubble">“{emailExample.intent}”</blockquote>
+              <div class="st-meta">
+                {emailExample.keyFacts.length} fact given · tone: {emailExample.tone}
+              </div>
+            </div>
+            <div class="gt-box gt-gates">
+              <div class="gt-gate ok">
+                <i>&#10003;</i>
+                <b>Basics</b>
+                <span>by code: purpose, fact, tone</span>
+              </div>
+              <div class="gt-gate no">
+                <i>&#10005;</i>
+                <b>Enough to write from?</b>
+                <span>judged by a model</span>
+              </div>
+            </div>
+            <div class="gt-box gt-out">
+              <div class="take">
+                Ask a question first <small>the AI stops before it writes</small>
+              </div>
+              <div class="alt">Write the email</div>
+            </div>
+            <div class="gt-ba">
+              <div class="no">
+                <span>without the check</span>
+                <b>wrote an email anyway · {judged.wrote} of 5, model-scored</b>
+                <u style={`--w:${(judged.wrote / 5) * 100}%`} />
+              </div>
+              <div class="ok">
+                <span>with the check</span>
+                <b>asked first · {judged.asked} of 5, model-scored</b>
+                <u style={`--w:${(judged.asked / 5) * 100}%`} />
+              </div>
+            </div>
+          </div>
+          <details class="d-deep">
+            <summary>Engineering mechanism</summary>
+            <p>
+              Request validation in code (intent not empty, at least one non-empty fact, tone from a fixed
+              list), then the input checker, a model call that decides whether there is enough usable
+              information (not run in this page), then a clarify or generate branch. An evaluation runner
+              scores both strategies on ten recorded scenarios. This is scenario 3; the scores are recorded
+              judge outputs, and why the checker decided as it did was not saved.
+            </p>
+          </details>
+        </div>
+      </div>
+    </figure>
+    <figure class="df" data-ch="email" data-b="1">
+      {deckNotes['email-1'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['email-1']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">First check: does the request have the basics?</p>
+        <ul class="d-rules">
+          <li>
+            <i class="pass"></i>it says what the email is for
+          </li>
+          <li class="fail">
+            <i class="pass"></i>it gives at least one fact <span class="mono">no facts given</span>
+          </li>
+          <li>
+            <i class="pass"></i>the tone is one of <span class="mono">{TONES.join(', ')}</span>
+          </li>
+        </ul>
+        <p class="d-plain">
+          Shown: a request with every fact removed. It stops here, before the AI is asked to write anything.
+        </p>
+        <details class="d-deep">
+          <summary>Technical message</summary>
+          <p>
+            <span class="mono">List should have at least 1 item after validation, not 0</span>
+          </p>
+        </details>
+      </div>
+      <figcaption>
+        <span class="dtag">from project docs</span>The same rules run on the stage above when you edit a
+        request.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="email" data-b="2">
+      {deckNotes['email-2'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['email-2']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">Is there enough to write from?</p>
+        <div class="d-fork">
+          <p class="d-fork-in">a request with the basics</p>
+          <p class="d-fork-mid">
+            decides if there is enough to write from
+            <small>input checker: a model call, not run in this page</small>
+          </p>
+          <p class="d-fork-out take">
+            <b>asks a question first</b>
+            <small>recorded for scenario 3: writing stops until the request is clearer</small>
+          </p>
+          <p class="d-fork-out">
+            <b>writes the email</b>
+            <small>the other branch</small>
+          </p>
+        </div>
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>The decision is the model's. The code decides only what reaches
+        it.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="email" data-b="3">
+      {deckNotes['email-3'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['email-3']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">Tested on 10 recorded scenarios</p>
+        <ol class="d-tally">
+          {scenarios.map((s, i) => (
+            <li class={emailMatch[i] ? 'hit' : 'miss'}>
+              <b>{s.id}</b>
+              <i />
+            </li>
+          ))}
+        </ol>
+        <p class="d-plain">
+          {matchCount} of {scenarios.length}: asked or wrote, as expected. Average score 4.7 out of 5, against
+          4.2 for a single prompt. One run, scored by a model.
+        </p>
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>One saved run of ten scenarios, not a live evaluation.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="email" data-b="4">
+      {deckNotes['email-4'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['email-4']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">One unclear request still got through</p>
+        <dl class="d-anatomy">
+          <dt>request</dt>
+          <dd>{miss.intent}</dd>
+          <dt>should have</dt>
+          <dd>
+            <span class="mono">{miss.expectedClarify ? 'asked first' : 'written the email'}</span>
+          </dd>
+          <dt>actually</dt>
+          <dd class="bad">
+            <span class="mono">
+              {miss.recordedGated === 'clarification' ? 'asked first' : 'wrote the email'}
+            </span>
+          </dd>
+        </dl>
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>The checker is a model: in scenario {miss.id} it did not ask
+        when it should have.
+      </figcaption>
+    </figure>
+
+    <figure class="df df-story" data-ch="rag" data-b="0">
+      {deckNotes['rag-0'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['rag-0']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <div class="story story-rag">
+          <div class="story-head">
+            <b>Retrieval</b> Checks the first answer before returning it.
+            <span class="dtag story-tag">recorded run</span>
+          </div>
+          <div class="story-ladder">
+            <div class="ld-q">
+              <div class="st-ask">“{ragFinal.query}”</div>
+              <div class="st-meta">
+                Passages are found, then the AI writes a first answer. Quality is a rule-based score from 0 to
+                1.
+              </div>
+            </div>
+            <div class="ld-rows">
+              <div class="ld-row">
+                <span class="ld-k">First draft</span>
+                <div class="st-meter" aria-hidden="true">
+                  <i class="st-fill unknown" style="--w:58%" />
+                  <u class="st-req" style={`--at:${pos(threshold)}`} />
+                </div>
+                <span class="ld-r no">Not good enough yet</span>
+              </div>
+              <div class="ld-mid">
+                One more attempt, once: it searches again, leaning on exact keywords, and writes more strictly
+              </div>
+              <div class="ld-row">
+                <span class="ld-k">After the retry</span>
+                <div class="st-meter" aria-hidden="true">
+                  <i class="st-fill low" style={`--w:${pos(ragFinal.score)}`} />
+                  <u class="st-req" style={`--at:${pos(threshold)}`}>
+                    <b>required quality</b>
+                  </u>
+                </div>
+                <span class="ld-r no">
+                  Still below<small>returned marked not accepted</small>
+                </span>
+              </div>
+            </div>
+            <div class="ld-foot">
+              A retry is not a guarantee: {passedFirst} of {recorded.length} recorded questions passed first
+              time.
+            </div>
+          </div>
+          <details class="d-deep">
+            <summary>Engineering mechanism</summary>
+            <p>
+              The route is retrieve, rerank, prune, contextualize, generate, verify, and repair below the
+              threshold. The verify score (0 to 1) is rule-based: length 20%, relevance 30% (how many of the
+              question's words the answer uses), coherence 25%, completeness 15% and repetition 10%. It does
+              not compare the answer with the retrieved passages. The default accept threshold is 0.72. The
+              first draft's score was not recorded; q3's final score after repair was {ragFinal.score}. Drafts
+              came from a mock generator.
+            </p>
+          </details>
+        </div>
+      </div>
+    </figure>
+    <figure class="df" data-ch="rag" data-b="1">
+      {deckNotes['rag-1'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['rag-1']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">Is the draft good enough?</p>
+        <div class="d-axis split">
+          <i class="d-axis-zone low" style={`--to:${pos(threshold)}`}>
+            <b>one more attempt</b>
+          </i>
+          <i class="d-axis-zone hi" style={`--from:${pos(threshold)}`}>
+            <b>good enough</b>
+          </i>
+          <i class="d-axis-th" style={`--at:${pos(threshold)}`}>
+            <b>required {threshold}</b>
+          </i>
+          <i class="d-axis-q low" style={`--at:${pos(0.67)}`}>
+            <b>draft 0.67</b>
+          </i>
+        </div>
+        <div class="d-axis-scale">
+          <span>0</span>
+          <span>.5</span>
+          <span>1.0</span>
+        </div>
+        <p class="d-verdict low">
+          <b>Below the required quality</b>
+          <span>The draft scored 0.67; the requirement is 0.72.</span>
+        </p>
+      </div>
+      <figcaption>
+        <span class="dtag">runs in browser</span>The acceptance rule on the stage is this comparison, run by
+        the same code.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="rag" data-b="2">
+      {deckNotes['rag-2'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['rag-2']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">A second attempt, once</p>
+        <ol class="d-route">
+          <li>
+            <i />
+            <span>first draft</span>
+          </li>
+          <li>
+            <i />
+            <span>below the requirement</span>
+          </li>
+          <li>
+            <i />
+            <span>one repair attempt</span>
+          </li>
+          <li class="on">
+            <i />
+            <span>checked again</span>
+          </li>
+        </ol>
+        <p class="d-loop">
+          <span>the system does not just return its first answer</span>
+        </p>
+        <details class="d-deep">
+          <summary>Engineering route</summary>
+          <ol class="d-route">
+            {steps.map((step, i) => (
+              <li class={i === steps.length - 1 ? 'on' : ''}>
+                <i />
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+          <p class="d-rail-note">Below the threshold: one repair attempt, then verify again.</p>
+          <p class="d-rail-note">
+            Repair attempt: bm25 0.5 to 0.7, vector 0.5 to 0.3, prune overlap 1 to 2, constrained template,
+            temperature 0.2 to 0.1.
+          </p>
+        </details>
+      </div>
+      <figcaption>
+        <span class="dtag">from project docs</span>Finding sources, pruning and drafting come before the
+        check; the repair attempt comes after it.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="rag" data-b="3">
+      {deckNotes['rag-3'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['rag-3']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">What happened to four recorded questions</p>
+        <table class="d-runs">
+          <tbody>
+            {recorded.map((q) => (
+              <tr>
+                <th>{q.id}</th>
+                <td class="mono">{q.score}</td>
+                <td class="meter">
+                  <i style={`--w:${pos(q.score)}`} class={q.accepted ? 'ok' : 'low'} />
+                  <u style={`--at:${pos(threshold)}`} />
+                </td>
+                <td>{q.accepted ? 'accepted' : q.repaired ? 'tried again, still below' : 'not accepted'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>The path each question took is saved with the evaluation runs.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="rag" data-b="4">
+      {deckNotes['rag-4'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['rag-4']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">A repair is an attempt, not a guarantee</p>
+        <div class="d-axis">
+          <i class="d-axis-th" style={`--at:${pos(threshold)}`}>
+            <b>required {threshold}</b>
+          </i>
+          {recorded
+            .filter((q) => q.repaired)
+            .map((q) => (
+              <i class="d-axis-q low hatch" style={`--at:${pos(q.score)}`}>
+                <b>
+                  {q.id} {q.score}
+                </b>
+              </i>
+            ))}
+        </div>
+        <div class="d-axis-scale">
+          <span>0</span>
+          <span>.5</span>
+          <span>1.0</span>
+        </div>
+      </div>
+      <figcaption>
+        <span class="dtag">recorded run</span>Both repaired answers stayed under the requirement. A mock wrote
+        the drafts, so the scores describe the checking, not answer quality.
+      </figcaption>
+    </figure>
+
+    <figure class="df df-story" data-ch="speech" data-b="0">
+      {deckNotes['speech-0'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['speech-0']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <div class="story story-speech">
+          <div class="story-head">
+            <b>Extraction</b> Turns messy readings into structured fields.
+            <span class="dtag story-tag">test data</span>
+          </div>
+          <div class="story-align">
+            <div class="al-cap">A line read from a photographed lab report</div>
+            <div class="al-row al-raw">
+              {lt85.map((cell, i) => (
+                <span class={i === 1 ? 'hot' : ''}>{cell}</span>
+              ))}
+            </div>
+            <div class="al-row al-lab">
+              {fieldNames.map((name) => (
+                <span>{name}</span>
+              ))}
+            </div>
+            <div class="al-row al-check">
+              <span class="ok">
+                <i>&#10003;</i>looks like a value: kept
+              </span>
+            </div>
+            <div class="al-catch">
+              <div>
+                <span>the report says</span>
+                <b class="mono">{qualified[1]}</b>
+              </div>
+              <div class="bad">
+                <span>it was read as</span>
+                <b class="mono">{lt85[1]}</b>
+              </div>
+              <div class="al-verdict">Looks valid. Nothing flags it.</div>
+            </div>
+          </div>
+          <details class="d-deep">
+            <summary>Engineering mechanism</summary>
+            <p>
+              The route is OCR, a lab-report check, metadata, the value parser and row omission. The parser
+              accepts a plain number, a qualified number (such as {lt85[1]}) or a scientific value, and leaves
+              out any row whose value matches no known form, keeping the raw line for rows that parse. A
+              misread digit that still forms a valid number passes, and there is no confidence measure. The
+              README records &lt;8.5 read in place of &lt;0.5.
+            </p>
+          </details>
+        </div>
+      </div>
+    </figure>
+    <figure class="df" data-ch="speech" data-b="1">
+      {deckNotes['speech-1'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['speech-1']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">How a value is read</p>
+        <dl class="d-cells">
+          {qualified.map((cell, i) => (
+            <>
+              <dt>{fieldNames[i]}</dt>
+              <dd class={i === 1 ? 'hot' : ''}>{cell}</dd>
+            </>
+          ))}
+        </dl>
+        <p class="d-rail-note">
+          The value is accepted only if it has a shape the parser knows: a plain number, a qualified number or
+          a scientific value. Nothing else.
+        </p>
+      </div>
+      <figcaption>
+        <span class="dtag">from project docs</span>A cautious parser: it accepts what it knows and refuses the
+        rest.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="speech" data-b="2">
+      {deckNotes['speech-2'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['speech-2']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">A reading it cannot make sense of</p>
+        <dl class="d-cells">
+          {sci.map((cell, i) => (
+            <>
+              <dt>{fieldNames[i]}</dt>
+              <dd class={i === 1 ? 'hot bad' : ''}>{cell}</dd>
+            </>
+          ))}
+        </dl>
+        <p class="d-verdict omit">
+          <b>row left out</b>
+          <span>It is not guessed and not kept.</span>
+        </p>
+      </div>
+      <figcaption>
+        <span class="dtag">test data</span>The README records this misread, 1.2 x 10^3 read as 1.2 x 1043.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="speech" data-b="3">
+      {deckNotes['speech-3'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['speech-3']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">One misread is caught, one is not</p>
+        <ol class="d-outcomes">
+          <li>
+            <span class="mono">{sci[1]}</span>
+            <em>does not look like a number</em>
+            <b class="out omit">row left out</b>
+          </li>
+          <li>
+            <span class="mono">{lt85[1]}</span>
+            <em>looks like a valid number</em>
+            <b class="out kept">row kept</b>
+          </li>
+        </ol>
+      </div>
+      <figcaption>
+        <span class="dtag">test data</span>The first is caught. The second is not: that is the next step.
+      </figcaption>
+    </figure>
+    <figure class="df" data-ch="speech" data-b="4">
+      {deckNotes['speech-4'] && (
+        <div class="notes-layer">
+          <Note {...deckNotes['speech-4']!} />
+        </div>
+      )}
+      <div class="df-art">
+        <p class="df-label">It looks valid, but it is wrong</p>
+        <dl class="d-cells">
+          {lt85.map((cell, i) => (
+            <>
+              <dt>{fieldNames[i]}</dt>
+              <dd class={i === 1 ? 'hot bad' : ''}>{cell}</dd>
+            </>
+          ))}
+        </dl>
+        <div class="d-compare">
+          <p class="d-looks">
+            <b>parsed</b>
+            <span>looks like a valid value</span>
+          </p>
+          <p>
+            <span>should read</span>
+            <span class="mono">{qualified[1]}</span>
+          </p>
+          <p class="bad">
+            <span>was read as</span>
+            <span class="mono">{lt85[1]}</span>
+          </p>
+        </div>
+        <p class="d-verdict">
+          <b>kept</b>
+          <span>Nothing flags it, so a reader would never know.</span>
+        </p>
+      </div>
+      <figcaption>
+        <span class="dtag">test data</span>There is no confidence measure, so a valid-looking wrong value
+        passes.
+      </figcaption>
+    </figure>
+  </div>
+</div>

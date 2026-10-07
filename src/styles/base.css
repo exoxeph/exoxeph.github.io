@@ -1,0 +1,158 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--t-body) / 1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img,
+svg {
+  max-width: 100%;
+}
+a {
+  color: var(--text);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: color var(--m-micro) var(--ease);
+}
+a:hover {
+  color: var(--accent);
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serif);
+  font-weight: 400;
+  margin: 0;
+}
+h1 {
+  font-size: var(--t-h1);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
+}
+h2 {
+  font-size: var(--t-h2);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+h3 {
+  font-size: var(--t-h3);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+p {
+  margin: 0 0 1em;
+}
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+  background: var(--text);
+  color: var(--bg);
+  padding: 0.6rem 1rem;
+  /* Above the sticky navbar (z-index 60), or it is hidden behind the bar it is meant to skip past. */
+  z-index: 100;
+  border-radius: var(--radius);
+}
+.skip:focus {
+  left: 8px;
+  color: var(--bg);
+}
+.wrap {
+  max-width: var(--page);
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+.mono {
+  font-family: var(--mono);
+  font-size: var(--t-mono);
+}
+.muted {
+  color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+@media (max-width: 900px) {
+  :root {
+    --t-prose: 1.125rem;
+    --t-h2: 1.65rem;
+  }
+}
+
+/* Keyboard focus that scrolls the page (Shift+Tab especially) lands clear of the sticky navbar. */
+/* The Bench stage is pinned and its controllers re-focus controls, so it is left out: a margin there would scroll the page. */
+:where(
+  a[href],
+  button,
+  summary,
+  input:not(.channel-radio):not(.flow-radio),
+  select,
+  textarea,
+  [tabindex],
+  [role='button'],
+  [role='slider']
+):not(.stagecol *) {
+  scroll-margin-top: 84px;
+}
+
+/* Forced colors (Windows high contrast): a heavier ring in the system highlight color. The brand palette is not kept. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+}
+
+/* A stronger setting for people who ask for more contrast: firmer rules and brighter secondary text, same design. */
+@media (prefers-contrast: more) {
+  :root {
+    --rule: color-mix(in srgb, var(--text) 55%, transparent);
+    --rule-strong: var(--text);
+    --muted: color-mix(in srgb, var(--text) 88%, var(--bg));
+  }
+}

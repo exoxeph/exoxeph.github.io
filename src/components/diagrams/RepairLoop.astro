@@ -1,0 +1,43 @@
+---
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<svg
+  class="dg"
+  viewBox="0 0 280 100"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-labelledby={`${id}-t ${id}-d`}
+>
+  <title id={`${id}-t`}>Plan-driven retrieval with verify and repair</title>
+  <desc id={`${id}-d`}>
+    A plan sets the steps. Retrieval runs and a verifier checks the draft answer. If the score is low, a one
+    repair attempt returns to retrieval before the answer is returned.
+  </desc>
+  <text class="t" x="4" y="14">
+    plan
+  </text>
+  <text class="t" x="84" y="14">
+    retrieve
+  </text>
+  <text class="t" x="156" y="14">
+    verify
+  </text>
+  <text class="t" x="228" y="14">
+    answer
+  </text>
+  <rect class="ln" x="4" y="32" width="40" height="20" />
+  <path class="ln" d="M44 42H84" />
+  <rect class="ln" x="84" y="32" width="50" height="20" />
+  <path class="ln" d="M134 42H164" />
+  <path class="ac" d="M176 30L188 42L176 54L164 42Z" />
+  <path class="ln" d="M188 42H228" />
+  <rect class="ln" x="228" y="32" width="48" height="20" />
+  <path class="ac" d="M176 54C176 86 109 86 109 54M105 59L109 54L113 59" />
+  <text class="t hi" x="142" y="96" text-anchor="middle">
+    repair
+  </text>
+</svg>

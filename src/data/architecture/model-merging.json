@@ -1,0 +1,37 @@
+{
+  "project": "model-merging",
+  "nodes": [
+    {
+      "id": "suspect",
+      "label": "Suspect checkpoint",
+      "order": 1,
+      "role": "A checkpoint that may carry a backdoor. Backdoored checkpoints are a supply-chain risk for openly shared models."
+    },
+    {
+      "id": "interpolation",
+      "label": "Weight interpolation",
+      "order": 2,
+      "role": "A mixing weight blends the weights of the suspect model with a clean model. Published work showed that merging a suspect model with other models can reduce backdoor behavior.",
+      "source": "Published baseline: Here's a Free Lunch, Sanitizing Backdoored Models with Model Merge (ACL 2024)"
+    },
+    {
+      "id": "selective",
+      "label": "Selective versus global",
+      "order": 3,
+      "role": "Averaging every weight or only chosen ones, as a concept."
+    },
+    {
+      "id": "measures",
+      "label": "What is measured",
+      "order": 4,
+      "role": "Backdoor behavior is measured as attack success rate and task behavior as clean accuracy."
+    },
+    {
+      "id": "withheld",
+      "label": "What is not shown",
+      "order": 5,
+      "role": "Results, counts, datasets, checkpoints, code and thesis text from the group's experiments are not public."
+    }
+  ],
+  "edges": []
+}

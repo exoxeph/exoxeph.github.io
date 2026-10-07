@@ -1,0 +1,176 @@
+---
+import Note from '../notes/Note.astro';
+/**
+ * Engineering Trace: complete static markup first (no JavaScript needed), then an optional stepper
+ * built by src/lib/trace/enhance.ts from the same JSON that is embedded below. One canonical data source.
+ */
+import type { TraceData, TraceStateData } from '../../lib/trace/types.ts';
+import EvidenceTag from '../evidence/EvidenceTag.astro';
+interface Props {
+  id: string;
+  trace: TraceData;
+}
+const { id, trace: t } = Astro.props;
+
+const tagFor = (s: string): 'verified' | 'partial' | 'notclaimed' =>
+  s === 'verified' ? 'verified' : s === 'partially-verified' ? 'partial' : 'notclaimed';
+const shared = t.states.filter((s) => s.variant === '*');
+const describe = (s: TraceStateData) => {
+  const r = s.record;
+  if (!r) return '';
+  const reqs = r.requests.map((q) => `${q.label} ${q.status}${q.pool ? ` in ${q.pool}` : ''}`).join(', ');
+  const http = r.httpStatus ? `HTTP ${r.httpStatus}${r.httpMessage ? ` (${r.httpMessage})` : ''}; ` : '';
+  return `Recorded: ${http}events ${r.events.length ? r.events.join(', ') : 'none yet'}; requests ${reqs}.`;
+};
+const json = JSON.stringify(t).replace(/</g, '\\u003c');
+---
+
+<div class="trace" data-trace={id}>
+  <p class="trace-lede">{t.summary}</p>
+  <p class="trace-prov">
+    <EvidenceTag kind="replay" />
+  </p>
+  <p class="trace-fid">
+    <EvidenceTag kind={tagFor(t.verificationStatus)} />
+    <span>
+      {t.provenance.method} Database: {t.provenance.database}.
+    </span>
+  </p>
+
+  <div class="trace-instrument" data-instrument hidden></div>
+  <div class="notes-layer trace-notes">
+    <Note t="the story, in 7 stages" to="ol.rail" at="bc" dx={250} dy={28} r={-2} w="150px" />
+    <Note
+      t="the vehicle's seats vs the capacity line"
+      to=".gauge .thresh"
+      at="mr"
+      dx={190}
+      dy={-4}
+      r={2}
+      w="210px"
+    />
+    <Note t="pick a version" to="fieldset.seg" at="tc" dx={270} dy={-30} r={-2} w="110px" />
+    <Note t="show both versions side by side" to="label.cmp-switch" at="mr" dx={130} dy={0} r={2} w="190px" />
+    <Note t="step through the recorded states" to="div.nav" at="mr" dx={150} dy={0} r={-2} w="210px" />
+  </div>
+  {t.alsoKnown && (
+    <details class="trace-also">
+      <summary>
+        <span>Also known: {t.alsoKnown.title}</span>
+        <EvidenceTag kind={tagFor(t.alsoKnown.state)} />
+      </summary>
+      <div class="inner">
+        <svg class="dg" viewBox="0 0 560 124" role="img" aria-labelledby={`${id}-ak-t ${id}-ak-d`}>
+          <title id={`${id}-ak-t`}>Two accepts overlapping in time</title>
+          <desc id={`${id}-ak-d`}>
+            Accept B and accept C each read the vehicle's pools, then each writes. If both reads happen before
+            either write, both see three or fewer committed seats.
+          </desc>
+          <text class="t" x="0" y="20">
+            accept B
+          </text>
+          <rect class="ln" x="86" y="6" width="104" height="22" />
+          <text class="t hi" x="96" y="21">
+            read pools
+          </text>
+          <rect class="ln" x="340" y="6" width="84" height="22" />
+          <text class="t hi" x="350" y="21">
+            write
+          </text>
+          <text class="t" x="0" y="72">
+            accept C
+          </text>
+          <rect class="ln" x="116" y="58" width="104" height="22" />
+          <text class="t hi" x="126" y="73">
+            read pools
+          </text>
+          <rect class="ln" x="404" y="58" width="84" height="22" />
+          <text class="t hi" x="414" y="73">
+            write
+          </text>
+          <path class="pt" d="M226 2V88" />
+          <text class="t hi" x="232" y="108">
+            both reads happen before either write
+          </text>
+        </svg>
+        <p>{t.alsoKnown.text}</p>
+        <p class="mono muted">{t.alsoKnown.caveat}</p>
+      </div>
+    </details>
+  )}
+
+  <section class="trace-text" aria-labelledby={`${id}-text-h`}>
+    <h3 id={`${id}-text-h`}>The trace in text</h3>
+    <ol class="chain">
+      <li>
+        <strong>Capability.</strong> {t.capability}
+      </li>
+      <li>
+        <strong>Expected behavior.</strong> {t.expectedBehavior}
+      </li>
+      <li>
+        <strong>Trigger.</strong> {t.trigger}
+      </li>
+      <li>
+        <strong>Recorded states.</strong>
+        <ol class="states">
+          {shared.map((s) => (
+            <li>
+              <span class="st">{s.title}.</span> {s.text} <span class="rec mono">{describe(s)}</span>
+            </li>
+          ))}
+        </ol>
+        {t.variants.map((v) => (
+          <>
+            <p class="vlabel">{v.label}</p>
+            <ol class="states">
+              {t.states
+                .filter((s) => s.variant === v.id)
+                .map((s) => (
+                  <li>
+                    <span class="st">{s.title}.</span> {s.text} <span class="rec mono">{describe(s)}</span>
+                  </li>
+                ))}
+            </ol>
+          </>
+        ))}
+      </li>
+      <li>
+        <strong>Control.</strong> {t.control}
+      </li>
+      <li>
+        <strong>Measurement.</strong> {t.measurement}
+      </li>
+      <li>
+        <strong>Outcome.</strong> {t.outcome}
+      </li>
+      <li>
+        <strong>Limitation.</strong> {t.limitation}
+      </li>
+    </ol>
+    <h4>Evidence</h4>
+    <ul class="evidence">
+      {t.evidence.map((e) => (
+        <li>
+          <EvidenceTag kind={tagFor(e.state)} />{' '}
+          <span>
+            {e.claim}
+            {e.caveat ? ` ${e.caveat}` : ''}
+          </span>
+        </li>
+      ))}
+    </ul>
+    {t.provenance.commits && (
+      <p class="mono muted">
+        Commits: {t.provenance.commits.before} (before the guard), {t.provenance.commits.after} (adds the
+        guard).
+        {t.provenance.testName ? ` Test: "${t.provenance.testName}".` : ''}
+      </p>
+    )}
+  </section>
+
+  <script type="application/json" data-trace-data set:html={json}></script>
+  <script>
+    import '../../lib/trace/enhance.ts';
+  </script>
+</div>

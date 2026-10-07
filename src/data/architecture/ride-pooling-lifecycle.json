@@ -1,0 +1,78 @@
+{
+  "project": "ride-pooling-lifecycle",
+  "nodes": [
+    {
+      "id": "request",
+      "label": "Request",
+      "order": 1,
+      "role": "A passenger creates a request with a seat count, and the server computes an integer-paisa fare.",
+      "decision": "Integer paisa for money."
+    },
+    {
+      "id": "transition-table",
+      "label": "Transition table",
+      "order": 2,
+      "role": "Every status change goes through one table: REQUESTED, MATCHED, DRIVER_ARRIVED, STARTED, COMPLETED, with cancellation allowed before the ride starts.",
+      "why": "So no route can skip a state.",
+      "decision": "One transition table for every status change.",
+      "evidence": [
+        {
+          "state": "verified",
+          "text": "71 written test cases exist in the repository. They were counted, not run for this page."
+        }
+      ],
+      "source": "apps/api/src/common/rideLifecycle.ts"
+    },
+    {
+      "id": "accept-update",
+      "label": "Conditional accept",
+      "order": 3,
+      "role": "A driver accepts a request. A conditional update succeeds only if the request is still REQUESTED.",
+      "decision": "Conditional (compare-and-set) updates for single-row races.",
+      "limitation": "It covers a single row, not the vehicle's total across pools."
+    },
+    {
+      "id": "pool-matching",
+      "label": "Pool matching",
+      "order": 4,
+      "role": "The service joins an existing pool when routes are compatible, or founds a new pool.",
+      "why": "Pools form by route compatibility, within pickup and destination distance limits."
+    },
+    {
+      "id": "capacity-guard",
+      "label": "Capacity guard",
+      "role": "Adds up the seats committed across every active pool of the vehicle (open or locked) and compares that total plus the new request with the vehicle's capacity.",
+      "why": "A per-pool check passed while the vehicle as a whole was over capacity, so the guard was moved to the vehicle level.",
+      "io": {
+        "in": "Requested seats (1 to 6) and the vehicle's active pools.",
+        "out": "Accept, or HTTP 409 and a conflict status event."
+      },
+      "decision": "Guard the vehicle's total, not each pool.",
+      "failure": "Two accepts at the same moment can both read a total under capacity before either writes.",
+      "control": "The accept transaction refuses when the total plus the request exceeds capacity.",
+      "evidence": [
+        {
+          "state": "verified",
+          "text": "Recorded before and after the guard commit: 5 of 3 seats without it, 3 of 3 with it.",
+          "caveat": "In-memory database mock, not PostgreSQL."
+        },
+        {
+          "state": "partially-verified",
+          "text": "Two accepts at the same moment both passed the guard under the mock, reaching 5 of 3.",
+          "caveat": "PostgreSQL behavior was not run."
+        }
+      ],
+      "limitation": "Concurrent accepts across pools are not covered by this guard.",
+      "source": "apps/api/src/modules/rides/rides.service.ts, accept transaction",
+      "order": 5
+    },
+    {
+      "id": "audit-events",
+      "label": "Status events",
+      "order": 6,
+      "role": "Every transition leaves a status event, and a conflict outcome is written as an event after the rollback.",
+      "decision": "Success events committed with state changes, and conflict events written after a rollback."
+    }
+  ],
+  "edges": []
+}

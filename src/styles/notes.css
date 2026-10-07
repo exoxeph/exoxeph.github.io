@@ -1,0 +1,251 @@
+/* Hand-drawn marginal notes: the author's voice on top of the diagrams. Comic Neue Bold, a warm marker ink
+   distinct from the system accent, loose arrows. They never take pointer events and can be switched off. */
+:root {
+  --note: #f4d58d;
+  --note-font: var(--font-note, 'Comic Sans MS', 'Comic Neue', cursive);
+}
+.notes-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.note {
+  position: absolute;
+  display: block;
+  width: max-content;
+  max-width: 190px;
+  color: var(--note);
+  font: 700 15px/1.12 var(--note-font);
+  letter-spacing: 0.01em;
+  transform: rotate(var(--rot, -2deg));
+  transform-origin: left top;
+  pointer-events: none;
+  text-shadow:
+    0 0 3px var(--bg),
+    0 0 3px var(--bg),
+    0 0 6px var(--bg);
+  z-index: 4;
+}
+.note-t {
+  display: block;
+}
+.note-a {
+  position: absolute;
+  width: calc(46px * var(--len, 1));
+  height: calc(48px * var(--len, 1));
+  overflow: visible;
+  fill: none;
+  stroke: var(--note);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.note-n .note-a {
+  bottom: 100%;
+  left: 50%;
+  margin-left: calc(-23px * var(--len, 1));
+  transform: scaleY(-1);
+}
+.note-w .note-a {
+  top: 50%;
+  right: 100%;
+  margin-top: calc(-24px * var(--len, 1));
+  transform: scaleX(-1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .note {
+    animation: note-in 220ms var(--ease) backwards;
+  }
+  @keyframes note-in {
+    from {
+      transform: rotate(var(--rot, -2deg)) translateY(4px);
+    }
+  }
+}
+html[data-notes='off'] .note,
+html[data-notes='off'] .notes-layer {
+  display: none;
+}
+@media (max-width: 1199px) {
+  .note,
+  .notes-layer {
+    display: none;
+  }
+}
+/* Margin notes sit outside the content column; they need the page margin to exist. */
+@media (max-width: 1399px) {
+  .note.margin {
+    display: none;
+  }
+}
+
+.notes-slot {
+  position: relative;
+  height: 72px;
+}
+.mech {
+  position: relative;
+}
+html[data-notes='off'] .notes-slot {
+  display: none;
+}
+@media (max-width: 1199px) {
+  .notes-slot {
+    display: none;
+  }
+}
+
+.trace {
+  position: relative;
+}
+.trace-instrument[hidden] ~ .trace-notes {
+  display: none;
+}
+
+/* Margin notes may sit past the page edge on mid-width screens; clip them instead of scrolling. */
+body {
+  overflow-x: clip;
+}
+.note.margin {
+  max-width: 130px;
+}
+
+main {
+  overflow-x: clip;
+}
+
+/* Anchored notes: placed by script against real elements, arrows drawn into the layer's svg. */
+.note-dyn {
+  visibility: hidden;
+  transform-origin: center;
+}
+.notes-arrows {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.note-arrow {
+  fill: none;
+  stroke: var(--note);
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* The notes switch: a glowing, glinting pill so a visitor notices that the annotations are an option. It lives in the
+   navbar; once the opening has scrolled away a floating copy pops up near the top, left of centre. The glint stops once
+   the switch has been used. */
+.notes-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 9px;
+  min-height: 34px;
+  padding: 0 14px 0 12px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--note) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 90%, var(--note));
+  color: var(--note);
+  font: 700 14px var(--note-font);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--note) 12%, transparent),
+    0 0 14px -4px color-mix(in srgb, var(--note) 16%, transparent),
+    0 6px 18px -6px rgba(0, 0, 0, 0.7);
+}
+.notes-toggle:hover {
+  border-color: var(--note);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--note) 30%, transparent),
+    0 0 26px 0 color-mix(in srgb, var(--note) 55%, transparent),
+    0 6px 18px -6px rgba(0, 0, 0, 0.7);
+}
+.notes-toggle:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+.nt-dot {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--note);
+  border-radius: 50%;
+  background: transparent;
+}
+.notes-toggle[aria-pressed='true'] .nt-dot {
+  background: var(--note);
+  box-shadow: 0 0 8px var(--note);
+}
+.notes-toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    color-mix(in srgb, var(--note) 60%, #fff) 50%,
+    transparent 62%
+  );
+  opacity: 0.35;
+  transform: translateX(-130%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-notes-seen]) .notes-toggle::after {
+    animation: notes-glint 3.6s ease-in-out 1.2s infinite;
+  }
+}
+@keyframes notes-glint {
+  0%,
+  55% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
+}
+.notes-toggle.float {
+  position: fixed;
+  top: 8px;
+  left: clamp(300px, 30vw, 520px);
+  z-index: 70;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-14px) scale(0.96);
+  transition:
+    opacity 220ms var(--ease),
+    transform 220ms var(--ease);
+}
+html[data-past-hero][data-nav='hidden'] .notes-toggle.float {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+/* Pages with no annotations have nothing to switch. */
+html[data-no-notes] .notes-toggle {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  .notes-toggle {
+    display: none;
+  }
+}
+
+/* Forced colors: the placed arrows and the note text use the system text color so they stay visible. */
+@media (forced-colors: active) {
+  .notes-arrows path {
+    stroke: CanvasText;
+  }
+  .note {
+    color: CanvasText;
+  }
+}
+
+/* The switch needs scripts: hidden (not removed, so nothing shifts) until they have run. */
+html:not([data-notes]) .notes-toggle {
+  visibility: hidden;
+}

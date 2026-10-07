@@ -1,0 +1,1917 @@
+{
+  "commit": "ac20382e98196f402454565be2c4e3b248ac8b4a",
+  "corpus": [
+    "LYNN URGENT CARE LLC",
+    "LABORATORY RESULT REPORT",
+    "",
+    "Patient Name: Guadalupe206 Valencia279",
+    "Date of Birth: 1954-04-26    Age: 60    Sex: F",
+    "Report Date: 2014-06-30",
+    "Reference No: SYN-7AD140AB",
+    "",
+    "Test Name | Result | Unit | Reference Range",
+    "--- | --- | --- | ---",
+    "Glucose [Mass/volume] in Serum or Plasma | 98.4 | mg/dL | N/A",
+    "Urea nitrogen [Mass/volume] in Serum or Plasma | 11.2 | mg/dL | N/A",
+    "Creatinine [Mass/volume] in Serum or Plasma | 1.9 | mg/dL | N/A",
+    "Calcium [Mass/volume] in Serum or Plasma | 8.8 | mg/dL | N/A",
+    "Sodium [Moles/volume] in Serum or Plasma | 139.6 | mmol/L | N/A",
+    "Potassium [Moles/volume] in Serum or Plasma | 4.1 | mmol/L | N/A",
+    "Chloride [Moles/volume] in Serum or Plasma | 101.5 | mmol/L | N/A",
+    "Carbon dioxide  total [Moles/volume] in Serum or Plasma | 21.9 | mmol/L | N/A",
+    "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M | 53.2 | mL/min/{1.73_m2} | N/A",
+    "Glucose [Mass/volume] in Urine by Test strip | 0.9 | mg/dL | N/A",
+    "MARTHA'S VINEYARD HOSPITAL INC - Clinical Laboratory",
+    "Collected / Reported: 08 Jan 2017",
+    "Accession: SYN-5D84E6A3",
+    "",
+    "PATIENT",
+    "  Name .......... Elizbeth263 Lueilwitz711",
+    "  DOB / Sex ..... 1984-08-19 / F",
+    "  Age ........... 32",
+    "",
+    "CHEMISTRY AND RELATED RESULTS",
+    "01. Glucose [Mass/volume] in Serum or Plasma",
+    "    Observed Value: 117.8 mg/dL    Reference Range: N/A",
+    "02. Urea nitrogen [Mass/volume] in Serum or Plasma",
+    "    Observed Value: 16.1 mg/dL    Reference Range: N/A",
+    "03. Creatinine [Mass/volume] in Serum or Plasma",
+    "    Observed Value: 2.0 mg/dL    Reference Range: N/A",
+    "04. Calcium [Mass/volume] in Serum or Plasma",
+    "    Observed Value: 9.7 mg/dL    Reference Range: N/A",
+    "05. Sodium [Moles/volume] in Serum or Plasma",
+    "    Observed Value: 137.4 mmol/L    Reference Range: N/A",
+    "06. Potassium [Moles/volume] in Serum or Plasma",
+    "    Observed Value: 4.0 mmol/L    Reference Range: N/A",
+    "07. Chloride [Moles/volume] in Serum or Plasma",
+    "    Observed Value: 101.0 mmol/L    Reference Range: N/A",
+    "08. Carbon dioxide  total [Moles/volume] in Serum or Plasma",
+    "    Observed Value: 26.0 mmol/L    Reference Range: N/A",
+    "09. Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M",
+    "    Observed Value: 57.3 mL/min/{1.73_m2}    Reference Range: N/A",
+    "10. Glucose [Mass/volume] in Urine by Test strip",
+    "    Observed Value: 1.7 mg/dL    Reference Range: N/A",
+    "11. Bilirubin.total [Mass/volume] in Urine by Test strip",
+    "    Observed Value: 1.2 mg/dL    Reference Range: N/A",
+    "12. Ketones [Mass/volume] in Urine by Test strip",
+    "    Observed Value: 15.4 mg/dL    Reference Range: N/A",
+    "LAB REPORT",
+    "Facility: PRIMARY CARE ASSOCIATES LLC",
+    "Report date: November 26, 2019",
+    "Case: SYN-01A006CE",
+    "",
+    "Rogelio17 Pacocha935 (M), DOB 1969-10-07, age 50",
+    "",
+    "RESULTS",
+    "* Glucose [Mass/volume] in Serum or Plasma",
+    "  value=84.2; unit=mg/dL; range=N/A",
+    "* Urea nitrogen [Mass/volume] in Serum or Plasma",
+    "  value=16.7; unit=mg/dL; range=N/A",
+    "* Creatinine [Mass/volume] in Serum or Plasma",
+    "  value=1.4; unit=mg/dL; range=N/A",
+    "* Calcium [Mass/volume] in Serum or Plasma",
+    "  value=10.1; unit=mg/dL; range=N/A",
+    "* Sodium [Moles/volume] in Serum or Plasma",
+    "  value=142.4; unit=mmol/L; range=N/A",
+    "* Potassium [Moles/volume] in Serum or Plasma",
+    "  value=3.8; unit=mmol/L; range=N/A",
+    "* Chloride [Moles/volume] in Serum or Plasma",
+    "  value=104.7; unit=mmol/L; range=N/A",
+    "* Carbon dioxide  total [Moles/volume] in Serum or Plasma",
+    "  value=27.3; unit=mmol/L; range=N/A",
+    "* Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M",
+    "  value=119.5; unit=mL/min/{1.73_m2}; range=N/A",
+    "SYNTHETIC DIAGNOSTIC LAB",
+    "OCR / NORMALIZATION TEST REPORT",
+    "",
+    "Patient Name: Test Patient",
+    "Age: 35",
+    "Sex: F",
+    "Report Date: 08/09/2026",
+    "Reference No: TEST-NORM-001",
+    "",
+    "Test Name             Result          Unit          Reference Range       Flag",
+    "--------------------------------------------------------------------------",
+    "Hemoglobin            10.5            g/dL          12.0 - 16.0          L",
+    "CRP                   <0.5            mg/dL         <1.0                 N/A",
+    "Platelet Count        12,500          10^3/µL       10,000 - 15,000      N/A",
+    "Cell Count            1.2 x 10^3      10^3/µL       1.0 - 2.0            N/A",
+    "Test Ratio            0.8 - 1.2       mmol/L        N/A                  N/A",
+    "Glucose               180             mg/dL         70 - 100             H",
+    "Albumin               3.7             gm/dl         3.5 - 5.0            N/A",
+    "COFFEE SHOP",
+    "",
+    "Coffee          4.50",
+    "Sandwich        8.25",
+    "Tax             1.10",
+    "Total           13.85",
+    "* Glucose [Mass/volume] in Serum",
+    "  observed value: 84.2 mg/dL reference range: 70 - 100",
+    "* Urea [Mass/volume] in Serum",
+    "  value=16.7 unit=mg/dL; range=N/A",
+    "* Creatinine [Mass/volume] in Serum",
+    "  value=not-a-number unit=mg/dL; range=N/A",
+    "Sodium 142 mmol/L 135-145 N/A",
+    "RP                    <8.5            mg/dL         <1.0                 N/A",
+    "Cell Count            1.2 x 1043      10^3/µL       1.0 - 2.0            N/A",
+    "Cell Count            1.2 x 10^3      10^3/µL       1.0 - 2.0            N/A",
+    "Hemoglobin            10.5            g/dL          12.0 - 16.0          L",
+    "CRP                   <0.5            mg/dL         <1.0                 N/A",
+    "Platelet Count        12,500          10^3/µL       10,000 - 15,000      N/A",
+    "Glucose               180             mg/dL         70 - 100             H",
+    "Albumin               3.7             gm/dl         3.5 - 5.0            N/A",
+    "",
+    " ",
+    "\t",
+    "N/A",
+    "Test Name | Value | Unit | Range | Flag",
+    "---|---|---",
+    "Glucose | 180 | mg/dL | 70 - 100 | H",
+    "CRP|<0.5|mg/dl|<1.0|N/A",
+    "Glucose 180 mg/dL 70-100 H",
+    "Platelet Count 12,500 10^3/µL 10,000-15,000 N/A",
+    "CRP <0.5 mg/dL <1.0 N/A",
+    "Sodium 142 mmol/L 135-145 N/A",
+    "Glucose  ١٢  mg/dL  0-20",
+    "Glucose  12,500  mg/dL  0-20000",
+    "Glucose  1,5  mg/dL  0 - 2",
+    "Glucose  1.2 x 10^3  mg/dL  0 - 2000",
+    "Glucose  1.2 x 103  mg/dL  0 - 2000",
+    "Glucose  1.2 * 10^3  mg/dL  0 - 2000",
+    "Glucose  @.5  mg/dL  0 - 2",
+    "Glucose  ©.5  mg/dL  0 - 2",
+    "Edge 0  0  gm/dl  N/A  N/A",
+    "Edge 1  -0.5  gm/dl  N/A  N/A",
+    "Edge 2  +1.25  gm/dl  N/A  N/A",
+    "Edge 3  <8.5  gm/dl  N/A  N/A",
+    "Edge 4  >= 2  gm/dl  N/A  N/A",
+    "Edge 5  <=+3  gm/dl  N/A  N/A",
+    "Edge 6  1,000  gm/dl  N/A  N/A",
+    "Edge 7  10,000.25  gm/dl  N/A  N/A",
+    "Edge 8  1,25  gm/dl  N/A  N/A",
+    "Edge 9  1.2 - 2.4  gm/dl  N/A  N/A",
+    "Edge 10  1.2-2.4  gm/dl  N/A  N/A",
+    "Edge 11  1.2 x 10^3  gm/dl  N/A  N/A",
+    "Edge 12  1.2 X 10^3  gm/dl  N/A  N/A",
+    "Edge 13  1.2 * 10^3  gm/dl  N/A  N/A",
+    "Edge 14  1.2 x 1043  gm/dl  N/A  N/A",
+    "Edge 15  N/A  gm/dl  N/A  N/A",
+    "Edge 16  none  gm/dl  N/A  N/A",
+    "Edge 17  12@3  gm/dl  N/A  N/A",
+    "Edge 18  ©5  gm/dl  N/A  N/A",
+    "Edge 19  ©5  gm/dl  N/A  N/A",
+    "Edge 20  ٣  gm/dl  N/A  N/A",
+    "Edge 21  1e3  gm/dl  N/A  N/A",
+    "Edge 22  < -2  gm/dl  N/A  N/A",
+    "Edge 23  .5  gm/dl  N/A  N/A",
+    "Edge 24  5.  gm/dl  N/A  N/A",
+    "Edge 25  1,2,3  gm/dl  N/A  N/A",
+    "Edge 26  1--2  gm/dl  N/A  N/A",
+    "Edge 27  1.2 x 10^-3  gm/dl  N/A  N/A",
+    "Edge 28  1.2 x 10^+3  gm/dl  N/A  N/A",
+    "Edge 29   7   gm/dl  N/A  N/A",
+    "Edge 30  1 2  gm/dl  N/A  N/A",
+    "Edge 31  12/3  gm/dl  N/A  N/A",
+    "Edge 32  1.2 - -2.3  gm/dl  N/A  N/A",
+    "Edge 33  0.0001  gm/dl  N/A  N/A",
+    "Edge 34  999999  gm/dl  N/A  N/A",
+    "Edge 35  4,567,890  gm/dl  N/A  N/A",
+    "Edge 36  4,56  gm/dl  N/A  N/A",
+    "Edge 37  5*10^2  gm/dl  N/A  N/A",
+    "Edge 38  5x10^2  gm/dl  N/A  N/A",
+    "Edge 39  5 x 10^2  gm/dl  N/A  N/A",
+    "Edge 40  6.2  gm/dl  N/A  N/A",
+    "Edge 41  >90  gm/dl  N/A  N/A",
+    "* Glucose [Mass/volume] in Serum",
+    "  value=84.2; unit=mg/dL; range=N/A",
+    "  observed value: 84.2 mg/dL reference range: 70 - 100"
+  ],
+  "per_line": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "test_name": "Glucose [Mass/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 98.4,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "98.4"
+      },
+      "unit": "mg/dL",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Glucose [Mass/volume] in Serum or Plasma | 98.4 | mg/dL | N/A"
+    },
+    {
+      "test_name": "Urea nitrogen [Mass/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 11.2,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "11.2"
+      },
+      "unit": "mg/dL",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Urea nitrogen [Mass/volume] in Serum or Plasma | 11.2 | mg/dL | N/A"
+    },
+    {
+      "test_name": "Creatinine [Mass/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 1.9,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.9"
+      },
+      "unit": "mg/dL",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Creatinine [Mass/volume] in Serum or Plasma | 1.9 | mg/dL | N/A"
+    },
+    {
+      "test_name": "Calcium [Mass/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 8.8,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "8.8"
+      },
+      "unit": "mg/dL",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Calcium [Mass/volume] in Serum or Plasma | 8.8 | mg/dL | N/A"
+    },
+    {
+      "test_name": "Sodium [Moles/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 139.6,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "139.6"
+      },
+      "unit": "mmol/L",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Sodium [Moles/volume] in Serum or Plasma | 139.6 | mmol/L | N/A"
+    },
+    {
+      "test_name": "Potassium [Moles/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 4.1,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "4.1"
+      },
+      "unit": "mmol/L",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Potassium [Moles/volume] in Serum or Plasma | 4.1 | mmol/L | N/A"
+    },
+    {
+      "test_name": "Chloride [Moles/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 101.5,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "101.5"
+      },
+      "unit": "mmol/L",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Chloride [Moles/volume] in Serum or Plasma | 101.5 | mmol/L | N/A"
+    },
+    {
+      "test_name": "Carbon dioxide  total [Moles/volume] in Serum or Plasma",
+      "value": {
+        "numeric": 21.9,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "21.9"
+      },
+      "unit": "mmol/L",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Carbon dioxide  total [Moles/volume] in Serum or Plasma | 21.9 | mmol/L | N/A"
+    },
+    {
+      "test_name": "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M",
+      "value": {
+        "numeric": 53.2,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "53.2"
+      },
+      "unit": "mL/min/{1.73_m2}",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M | 53.2 | mL/min/{1.73_m2} | N/A"
+    },
+    {
+      "test_name": "Glucose [Mass/volume] in Urine by Test strip",
+      "value": {
+        "numeric": 0.9,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "0.9"
+      },
+      "unit": "mg/dL",
+      "reference_range": "N/A",
+      "flag": "",
+      "raw_line": "Glucose [Mass/volume] in Urine by Test strip | 0.9 | mg/dL | N/A"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "test_name": "Hemoglobin",
+      "value": {
+        "numeric": 10.5,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "10.5"
+      },
+      "unit": "g/dL",
+      "reference_range": "12.0 - 16.0",
+      "flag": "L",
+      "raw_line": "Hemoglobin            10.5            g/dL          12.0 - 16.0          L"
+    },
+    {
+      "test_name": "CRP",
+      "value": {
+        "numeric": 0.5,
+        "kind": "scalar",
+        "operator": "<",
+        "range": null,
+        "raw": "<0.5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "<1.0",
+      "flag": "N/A",
+      "raw_line": "CRP                   <0.5            mg/dL         <1.0                 N/A"
+    },
+    {
+      "test_name": "Platelet Count",
+      "value": {
+        "numeric": 12500.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "12,500"
+      },
+      "unit": "10^3/uL",
+      "reference_range": "10,000 - 15,000",
+      "flag": "N/A",
+      "raw_line": "Platelet Count        12,500          10^3/µL       10,000 - 15,000      N/A"
+    },
+    {
+      "test_name": "Cell Count",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 x 10^3"
+      },
+      "unit": "10^3/uL",
+      "reference_range": "1.0 - 2.0",
+      "flag": "N/A",
+      "raw_line": "Cell Count            1.2 x 10^3      10^3/µL       1.0 - 2.0            N/A"
+    },
+    {
+      "test_name": "Test Ratio",
+      "value": {
+        "numeric": null,
+        "kind": "range",
+        "operator": null,
+        "range": {
+          "lower": 0.8,
+          "upper": 1.2
+        },
+        "raw": "0.8 - 1.2"
+      },
+      "unit": "mmol/L",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Test Ratio            0.8 - 1.2       mmol/L        N/A                  N/A"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 180.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "180"
+      },
+      "unit": "mg/dL",
+      "reference_range": "70 - 100",
+      "flag": "H",
+      "raw_line": "Glucose               180             mg/dL         70 - 100             H"
+    },
+    {
+      "test_name": "Albumin",
+      "value": {
+        "numeric": 3.7,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "3.7"
+      },
+      "unit": "g/dL",
+      "reference_range": "3.5 - 5.0",
+      "flag": "N/A",
+      "raw_line": "Albumin               3.7             gm/dl         3.5 - 5.0            N/A"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "test_name": "Sodium",
+      "value": {
+        "numeric": 142.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "142"
+      },
+      "unit": "mmol/L",
+      "reference_range": "135-145",
+      "flag": "N/A",
+      "raw_line": "Sodium 142 mmol/L 135-145 N/A"
+    },
+    {
+      "test_name": "RP",
+      "value": {
+        "numeric": 8.5,
+        "kind": "scalar",
+        "operator": "<",
+        "range": null,
+        "raw": "<8.5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "<1.0",
+      "flag": "N/A",
+      "raw_line": "RP                    <8.5            mg/dL         <1.0                 N/A"
+    },
+    null,
+    {
+      "test_name": "Cell Count",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 x 10^3"
+      },
+      "unit": "10^3/uL",
+      "reference_range": "1.0 - 2.0",
+      "flag": "N/A",
+      "raw_line": "Cell Count            1.2 x 10^3      10^3/µL       1.0 - 2.0            N/A"
+    },
+    {
+      "test_name": "Hemoglobin",
+      "value": {
+        "numeric": 10.5,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "10.5"
+      },
+      "unit": "g/dL",
+      "reference_range": "12.0 - 16.0",
+      "flag": "L",
+      "raw_line": "Hemoglobin            10.5            g/dL          12.0 - 16.0          L"
+    },
+    {
+      "test_name": "CRP",
+      "value": {
+        "numeric": 0.5,
+        "kind": "scalar",
+        "operator": "<",
+        "range": null,
+        "raw": "<0.5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "<1.0",
+      "flag": "N/A",
+      "raw_line": "CRP                   <0.5            mg/dL         <1.0                 N/A"
+    },
+    {
+      "test_name": "Platelet Count",
+      "value": {
+        "numeric": 12500.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "12,500"
+      },
+      "unit": "10^3/uL",
+      "reference_range": "10,000 - 15,000",
+      "flag": "N/A",
+      "raw_line": "Platelet Count        12,500          10^3/µL       10,000 - 15,000      N/A"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 180.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "180"
+      },
+      "unit": "mg/dL",
+      "reference_range": "70 - 100",
+      "flag": "H",
+      "raw_line": "Glucose               180             mg/dL         70 - 100             H"
+    },
+    {
+      "test_name": "Albumin",
+      "value": {
+        "numeric": 3.7,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "3.7"
+      },
+      "unit": "g/dL",
+      "reference_range": "3.5 - 5.0",
+      "flag": "N/A",
+      "raw_line": "Albumin               3.7             gm/dl         3.5 - 5.0            N/A"
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 180.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "180"
+      },
+      "unit": "mg/dL",
+      "reference_range": "70 - 100",
+      "flag": "H",
+      "raw_line": "Glucose | 180 | mg/dL | 70 - 100 | H"
+    },
+    {
+      "test_name": "CRP",
+      "value": {
+        "numeric": 0.5,
+        "kind": "scalar",
+        "operator": "<",
+        "range": null,
+        "raw": "<0.5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "<1.0",
+      "flag": "N/A",
+      "raw_line": "CRP|<0.5|mg/dl|<1.0|N/A"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 180.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "180"
+      },
+      "unit": "mg/dL",
+      "reference_range": "70-100",
+      "flag": "H",
+      "raw_line": "Glucose 180 mg/dL 70-100 H"
+    },
+    {
+      "test_name": "Platelet Count",
+      "value": {
+        "numeric": 12500.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "12,500"
+      },
+      "unit": "10^3/uL",
+      "reference_range": "10,000-15,000",
+      "flag": "N/A",
+      "raw_line": "Platelet Count 12,500 10^3/µL 10,000-15,000 N/A"
+    },
+    {
+      "test_name": "CRP",
+      "value": {
+        "numeric": 0.5,
+        "kind": "scalar",
+        "operator": "<",
+        "range": null,
+        "raw": "<0.5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "<1.0",
+      "flag": "N/A",
+      "raw_line": "CRP <0.5 mg/dL <1.0 N/A"
+    },
+    {
+      "test_name": "Sodium",
+      "value": {
+        "numeric": 142.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "142"
+      },
+      "unit": "mmol/L",
+      "reference_range": "135-145",
+      "flag": "N/A",
+      "raw_line": "Sodium 142 mmol/L 135-145 N/A"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 12.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "١٢"
+      },
+      "unit": "mg/dL",
+      "reference_range": "0-20",
+      "flag": "",
+      "raw_line": "Glucose  ١٢  mg/dL  0-20"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 12500.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "12,500"
+      },
+      "unit": "mg/dL",
+      "reference_range": "0-20000",
+      "flag": "",
+      "raw_line": "Glucose  12,500  mg/dL  0-20000"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 1.5,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1,5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "0 - 2",
+      "flag": "",
+      "raw_line": "Glucose  1,5  mg/dL  0 - 2"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 x 10^3"
+      },
+      "unit": "mg/dL",
+      "reference_range": "0 - 2000",
+      "flag": "",
+      "raw_line": "Glucose  1.2 x 10^3  mg/dL  0 - 2000"
+    },
+    null,
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 * 10^3"
+      },
+      "unit": "mg/dL",
+      "reference_range": "0 - 2000",
+      "flag": "",
+      "raw_line": "Glucose  1.2 * 10^3  mg/dL  0 - 2000"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 0.5,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "@.5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "0 - 2",
+      "flag": "",
+      "raw_line": "Glucose  @.5  mg/dL  0 - 2"
+    },
+    {
+      "test_name": "Glucose",
+      "value": {
+        "numeric": 0.5,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "©.5"
+      },
+      "unit": "mg/dL",
+      "reference_range": "0 - 2",
+      "flag": "",
+      "raw_line": "Glucose  ©.5  mg/dL  0 - 2"
+    },
+    {
+      "test_name": "Edge 0",
+      "value": {
+        "numeric": 0.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "0"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 0  0  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 1",
+      "value": {
+        "numeric": -0.5,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "-0.5"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 1  -0.5  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 2",
+      "value": {
+        "numeric": 1.25,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "+1.25"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 2  +1.25  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 3",
+      "value": {
+        "numeric": 8.5,
+        "kind": "scalar",
+        "operator": "<",
+        "range": null,
+        "raw": "<8.5"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 3  <8.5  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 4",
+      "value": {
+        "numeric": 2.0,
+        "kind": "scalar",
+        "operator": ">=",
+        "range": null,
+        "raw": ">= 2"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 4  >= 2  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 5",
+      "value": {
+        "numeric": 3.0,
+        "kind": "scalar",
+        "operator": "<=",
+        "range": null,
+        "raw": "<=+3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 5  <=+3  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 6",
+      "value": {
+        "numeric": 1000.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1,000"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 6  1,000  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 7",
+      "value": {
+        "numeric": 10000.25,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "10,000.25"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 7  10,000.25  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 8",
+      "value": {
+        "numeric": 1.25,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1,25"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 8  1,25  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 9",
+      "value": {
+        "numeric": null,
+        "kind": "range",
+        "operator": null,
+        "range": {
+          "lower": 1.2,
+          "upper": 2.4
+        },
+        "raw": "1.2 - 2.4"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 9  1.2 - 2.4  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 10",
+      "value": {
+        "numeric": null,
+        "kind": "range",
+        "operator": null,
+        "range": {
+          "lower": 1.2,
+          "upper": 2.4
+        },
+        "raw": "1.2-2.4"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 10  1.2-2.4  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 11",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 x 10^3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 11  1.2 x 10^3  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 12",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 X 10^3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 12  1.2 X 10^3  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 13",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 * 10^3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 13  1.2 * 10^3  gm/dl  N/A  N/A"
+    },
+    null,
+    null,
+    null,
+    {
+      "test_name": "Edge 17",
+      "value": {
+        "numeric": 1203.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "12@3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 17  12@3  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 18",
+      "value": {
+        "numeric": 5.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "©5"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 18  ©5  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 19",
+      "value": {
+        "numeric": 5.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "©5"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 19  ©5  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 20",
+      "value": {
+        "numeric": 3.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "٣"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 20  ٣  gm/dl  N/A  N/A"
+    },
+    null,
+    {
+      "test_name": "Edge 22",
+      "value": {
+        "numeric": -2.0,
+        "kind": "scalar",
+        "operator": "<",
+        "range": null,
+        "raw": "< -2"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 22  < -2  gm/dl  N/A  N/A"
+    },
+    null,
+    null,
+    null,
+    {
+      "test_name": "Edge 26",
+      "value": {
+        "numeric": null,
+        "kind": "range",
+        "operator": null,
+        "range": {
+          "lower": 1.0,
+          "upper": -2.0
+        },
+        "raw": "1--2"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 26  1--2  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 27",
+      "value": {
+        "numeric": 0.0012,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 x 10^-3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 27  1.2 x 10^-3  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 28",
+      "value": {
+        "numeric": 1200.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "1.2 x 10^+3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 28  1.2 x 10^+3  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 29",
+      "value": {
+        "numeric": 7.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "7"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 29   7   gm/dl  N/A  N/A"
+    },
+    null,
+    null,
+    {
+      "test_name": "Edge 32",
+      "value": {
+        "numeric": null,
+        "kind": "range",
+        "operator": null,
+        "range": {
+          "lower": 1.2,
+          "upper": -2.3
+        },
+        "raw": "1.2 - -2.3"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 32  1.2 - -2.3  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 33",
+      "value": {
+        "numeric": 0.0001,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "0.0001"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 33  0.0001  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 34",
+      "value": {
+        "numeric": 999999.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "999999"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 34  999999  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 35",
+      "value": {
+        "numeric": 4567890.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "4,567,890"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 35  4,567,890  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 36",
+      "value": {
+        "numeric": 4.56,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "4,56"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 36  4,56  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 37",
+      "value": {
+        "numeric": 500.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "5*10^2"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 37  5*10^2  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 38",
+      "value": {
+        "numeric": 500.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "5x10^2"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 38  5x10^2  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 39",
+      "value": {
+        "numeric": 500.0,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "5 x 10^2"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 39  5 x 10^2  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 40",
+      "value": {
+        "numeric": 6.2,
+        "kind": "scalar",
+        "operator": null,
+        "range": null,
+        "raw": "6.2"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 40  6.2  gm/dl  N/A  N/A"
+    },
+    {
+      "test_name": "Edge 41",
+      "value": {
+        "numeric": 90.0,
+        "kind": "scalar",
+        "operator": ">",
+        "range": null,
+        "raw": ">90"
+      },
+      "unit": "g/dL",
+      "reference_range": "N/A",
+      "flag": "N/A",
+      "raw_line": "Edge 41  >90  gm/dl  N/A  N/A"
+    },
+    null,
+    null,
+    null
+  ],
+  "files": [
+    {
+      "name": "report_01_standard.txt",
+      "lines": [
+        "LYNN URGENT CARE LLC",
+        "LABORATORY RESULT REPORT",
+        "",
+        "Patient Name: Guadalupe206 Valencia279",
+        "Date of Birth: 1954-04-26    Age: 60    Sex: F",
+        "Report Date: 2014-06-30",
+        "Reference No: SYN-7AD140AB",
+        "",
+        "Test Name | Result | Unit | Reference Range",
+        "--- | --- | --- | ---",
+        "Glucose [Mass/volume] in Serum or Plasma | 98.4 | mg/dL | N/A",
+        "Urea nitrogen [Mass/volume] in Serum or Plasma | 11.2 | mg/dL | N/A",
+        "Creatinine [Mass/volume] in Serum or Plasma | 1.9 | mg/dL | N/A",
+        "Calcium [Mass/volume] in Serum or Plasma | 8.8 | mg/dL | N/A",
+        "Sodium [Moles/volume] in Serum or Plasma | 139.6 | mmol/L | N/A",
+        "Potassium [Moles/volume] in Serum or Plasma | 4.1 | mmol/L | N/A",
+        "Chloride [Moles/volume] in Serum or Plasma | 101.5 | mmol/L | N/A",
+        "Carbon dioxide  total [Moles/volume] in Serum or Plasma | 21.9 | mmol/L | N/A",
+        "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M | 53.2 | mL/min/{1.73_m2} | N/A",
+        "Glucose [Mass/volume] in Urine by Test strip | 0.9 | mg/dL | N/A"
+      ],
+      "results": [
+        {
+          "test_name": "Glucose [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 98.4,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "98.4"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Glucose [Mass/volume] in Serum or Plasma | 98.4 | mg/dL | N/A"
+        },
+        {
+          "test_name": "Urea nitrogen [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 11.2,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "11.2"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Urea nitrogen [Mass/volume] in Serum or Plasma | 11.2 | mg/dL | N/A"
+        },
+        {
+          "test_name": "Creatinine [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 1.9,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "1.9"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Creatinine [Mass/volume] in Serum or Plasma | 1.9 | mg/dL | N/A"
+        },
+        {
+          "test_name": "Calcium [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 8.8,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "8.8"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Calcium [Mass/volume] in Serum or Plasma | 8.8 | mg/dL | N/A"
+        },
+        {
+          "test_name": "Sodium [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 139.6,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "139.6"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Sodium [Moles/volume] in Serum or Plasma | 139.6 | mmol/L | N/A"
+        },
+        {
+          "test_name": "Potassium [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 4.1,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "4.1"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Potassium [Moles/volume] in Serum or Plasma | 4.1 | mmol/L | N/A"
+        },
+        {
+          "test_name": "Chloride [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 101.5,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "101.5"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Chloride [Moles/volume] in Serum or Plasma | 101.5 | mmol/L | N/A"
+        },
+        {
+          "test_name": "Carbon dioxide  total [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 21.9,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "21.9"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Carbon dioxide  total [Moles/volume] in Serum or Plasma | 21.9 | mmol/L | N/A"
+        },
+        {
+          "test_name": "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M",
+          "value": {
+            "numeric": 53.2,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "53.2"
+          },
+          "unit": "mL/min/{1.73_m2}",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M | 53.2 | mL/min/{1.73_m2} | N/A"
+        },
+        {
+          "test_name": "Glucose [Mass/volume] in Urine by Test strip",
+          "value": {
+            "numeric": 0.9,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "0.9"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "Glucose [Mass/volume] in Urine by Test strip | 0.9 | mg/dL | N/A"
+        }
+      ]
+    },
+    {
+      "name": "report_02_complex.txt",
+      "lines": [
+        "MARTHA'S VINEYARD HOSPITAL INC - Clinical Laboratory",
+        "Collected / Reported: 08 Jan 2017",
+        "Accession: SYN-5D84E6A3",
+        "",
+        "PATIENT",
+        "  Name .......... Elizbeth263 Lueilwitz711",
+        "  DOB / Sex ..... 1984-08-19 / F",
+        "  Age ........... 32",
+        "",
+        "CHEMISTRY AND RELATED RESULTS",
+        "01. Glucose [Mass/volume] in Serum or Plasma",
+        "    Observed Value: 117.8 mg/dL    Reference Range: N/A",
+        "02. Urea nitrogen [Mass/volume] in Serum or Plasma",
+        "    Observed Value: 16.1 mg/dL    Reference Range: N/A",
+        "03. Creatinine [Mass/volume] in Serum or Plasma",
+        "    Observed Value: 2.0 mg/dL    Reference Range: N/A",
+        "04. Calcium [Mass/volume] in Serum or Plasma",
+        "    Observed Value: 9.7 mg/dL    Reference Range: N/A",
+        "05. Sodium [Moles/volume] in Serum or Plasma",
+        "    Observed Value: 137.4 mmol/L    Reference Range: N/A",
+        "06. Potassium [Moles/volume] in Serum or Plasma",
+        "    Observed Value: 4.0 mmol/L    Reference Range: N/A",
+        "07. Chloride [Moles/volume] in Serum or Plasma",
+        "    Observed Value: 101.0 mmol/L    Reference Range: N/A",
+        "08. Carbon dioxide  total [Moles/volume] in Serum or Plasma",
+        "    Observed Value: 26.0 mmol/L    Reference Range: N/A",
+        "09. Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M",
+        "    Observed Value: 57.3 mL/min/{1.73_m2}    Reference Range: N/A",
+        "10. Glucose [Mass/volume] in Urine by Test strip",
+        "    Observed Value: 1.7 mg/dL    Reference Range: N/A",
+        "11. Bilirubin.total [Mass/volume] in Urine by Test strip",
+        "    Observed Value: 1.2 mg/dL    Reference Range: N/A",
+        "12. Ketones [Mass/volume] in Urine by Test strip",
+        "    Observed Value: 15.4 mg/dL    Reference Range: N/A"
+      ],
+      "results": [
+        {
+          "test_name": "Glucose [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 117.8,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "117.8"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "01. Glucose [Mass/volume] in Serum or Plasma\n    Observed Value: 117.8 mg/dL    Reference Range: N/A"
+        },
+        {
+          "test_name": "Urea nitrogen [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 16.1,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "16.1"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "02. Urea nitrogen [Mass/volume] in Serum or Plasma\n    Observed Value: 16.1 mg/dL    Reference Range: N/A"
+        },
+        {
+          "test_name": "Creatinine [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 2.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "2.0"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "03. Creatinine [Mass/volume] in Serum or Plasma\n    Observed Value: 2.0 mg/dL    Reference Range: N/A"
+        },
+        {
+          "test_name": "Calcium [Mass/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 9.7,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "9.7"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "04. Calcium [Mass/volume] in Serum or Plasma\n    Observed Value: 9.7 mg/dL    Reference Range: N/A"
+        },
+        {
+          "test_name": "Sodium [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 137.4,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "137.4"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "05. Sodium [Moles/volume] in Serum or Plasma\n    Observed Value: 137.4 mmol/L    Reference Range: N/A"
+        },
+        {
+          "test_name": "Potassium [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 4.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "4.0"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "06. Potassium [Moles/volume] in Serum or Plasma\n    Observed Value: 4.0 mmol/L    Reference Range: N/A"
+        },
+        {
+          "test_name": "Chloride [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 101.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "101.0"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "07. Chloride [Moles/volume] in Serum or Plasma\n    Observed Value: 101.0 mmol/L    Reference Range: N/A"
+        },
+        {
+          "test_name": "Carbon dioxide  total [Moles/volume] in Serum or Plasma",
+          "value": {
+            "numeric": 26.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "26.0"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "08. Carbon dioxide  total [Moles/volume] in Serum or Plasma\n    Observed Value: 26.0 mmol/L    Reference Range: N/A"
+        },
+        {
+          "test_name": "Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M",
+          "value": {
+            "numeric": 57.3,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "57.3"
+          },
+          "unit": "mL/min/{1.73_m2}",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "09. Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M\n    Observed Value: 57.3 mL/min/{1.73_m2}    Reference Range: N/A"
+        },
+        {
+          "test_name": "Glucose [Mass/volume] in Urine by Test strip",
+          "value": {
+            "numeric": 1.7,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "1.7"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "10. Glucose [Mass/volume] in Urine by Test strip\n    Observed Value: 1.7 mg/dL    Reference Range: N/A"
+        },
+        {
+          "test_name": "Bilirubin.total [Mass/volume] in Urine by Test strip",
+          "value": {
+            "numeric": 1.2,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "1.2"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "11. Bilirubin.total [Mass/volume] in Urine by Test strip\n    Observed Value: 1.2 mg/dL    Reference Range: N/A"
+        },
+        {
+          "test_name": "Ketones [Mass/volume] in Urine by Test strip",
+          "value": {
+            "numeric": 15.4,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "15.4"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "12. Ketones [Mass/volume] in Urine by Test strip\n    Observed Value: 15.4 mg/dL    Reference Range: N/A"
+        }
+      ]
+    },
+    {
+      "name": "report_03_alternate_layout.txt",
+      "lines": [
+        "LAB REPORT",
+        "Facility: PRIMARY CARE ASSOCIATES LLC",
+        "Report date: November 26, 2019",
+        "Case: SYN-01A006CE",
+        "",
+        "Rogelio17 Pacocha935 (M), DOB 1969-10-07, age 50",
+        "",
+        "RESULTS",
+        "* Glucose [Mass/volume] in Serum or Plasma",
+        "  value=84.2; unit=mg/dL; range=N/A",
+        "* Urea nitrogen [Mass/volume] in Serum or Plasma",
+        "  value=16.7; unit=mg/dL; range=N/A",
+        "* Creatinine [Mass/volume] in Serum or Plasma",
+        "  value=1.4; unit=mg/dL; range=N/A",
+        "* Calcium [Mass/volume] in Serum or Plasma",
+        "  value=10.1; unit=mg/dL; range=N/A",
+        "* Sodium [Moles/volume] in Serum or Plasma",
+        "  value=142.4; unit=mmol/L; range=N/A",
+        "* Potassium [Moles/volume] in Serum or Plasma",
+        "  value=3.8; unit=mmol/L; range=N/A",
+        "* Chloride [Moles/volume] in Serum or Plasma",
+        "  value=104.7; unit=mmol/L; range=N/A",
+        "* Carbon dioxide  total [Moles/volume] in Serum or Plasma",
+        "  value=27.3; unit=mmol/L; range=N/A",
+        "* Glomerular filtration rate [Volume Rate/Area] in Serum or Plasma by Creatinine-based formula (MDRD)/1.73 sq M",
+        "  value=119.5; unit=mL/min/{1.73_m2}; range=N/A"
+      ],
+      "results": []
+    },
+    {
+      "name": "report_04_normalization_edge_cases.txt",
+      "lines": [
+        "SYNTHETIC DIAGNOSTIC LAB",
+        "OCR / NORMALIZATION TEST REPORT",
+        "",
+        "Patient Name: Test Patient",
+        "Age: 35",
+        "Sex: F",
+        "Report Date: 08/09/2026",
+        "Reference No: TEST-NORM-001",
+        "",
+        "Test Name             Result          Unit          Reference Range       Flag",
+        "--------------------------------------------------------------------------",
+        "Hemoglobin            10.5            g/dL          12.0 - 16.0          L",
+        "CRP                   <0.5            mg/dL         <1.0                 N/A",
+        "Platelet Count        12,500          10^3/µL       10,000 - 15,000      N/A",
+        "Cell Count            1.2 x 10^3      10^3/µL       1.0 - 2.0            N/A",
+        "Test Ratio            0.8 - 1.2       mmol/L        N/A                  N/A",
+        "Glucose               180             mg/dL         70 - 100             H",
+        "Albumin               3.7             gm/dl         3.5 - 5.0            N/A"
+      ],
+      "results": [
+        {
+          "test_name": "Hemoglobin",
+          "value": {
+            "numeric": 10.5,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "10.5"
+          },
+          "unit": "g/dL",
+          "reference_range": "12.0 - 16.0",
+          "flag": "L",
+          "raw_line": "Hemoglobin            10.5            g/dL          12.0 - 16.0          L"
+        },
+        {
+          "test_name": "CRP",
+          "value": {
+            "numeric": 0.5,
+            "kind": "scalar",
+            "operator": "<",
+            "range": null,
+            "raw": "<0.5"
+          },
+          "unit": "mg/dL",
+          "reference_range": "<1.0",
+          "flag": "N/A",
+          "raw_line": "CRP                   <0.5            mg/dL         <1.0                 N/A"
+        },
+        {
+          "test_name": "Platelet Count",
+          "value": {
+            "numeric": 12500.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "12,500"
+          },
+          "unit": "10^3/uL",
+          "reference_range": "10,000 - 15,000",
+          "flag": "N/A",
+          "raw_line": "Platelet Count        12,500          10^3/µL       10,000 - 15,000      N/A"
+        },
+        {
+          "test_name": "Cell Count",
+          "value": {
+            "numeric": 1200.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "1.2 x 10^3"
+          },
+          "unit": "10^3/uL",
+          "reference_range": "1.0 - 2.0",
+          "flag": "N/A",
+          "raw_line": "Cell Count            1.2 x 10^3      10^3/µL       1.0 - 2.0            N/A"
+        },
+        {
+          "test_name": "Test Ratio",
+          "value": {
+            "numeric": null,
+            "kind": "range",
+            "operator": null,
+            "range": {
+              "lower": 0.8,
+              "upper": 1.2
+            },
+            "raw": "0.8 - 1.2"
+          },
+          "unit": "mmol/L",
+          "reference_range": "N/A",
+          "flag": "N/A",
+          "raw_line": "Test Ratio            0.8 - 1.2       mmol/L        N/A                  N/A"
+        },
+        {
+          "test_name": "Glucose",
+          "value": {
+            "numeric": 180.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "180"
+          },
+          "unit": "mg/dL",
+          "reference_range": "70 - 100",
+          "flag": "H",
+          "raw_line": "Glucose               180             mg/dL         70 - 100             H"
+        },
+        {
+          "test_name": "Albumin",
+          "value": {
+            "numeric": 3.7,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "3.7"
+          },
+          "unit": "g/dL",
+          "reference_range": "3.5 - 5.0",
+          "flag": "N/A",
+          "raw_line": "Albumin               3.7             gm/dl         3.5 - 5.0            N/A"
+        }
+      ]
+    },
+    {
+      "name": "non_lab_receipt.txt",
+      "lines": [
+        "COFFEE SHOP",
+        "",
+        "Coffee          4.50",
+        "Sandwich        8.25",
+        "Tax             1.10",
+        "Total           13.85"
+      ],
+      "results": []
+    },
+    {
+      "name": "synthetic_multiline.txt",
+      "lines": [
+        "* Glucose [Mass/volume] in Serum",
+        "  observed value: 84.2 mg/dL reference range: 70 - 100",
+        "* Urea [Mass/volume] in Serum",
+        "  value=16.7 unit=mg/dL; range=N/A",
+        "* Creatinine [Mass/volume] in Serum",
+        "  value=not-a-number unit=mg/dL; range=N/A",
+        "Sodium 142 mmol/L 135-145 N/A"
+      ],
+      "results": [
+        {
+          "test_name": "Glucose [Mass/volume] in Serum",
+          "value": {
+            "numeric": 84.2,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "84.2"
+          },
+          "unit": "mg/dL",
+          "reference_range": "70 - 100",
+          "flag": "",
+          "raw_line": "* Glucose [Mass/volume] in Serum\n  observed value: 84.2 mg/dL reference range: 70 - 100"
+        },
+        {
+          "test_name": "Urea [Mass/volume] in Serum",
+          "value": {
+            "numeric": 16.7,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "16.7"
+          },
+          "unit": "mg/dL",
+          "reference_range": "N/A",
+          "flag": "",
+          "raw_line": "* Urea [Mass/volume] in Serum\n  value=16.7 unit=mg/dL; range=N/A"
+        },
+        {
+          "test_name": "Sodium",
+          "value": {
+            "numeric": 142.0,
+            "kind": "scalar",
+            "operator": null,
+            "range": null,
+            "raw": "142"
+          },
+          "unit": "mmol/L",
+          "reference_range": "135-145",
+          "flag": "N/A",
+          "raw_line": "Sodium 142 mmol/L 135-145 N/A"
+        }
+      ]
+    }
+  ]
+}

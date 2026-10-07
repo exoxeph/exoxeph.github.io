@@ -1,0 +1,578 @@
+---
+// The opening: identity plus one readable object, "input checked before action".
+// Four steps, five cases drawn from the real systems below. Switching is native radios plus CSS, so it works
+// without scripts. Every case restates a recorded or documented fact; nothing here is a measurement.
+import { site } from '../../data/site.ts';
+import Portrait from '../portrait/Portrait.astro';
+import Note from '../notes/Note.astro';
+
+type Case = {
+  id: string;
+  tab: string;
+  system: string;
+  input: string;
+  rule: string;
+  verdict: 'pass' | 'caught';
+  action: string;
+  outcome: string;
+  note: string;
+};
+const cases: Case[] = [
+  {
+    id: 'unclear',
+    tab: 'Unclear',
+    system: 'AI email writer',
+    input: '“I need an email about my job assessment.”',
+    rule: 'Too vague to write from',
+    verdict: 'caught',
+    action: 'Ask a question first',
+    outcome: 'No email is written',
+    note: 'Until the request is clear',
+  },
+  {
+    id: 'capacity',
+    tab: 'Over capacity',
+    system: 'Ride pooling',
+    input: '2 seats requested, 3 of 3 taken',
+    rule: '3 + 2 is more than 3',
+    verdict: 'caught',
+    action: 'Refuse the request',
+    outcome: 'Nothing changes',
+    note: 'Still 3 of 3 seats',
+  },
+  {
+    id: 'reading',
+    tab: 'Bad reading',
+    system: 'Extraction',
+    input: 'Cell Count 1.2 x 1043',
+    rule: 'Matches no known number form',
+    verdict: 'caught',
+    action: 'Leave the row out',
+    outcome: 'Not guessed, not kept',
+    note: 'The rest of the report goes through',
+  },
+  {
+    id: 'score',
+    tab: 'Low score',
+    system: 'Retrieval',
+    input: 'Draft answer scored 0.67',
+    rule: '0.67 is below the 0.72 threshold',
+    verdict: 'caught',
+    action: 'One repair attempt',
+    outcome: 'Checked again',
+    note: 'Before the answer is used',
+  },
+  {
+    id: 'pass',
+    tab: 'Passes',
+    system: 'Ride pooling',
+    input: '1 seat requested, 0 of 3 taken',
+    rule: '0 + 1 is within 3',
+    verdict: 'pass',
+    action: 'No intervention needed',
+    outcome: 'Accepted',
+    note: '1 of 3 seats taken',
+  },
+];
+---
+
+<section class="hero" aria-labelledby="hero-h">
+  <div class="wrap hero-grid">
+    <div class="hero-id">
+      <div class="hero-who">
+        <Portrait size={140} loading="eager" />
+        <p class="who">
+          AI Engineer at Data Solution-360
+          <br />
+          Computer Science, BRAC University
+          <br />
+          Dhaka, Bangladesh
+        </p>
+      </div>
+      <h1 id="hero-h">
+        <span class="name">{site.name}</span>
+        <span class="role">{site.role}</span>
+      </h1>
+      <p class="lede">{site.lede}</p>
+      <div class="actions">
+        <a class="btn solid" href="#work">
+          {' '}
+          Selected work{' '}
+        </a>
+        {site.resume.available ? (
+          <a class="btn" href={site.resume.path}>
+            Résumé
+          </a>
+        ) : (
+          <span class="btn" aria-disabled="true" title="Published after a privacy review">
+            Résumé (pending)
+          </span>
+        )}
+      </div>
+    </div>
+
+    <figure class="flow" aria-label="An input is checked before the system acts">
+      <div class="notes-layer">
+        <Note cls="margin" t="1. pick a case" to=".flow-tabs" at="mr" dx={96} dy={-2} r={-3} />
+        <Note cls="margin" t="2. what comes in" to=".flow-case .fs-input" at="mr" dx={96} dy={-2} r={2} />
+        <Note
+          cls="margin"
+          t="3. the rule that catches it"
+          to=".flow-case .fs-check"
+          at="mr"
+          dx={96}
+          dy={2}
+          r={-2}
+          w="130px"
+        />
+        <Note
+          cls="margin"
+          t="4. what the system does"
+          to=".flow-case .fs-control"
+          at="mr"
+          dx={96}
+          dy={4}
+          r={2}
+          w="130px"
+        />
+        <Note cls="margin" t="5. what comes out" to=".flow-case .fs-out" at="mr" dx={96} dy={-6} r={-2} />
+      </div>
+      {cases.map((c, i) => (
+        <input
+          class="flow-radio"
+          type="radio"
+          name="hero-case"
+          id={`hc-${c.id}`}
+          aria-label={c.tab}
+          aria-describedby="hero-case-hint"
+          checked={i === 0}
+        />
+      ))}
+      <span id="hero-case-hint" class="visually-hidden">
+        One of five cases. Choose one and the check below shows what the system does with that input.
+      </span>
+      <p class="visually-hidden" role="status" data-flow-live></p>
+      <div class="flow-tabs" aria-hidden="true">
+        {cases.map((c) => (
+          <label for={`hc-${c.id}`}>{c.tab}</label>
+        ))}
+      </div>
+      <div class="flow-stage">
+        {cases.map((c) => (
+          <ol class={`flow-case case-${c.id} ${c.verdict}`}>
+            <li class="fs fs-input">
+              <span class="fs-label">Input</span>
+              <span class="fs-main">{c.input}</span>
+              <span class="fs-sub">{c.system}</span>
+            </li>
+            <li class="fs fs-check">
+              <span class="fs-label">Check</span>
+              <span class="fs-main">{c.rule}</span>
+              <span class="fs-flag">{c.verdict === 'pass' ? 'passes' : 'caught'}</span>
+            </li>
+            <li class="fs fs-control">
+              <span class="fs-label">Control</span>
+              <span class="fs-main">{c.action}</span>
+            </li>
+            <li class="fs fs-out">
+              <span class="fs-label">Outcome</span>
+              <span class="fs-main big">{c.outcome}</span>
+              <span class="fs-sub">{c.note}</span>
+            </li>
+          </ol>
+        ))}
+      </div>
+      <figcaption class="flow-cap">
+        Each request is checked before the system acts. These cases come from the four projects below.
+      </figcaption>
+    </figure>
+
+    <p class="hero-next" aria-hidden="true">
+      <span>Four projects, one idea: check before acting</span>
+      <span>below</span>
+    </p>
+  </div>
+</section>
+
+<script>
+  // Progressive enhancement: the case switch is plain radios and CSS, so it works without this. With scripts, the
+  // result of the chosen case is also announced once, in one sentence, because the visible change is below the radios.
+  const live = document.querySelector<HTMLElement>('[data-flow-live]');
+  document.querySelectorAll<HTMLInputElement>('.flow-radio').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      if (!radio.checked || !live) return;
+      const parts = [...document.querySelectorAll(`.case-${radio.id.replace('hc-', '')} .fs`)].map((step) => {
+        const [label, ...rest] = [...step.children].map((child) => child.textContent?.trim() ?? '');
+        return `${label}: ${rest.filter(Boolean).join(', ')}`;
+      });
+      live.textContent = `${radio.getAttribute('aria-label')}. ${parts.join('. ')}.`;
+    });
+  });
+</script>
+
+<style is:global>
+  .hero {
+    display: flex;
+    align-items: center;
+    min-height: clamp(540px, 78vh, 860px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 24px clamp(32px, 5vw, 88px);
+    padding-block: clamp(28px, 6vh, 64px) clamp(52px, 8vh, 84px);
+  }
+  .hero-who {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    margin: 0 0 clamp(22px, 3.6vh, 36px) 11px;
+  }
+  .hero-who .who {
+    margin: 0;
+    color: var(--muted);
+    font: 400 12px / 1.7 var(--mono);
+    letter-spacing: 0.04em;
+  }
+  .hero-id h1 {
+    margin: 0;
+    font: 400 clamp(3.1rem, 5.5vw, 5.3rem) / 0.98 var(--serif);
+    letter-spacing: -0.02em;
+  }
+  .hero-id .name {
+    display: block;
+  }
+  .hero-id .role {
+    display: block;
+    margin: 0.22em 0 0;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .hero-id .lede {
+    max-width: 30ch;
+    margin: clamp(18px, 3vh, 30px) 0 0;
+    color: var(--muted);
+    font: 400 clamp(1.1rem, 1.5vw, 1.35rem) / 1.4 var(--serif);
+  }
+  .hero-id .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: clamp(22px, 4vh, 40px);
+  }
+
+  /* the flow: input, check, control, outcome */
+  .flow {
+    position: relative;
+    margin: 0;
+  }
+  .flow-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flow-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 22px;
+  }
+  .flow-tabs label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 7px;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    font: 400 12px var(--mono);
+    cursor: pointer;
+    transition:
+      color 120ms var(--ease),
+      border-color 120ms var(--ease);
+  }
+  .flow-tabs label:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+  /* Phones: three short identity lines beside the portrait, each kept on one line (the current role must not split at
+     its hyphen). */
+  @media (max-width: 899px) {
+    .hero-who .who {
+      font-size: 10.5px;
+      line-height: 1.65;
+      letter-spacing: 0;
+    }
+  }
+  /* A finger needs a 44px target; a mouse keeps the 40px tabs. */
+  @media (pointer: coarse) {
+    .flow-tabs label {
+      min-height: 44px;
+    }
+  }
+  #hc-capacity:checked ~ .flow-tabs label[for='hc-capacity'],
+  #hc-unclear:checked ~ .flow-tabs label[for='hc-unclear'],
+  #hc-reading:checked ~ .flow-tabs label[for='hc-reading'],
+  #hc-score:checked ~ .flow-tabs label[for='hc-score'],
+  #hc-pass:checked ~ .flow-tabs label[for='hc-pass'] {
+    color: var(--bg);
+    background: var(--text);
+    border-color: var(--text);
+  }
+  #hc-capacity:focus-visible ~ .flow-tabs label[for='hc-capacity'],
+  #hc-unclear:focus-visible ~ .flow-tabs label[for='hc-unclear'],
+  #hc-reading:focus-visible ~ .flow-tabs label[for='hc-reading'],
+  #hc-score:focus-visible ~ .flow-tabs label[for='hc-score'],
+  #hc-pass:focus-visible ~ .flow-tabs label[for='hc-pass'] {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .flow-case {
+    display: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  #hc-capacity:checked ~ .flow-stage .case-capacity,
+  #hc-unclear:checked ~ .flow-stage .case-unclear,
+  #hc-reading:checked ~ .flow-stage .case-reading,
+  #hc-score:checked ~ .flow-stage .case-score,
+  #hc-pass:checked ~ .flow-stage .case-pass {
+    display: block;
+  }
+  .fs {
+    position: relative;
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+    column-gap: 14px;
+    align-items: baseline;
+    padding: 0 0 32px 24px;
+    border-left: 1px solid var(--muted);
+  }
+  .fs:last-child {
+    padding-bottom: 0;
+    border-left-color: transparent;
+  }
+  .fs::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: -5px;
+    width: 9px;
+    height: 9px;
+    border: 1px solid var(--muted);
+    background: var(--bg);
+  }
+  .fs-check::after {
+    content: '';
+    position: absolute;
+    top: 7px;
+    left: -14px;
+    width: 28px;
+    height: 2px;
+    background: var(--verified);
+  }
+  .caught .fs-check::after {
+    background: var(--invalid);
+  }
+  .fs-label {
+    color: var(--muted);
+    font: 400 11px var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .fs-main {
+    min-width: 0;
+    color: var(--text);
+    font: 400 18px/1.35 var(--sans);
+  }
+  .fs-main.big {
+    font: 400 clamp(1.5rem, 2.2vw, 2rem) / 1.1 var(--serif);
+  }
+  .fs-sub {
+    grid-column: 2 / 4;
+    margin-top: 3px;
+    color: var(--muted);
+    font: 400 12px var(--mono);
+  }
+  .fs-input .fs-main {
+    font: 400 14px/1.4 var(--mono);
+  }
+  .fs-flag {
+    padding: 2px 8px;
+    border: 1px solid var(--verified);
+    color: var(--verified);
+    font: 400 11px var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .caught .fs-flag {
+    border-color: var(--invalid);
+    background: repeating-linear-gradient(135deg, rgba(242, 141, 123, 0.2) 0 2px, transparent 2px 7px);
+    color: var(--invalid);
+  }
+  .caught .fs-check::before {
+    border-color: var(--invalid);
+    background: var(--invalid);
+  }
+  .caught .fs-control::before,
+  .caught .fs-out::before {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .caught .fs-control .fs-main {
+    color: var(--accent);
+  }
+  .caught .fs-check {
+    border-left-style: dashed;
+    border-left-color: var(--invalid);
+  }
+  .pass .fs-check::before,
+  .pass .fs-out::before {
+    border-color: var(--verified);
+    background: var(--verified);
+  }
+  .pass .fs-control .fs-main {
+    color: var(--muted);
+  }
+  .flow-cap {
+    margin-top: 26px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule);
+    color: var(--text);
+    font: 400 14px/1.5 var(--sans);
+    opacity: 0.88;
+  }
+  .hero-next {
+    position: absolute;
+    right: var(--pad);
+    bottom: 18px;
+    left: var(--pad);
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font: 400 11px var(--mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flow-case .fs {
+      animation: fs-in 260ms var(--ease) backwards;
+    }
+    .flow-case .fs:nth-child(2) {
+      animation-delay: 110ms;
+    }
+    .flow-case .fs:nth-child(3) {
+      animation-delay: 220ms;
+    }
+    .flow-case .fs:nth-child(4) {
+      animation-delay: 330ms;
+    }
+  }
+  @keyframes fs-in {
+    from {
+      transform: translateY(8px);
+    }
+  }
+  @media (max-width: 899px) {
+    .hero {
+      min-height: 0;
+    }
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+      padding-block: 18px 44px;
+    }
+    /* A phone gets the identity and both actions on the first screen, with the signature check peeking in under them. */
+    .hero-id h1 {
+      font-size: clamp(2.1rem, 10.4vw, 3.6rem);
+    }
+    .hero-id .role {
+      margin-top: 0.12em;
+    }
+    .hero-id {
+      display: contents;
+    }
+    .hero .portrait {
+      --p: 92px !important;
+    }
+    .hero-who {
+      gap: 20px;
+      margin: 0;
+    }
+    .hero-id h1,
+    .hero-id .lede,
+    .hero-id .actions {
+      order: 1;
+    }
+    .hero-id .lede {
+      max-width: 34ch;
+      margin: 0;
+      font-size: 1.12rem;
+    }
+    .hero-id .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: none;
+      margin-top: 0;
+    }
+    .hero-id .actions .btn {
+      justify-content: center;
+      min-height: 46px;
+      padding-inline: 10px;
+      text-align: center;
+    }
+    .flow {
+      order: 2;
+    }
+    .fs {
+      grid-template-columns: 62px minmax(0, 1fr) auto;
+      column-gap: 10px;
+    }
+  }
+
+  /* A phone on its side (about 375px tall): a smaller portrait, name and role on one line, so the actions stay on screen. */
+  @media (max-width: 899px) and (max-height: 500px) {
+    .hero-grid {
+      gap: 10px;
+      padding-block: 10px 28px;
+    }
+    .hero .portrait {
+      --p: 64px !important;
+    }
+    .hero-id h1 {
+      font-size: clamp(1.7rem, 5.4vw, 2.4rem);
+    }
+    .hero-id .name,
+    .hero-id .role {
+      display: inline;
+    }
+    .hero-id .role {
+      margin-left: 0.3em;
+    }
+    .hero-id .lede {
+      font-size: 1rem;
+    }
+    .hero-id .actions .btn {
+      min-height: 42px;
+    }
+  }
+
+  /* Forced colors: the chosen case is marked with the system selection colors, not a fill that would be dropped. */
+  @media (forced-colors: active) {
+    #hc-capacity:checked ~ .flow-tabs label[for='hc-capacity'],
+    #hc-unclear:checked ~ .flow-tabs label[for='hc-unclear'],
+    #hc-reading:checked ~ .flow-tabs label[for='hc-reading'],
+    #hc-score:checked ~ .flow-tabs label[for='hc-score'],
+    #hc-pass:checked ~ .flow-tabs label[for='hc-pass'] {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+</style>

@@ -1,0 +1,40 @@
+---
+title: Backdoor mitigation by weight merging
+description: Applied research on removing backdoors from NLP classifiers by merging model weights, carried out within a research group and built on published work.
+status: draft
+researchLevel: A
+question: Whether merging the weights of a suspect model with clean models can remove backdoors from NLP classifiers while keeping clean accuracy, and whether being selective about what is merged helps.
+contribution:
+  role: PENDING APPROVAL. Wording of the role (implementation and evaluation within a research group, building on published work) must be approved before publication.
+  team: Group research. Teammates and supervisors are credited by name only with their consent.
+  upstream: The published baseline, Here's a Free Lunch, Sanitizing Backdoored Models with Model Merge (ACL 2024), is credited to its authors. This work builds on it and does not claim it.
+approvals:
+  - Wording of the research question and whether the group's formulation may be stated
+  - Wording and detail of the contribution sentence
+  - Whether teammates, the supervisor or the institution may be named
+  - Whether any dataset or setup description may be shown
+  - Institutional or group publication requirements
+disclosureNotes: Only public-safe material appears here. Private code, thesis text, pipeline details, datasets, checkpoints and any result from the group's experiments are not public.
+limitations:
+  - The work is part of an ongoing research effort and the experiments are incomplete.
+  - Results are not publicly claimed.
+---
+
+<Section id="question" title="Research question">
+  {frontmatter.question}
+</Section>
+
+<Section id="prior" title="Prior problem">
+  Backdoored checkpoints are a supply-chain risk for openly shared models. Published work showed that merging
+  a suspect model with other models can reduce backdoor behavior.
+</Section>
+
+<Section id="method" title="Method, in public terms">
+  Weight interpolation between a suspect model and a clean model with a mixing weight. Selective versus global
+  averaging as a concept. Backdoor behavior is measured as attack success rate and task behavior as clean
+  accuracy.
+</Section>
+
+<Section id="boundary" title="Disclosure boundary">
+  Results are not publicly claimed. The public description covers only cleared material.
+</Section>

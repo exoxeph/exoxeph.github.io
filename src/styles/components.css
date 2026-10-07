@@ -1,0 +1,240 @@
+/* Shared component styles: buttons, evidence tags, ledger, prose, figures, header, footer. */
+
+/* controls */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 1.3rem;
+  border: 1.5px solid var(--text);
+  color: var(--text);
+  text-decoration: none;
+  font: 500 var(--t-ui) var(--sans);
+  border-radius: var(--radius);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  transition:
+    background-color var(--m-micro) var(--ease),
+    color var(--m-micro) var(--ease),
+    border-color var(--m-micro) var(--ease);
+}
+.btn.solid {
+  background: var(--text);
+  color: var(--bg);
+}
+.btn.solid:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.btn:not(.solid):hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn[disabled],
+.btn[aria-disabled='true'] {
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px dashed var(--muted);
+  cursor: not-allowed;
+}
+.btn[disabled]:hover,
+.btn[aria-disabled='true']:hover {
+  background: transparent;
+  border-color: var(--muted);
+  color: var(--muted);
+}
+.arrow-link {
+  font-weight: 500;
+}
+@media (max-width: 420px) {
+  .btn {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+/* evidence and state tags: text + marker shape + color, never color alone */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font: 500 var(--t-tag) / 1.2 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tag i {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1.5px solid currentColor;
+  display: inline-block;
+  flex: none;
+}
+.tag.verified {
+  color: var(--verified);
+}
+.tag.verified i {
+  background: currentColor;
+}
+.tag.partial {
+  color: var(--partial);
+}
+.tag.partial i {
+  background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+}
+.tag.notclaimed {
+  color: var(--muted);
+}
+.tag.notclaimed i {
+  border-style: dashed;
+}
+.tag.invalid {
+  color: var(--invalid);
+}
+.tag.invalid i {
+  background: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 4px);
+} /* hatch = invalid, shape cue not decoration */
+.tag.control {
+  color: var(--control);
+}
+.tag.control i {
+  border-radius: 50%;
+}
+.tag.valid {
+  color: var(--text);
+}
+/* provenance of a behavior display: how it was produced, not how well it is evidenced */
+.tag.replay {
+  color: var(--text);
+}
+.tag.replay i {
+  background: radial-gradient(currentColor 0 30%, transparent 32%);
+}
+.tag.model {
+  color: var(--muted);
+}
+.tag.model i {
+  border-style: dotted;
+  transform: rotate(45deg) scale(0.85);
+}
+.tag.executed {
+  color: var(--text);
+}
+.tag.executed i {
+  background: currentColor;
+  border: 0;
+  transform: rotate(45deg) scale(0.8);
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.6rem;
+  margin: 0 0 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* attribution ledger: technical context, not badges */
+.ledger {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) 1fr;
+  border-top: 2px solid var(--rule-strong);
+}
+.ledger dt,
+.ledger dd {
+  padding: 0.95rem 0;
+  border-bottom: 1px solid var(--rule);
+  margin: 0;
+}
+.ledger dt {
+  font: 500 var(--t-mono) var(--mono);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-right: 1rem;
+}
+.ledger dd {
+  font-size: var(--t-ui);
+  max-width: 64ch;
+}
+.ledger .basis {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font: 400 var(--t-mono) var(--mono);
+}
+@media (max-width: 900px) {
+  .ledger {
+    grid-template-columns: 1fr;
+  }
+  .ledger dt {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .ledger dd {
+    padding-top: 0.2rem;
+  }
+}
+
+/* figures */
+figure.plate {
+  margin: 0;
+  border-top: 2px solid var(--rule-strong);
+  padding-top: 1rem;
+}
+figcaption {
+  font: 400 var(--t-mono) / 1.6 var(--mono);
+  color: var(--muted);
+}
+figcaption a {
+  color: var(--text);
+}
+
+/* long-form prose */
+.prose {
+  font: 400 var(--t-prose) / 1.6 var(--serif);
+  max-width: var(--read);
+}
+.prose p {
+  margin: 0 0 1.1em;
+}
+.prose ul,
+.prose ol {
+  font: 400 var(--t-body) / 1.6 var(--sans);
+  padding-left: 1.2rem;
+  margin: 0 0 1.2em;
+}
+.prose li {
+  margin: 0 0 0.5em;
+  padding-left: 0.2rem;
+}
+.prose strong {
+  font-weight: 600;
+}
+.prose code {
+  font: 400 0.85em var(--mono);
+  background: var(--surface);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius);
+}
+.prose a {
+  color: var(--text);
+}
+
+.placeholder {
+  border: 1px dashed var(--partial);
+  color: var(--partial);
+  padding: 0 0.4rem;
+  font: 400 var(--t-mono) var(--mono);
+}
+
+/* Forced colors: keep the state shapes (filled, half, dashed, hatched) by letting them follow the text color. */
+@media (forced-colors: active) {
+  .tag i {
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
+}

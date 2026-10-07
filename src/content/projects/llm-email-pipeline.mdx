@@ -1,0 +1,137 @@
+---
+title: Two-stage email drafting pipeline
+description: A Python project that compares a single-prompt email generator with a two-stage pipeline that validates inputs before generating, scored on ten recorded scenarios.
+capability: Compares a single prompt with a pipeline that checks inputs before it generates, and scores both against a fixed set of scenarios.
+type: solo
+domain: LLM pipeline
+status: prototype
+tier: primary
+order: 1
+publicLevel: public
+diagram: email
+chapter:
+  channel: email
+  question: "When should an AI not start writing?"
+  plain: "An AI email writer that first checks whether the request makes sense, and asks a question instead of writing when it does not."
+  wrong: "A single prompt writes a confident email even when the request is vague, contradictory or missing the facts it needs."
+  matters: "A confident email looks finished, so nobody notices when it says the wrong thing."
+  does: "It checks the request first, and asks a question instead of writing when there is not enough to go on."
+  myPart: "My part: the design of both approaches, the request checker, the scoring framework, the ten test scenarios and the demo app. Sole contributor in the commit history."
+  decisionPlain: "Check the request with ordinary code first, then let a model judge whether there is enough to write from."
+  evidenceHuman: "Tested on 10 recorded scenarios: the pipeline averaged 4.7 out of 5 and a single prompt 4.2. One run, scored by a model that was not recorded."
+  limitationPlain: "One unclear request still got through. For \"Request a deadline extension for my final project\" it wrote an email when it should have asked."
+  problem: "A single prompt writes a confident email even when the request is unclear, contradictory, padded with irrelevant facts or contains instruction-like text."
+  decision: "Validate in code first, then let a model decide whether to ask a question before any email is written."
+  limitation: "Ten scenarios and one run. The checker is a model: in one recorded scenario it did not ask when it should have."
+technologies: [Python, Streamlit, LLM provider APIs, Pydantic]
+contribution:
+  role: Sole contributor in the commit history.
+  personal: The design of both approaches, the input checker, the metric framework, the ten-scenario set and the Streamlit demo.
+  basis: commit-attributed
+  upstream: LLM provider APIs (a Gemini default and an NVIDIA-compatible endpoint) and standard libraries.
+  provenance: The repository has a single bulk initial commit (June 2026), so no development history is visible.
+evidenceLine:
+  text: Ten test scenarios are saved in the repository, with the recorded outputs and the scores a judge model gave them.
+  state: verified
+  evidenceId: e1
+evidence:
+  - id: e1
+    claim: The ten-scenario set with expected behaviors, and a results file of 20 scored records (two strategies across ten scenarios), are committed.
+    state: verified
+    source: data/test_scenarios.json and data/evaluation_results.json
+    howChecked: Read the committed files and compared them with the source
+  - id: e2
+    claim: 'The committed summary averages are 4.7 for the gated pipeline and 4.2 for the baseline, on a scale of 1 to 5.'
+    state: partially-verified
+    source: data/evaluation_results.json
+    howChecked: Read the committed results
+    caveat: Ten scenarios, one run; the judge and generator models are not recorded and the result was not reproduced.
+  - id: e3
+    claim: In the code, a validation stage returns either OK or CLARIFY before any email is generated.
+    state: verified
+    source: model_b_approach/pipeline.py and input_checker.py
+    howChecked: Read the source
+  - id: e4
+    claim: 'Recorded scenario outcomes: for a vague assessment email the baseline wrote an email (overall 2.33) and the gated pipeline asked for clarification (5.0); for a deadline extension with no length, both strategies wrote an email and the gate did not trigger (baseline 2.0, gated 2.33); for contradictory timing both asked for clarification (baseline 5.0, gated 4.67).'
+    state: partially-verified
+    source: data/evaluation_results.json
+    howChecked: Read the committed per-scenario records
+    caveat: One run, one judge; stage internals were not saved, so why the gate passed or triggered cannot be shown without a re-run.
+limitations:
+  - Ten scenarios and one run; the judge and generator models were not recorded and the LLM judge is not calibrated.
+  - Stage internals were not saved, so why the gate triggered or passed in a given scenario cannot be shown without a re-run.
+  - There are no automated tests, and re-running the evaluation needs LLM API keys.
+  - The metric definition document linked from the README is missing.
+links:
+  - { label: Repository, url: 'https://github.com/exoxeph/email-assistant' }
+---
+
+<Section id="problem" title="Problem">
+A single prompt that drafts an email goes ahead even when the request is unclear, contradictory, padded with irrelevant facts or contains instruction-like text, and then writes a confident email.
+
+The project asks whether a validation stage before generation changes that behavior, and how to measure the difference.
+
+</Section>
+
+<Section id="built" title="What I built">
+Two approaches to the same task. Model A is a single prompt that writes the email. Model B is a two-stage pipeline: an input checker that canonicalizes the intent, filters facts, records excluded bullets and detects contradictions and ambiguity, then either returns a clarification question or hands a clean input to the generator.
+
+Around them: a provider wrapper, schemas and prompts, an evaluation runner with three judge metrics and structural checks, and a Streamlit app that drives the pipeline.
+
+</Section>
+
+<Section id="contribution" title="My contribution" wide>
+  <Ledger />
+</Section>
+
+<Section id="architecture" title="Architecture">
+<ProjectDiagram caption="Input, the validation gate with an ask-first branch, and the generator; the judge belongs to the evaluation runner." />
+
+1. Inputs (intent, key facts, tone) are validated as a request.
+2. The input checker produces a status of OK or CLARIFY, with the canonical intent, kept facts and excluded bullets.
+3. On CLARIFY, the pipeline returns a question. On OK, the generator writes the email.
+4. The evaluation runner sends scenarios through both strategies, scores each result with three judge metrics and structural checks, and saves JSON.
+
+<ArchitectureMap />
+
+</Section>
+
+<Section id="decisions" title="Engineering decisions">
+
+- **Separate validation from generation,** so ambiguity can end the run with a question instead of a guess.
+- **Record what was excluded and what must be clarified,** instead of silently dropping input.
+- **Three metrics** with scores from 1 to 5 and written justifications: intent and fact fidelity, ambiguity and clarification handling, and quality and delivery readiness.
+- **Judge at temperature 0,** with JSON replies, retries and score clamping.
+- **Scenarios designed around specific behaviors** (clean request, wordy intent, vague purpose, missing critical fact, irrelevant filler, injection attempt, contradiction, uncertainty to preserve, apology, concise update).
+
+</Section>
+
+<Section id="evaluation" title="Evaluation">
+  Ten hand-written scenarios, two strategies, three LLM-judge metrics scored from 1 to 5 with justifications,
+  plus deterministic structural checks on the email. One run is saved to JSON. The scenarios are synthetic.
+</Section>
+
+<Section id="results" title="Results" wide>
+<Claim id="e1" />
+<Claim id="e2" />
+<Claim id="e3" />
+<Claim id="e4" />
+
+The gated pipeline helped in some scenarios, matched the baseline in others and missed in one. The averages are not presented as proof that it is better in general.
+
+</Section>
+
+<Section id="limitations" title="Limitations">
+  <Limitations />
+</Section>
+
+<Section id="takeaways" title="Takeaways">
+Making clarification a possible outcome gave the evaluation something to score besides the email itself.
+
+The recorded miss, where the gate did not trigger, is the reason the averages are shown with their qualifier and not as a headline.
+
+</Section>
+
+<Section id="repository" title="Repository">
+  <Links />
+</Section>

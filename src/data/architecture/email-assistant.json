@@ -1,0 +1,74 @@
+{
+  "project": "email-assistant",
+  "nodes": [
+    {
+      "id": "code-validation",
+      "label": "Request validation",
+      "order": 1,
+      "role": "Checks the request in code before any model is called: the intent is not empty, there is at least one non-empty fact, and the tone is one of the allowed values.",
+      "why": "Cheap, deterministic failures should never reach a model.",
+      "io": {
+        "in": "Intent, key facts and tone.",
+        "out": "A valid request, or an error that stops the run."
+      },
+      "decision": "Validate in code first.",
+      "failure": "Code can only check shape. It cannot tell whether the request is clear enough.",
+      "control": "A validation error is raised before the input checker runs.",
+      "evidence": [
+        {
+          "state": "verified",
+          "text": "The messages and rules shown here match the original Python on a grid of test inputs.",
+          "caveat": "Checked with the pydantic version recorded in the golden file."
+        }
+      ],
+      "limitation": "Whether a request is clear is decided by a model, not by this stage.",
+      "source": "src/schemas.py, model_b_approach/pipeline.py"
+    },
+    {
+      "id": "input-checker",
+      "label": "Input checker",
+      "order": 2,
+      "role": "A model call that decides whether the request has enough usable information. It returns a status, a canonical intent, the usable facts and, when needed, a clarifying question.",
+      "why": "Ask first instead of guessing.",
+      "io": {
+        "in": "A valid request.",
+        "out": "Ready with a canonical intent and usable facts, or clarify with a question."
+      },
+      "decision": "Make clarification a normal outcome of the pipeline.",
+      "failure": "It is a model, so it can miss: in one recorded scenario a missing extension length did not trigger a question.",
+      "control": "A clarify status returns the question and no email is generated.",
+      "evidence": [
+        {
+          "state": "partially-verified",
+          "text": "Ten scenarios, one run: the gated pipeline asked first in 2 of the 3 scenarios that expected a question.",
+          "caveat": "Judge and generator models were not recorded; the result was not reproduced."
+        }
+      ],
+      "limitation": "Not run in this page. Outcomes are recorded, and any edit retires them.",
+      "source": "model_b_approach/input_checker.py"
+    },
+    {
+      "id": "clarify-or-generate",
+      "label": "Clarify or generate",
+      "order": 3,
+      "role": "On a clarify status the pipeline returns the question and no email. Otherwise the generator writes the email.",
+      "decision": "Make clarification a normal outcome of the pipeline.",
+      "source": "model_b_approach/pipeline.py"
+    },
+    {
+      "id": "evaluation-runner",
+      "label": "Evaluation runner",
+      "order": 4,
+      "role": "A separate runner sends scenarios through both strategies and scores the results with three judge metrics and structural checks. It is not part of the pipeline.",
+      "evidence": [
+        {
+          "state": "partially-verified",
+          "text": "The committed summary averages are 4.7 for the gated pipeline and 4.2 for the baseline, on a scale of 1 to 5.",
+          "caveat": "Ten scenarios, one run; the judge and generator models are not recorded."
+        }
+      ],
+      "source": "evaluate.py"
+    }
+  ],
+  "edges": []
+}

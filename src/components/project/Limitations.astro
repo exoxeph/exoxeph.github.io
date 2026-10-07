@@ -1,0 +1,35 @@
+---
+import EvidenceTag from '../evidence/EvidenceTag.astro';
+const project = Astro.locals.project;
+if (!project) throw new Error('<Limitations /> must render inside a project page');
+---
+
+<ul class="lim">
+  {project.data.limitations.map((l) => (
+    <li>{l}</li>
+  ))}
+</ul>
+<p class="mono muted note">
+  <EvidenceTag kind="notclaimed" /> Production readiness, scale and performance are not claimed for this
+  project.
+</p>
+
+<style>
+  .lim {
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+  }
+  .lim li {
+    padding: 0.9rem 0;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+  .note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    align-items: baseline;
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,97 @@
+---
+import { site } from '../../data/site.ts';
+const path = Astro.url.pathname;
+---
+
+<footer class="site" id="site-footer">
+  <div class="wrap">
+    <nav class="pop" aria-label="Résumé and contact">
+      <p class="pop-line">Seen enough? Take the résumé, or get in touch.</p>
+      <div class="pop-tabs">
+        {site.resume.available && (
+          <a
+            class="pop-tab"
+            href={site.resume.path}
+            aria-current={path.startsWith('/resume/') ? 'page' : undefined}
+          >
+            <b>Résumé</b>
+            <span>Experience, projects, skills</span>
+          </a>
+        )}
+        <a class="pop-tab" href="/contact/" aria-current={path.startsWith('/contact/') ? 'page' : undefined}>
+          <b>Contact</b>
+          <span>Email, LinkedIn, GitHub</span>
+        </a>
+      </div>
+    </nav>
+    <p class="fine mono">
+      {site.name}, {site.role}. Dhaka, Bangladesh.
+    </p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 56px 0 40px;
+    margin-top: var(--s5);
+  }
+  .pop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.2rem 2rem;
+    padding: clamp(20px, 3vw, 32px) clamp(20px, 3.4vw, 40px);
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--bg) 94%, var(--accent));
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent),
+      0 0 38px -6px color-mix(in srgb, var(--accent) 38%, transparent);
+  }
+  .pop-line {
+    margin: 0;
+    max-width: 22ch;
+    font: 400 clamp(1.4rem, 2.4vw, 1.9rem) / 1.2 var(--serif);
+  }
+  .pop-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .pop-tab {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 12.5rem;
+    padding: 0.85rem 1.2rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+    border-radius: var(--radius);
+    text-decoration: none;
+    box-shadow: 0 0 18px -4px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .pop-tab b {
+    font: 600 1.05rem / 1.3 var(--sans);
+  }
+  .pop-tab span {
+    color: var(--muted);
+    font-size: var(--t-ui);
+  }
+  .pop-tab:hover,
+  .pop-tab:focus-visible,
+  .pop-tab[aria-current='page'] {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    box-shadow: 0 0 28px -2px color-mix(in srgb, var(--accent) 62%, transparent);
+  }
+  .fine {
+    margin: 1.8rem 0 0;
+    color: var(--muted);
+  }
+  @media (max-width: 600px) {
+    .pop-tab {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+  }
+</style>

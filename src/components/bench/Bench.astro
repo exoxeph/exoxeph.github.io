@@ -1,0 +1,643 @@
+---
+import EvidenceTag from '../evidence/EvidenceTag.astro';
+import BenchLog from './BenchLog.astro';
+import Deck from './Deck.astro';
+import Note from '../notes/Note.astro';
+import { stageNotes } from '../notes/stageNotes';
+import Chapters from './Chapters.astro';
+import BenchEnd from './BenchEnd.astro';
+import { initialState } from '../../lib/bench/tesla';
+import { renderTesla, staticControls } from '../../lib/bench/svg';
+import raw from '../../data/architecture/ride-pooling-lifecycle.json';
+import { architectureSchema } from '../../lib/architecture/schema';
+import speechRaw from '../../data/architecture/speech-doc-extraction.json';
+import { defaultLine, presets, speechFrame } from '../../lib/bench/speech-stage';
+import ragRaw from '../../data/architecture/data-aware-rag.json';
+import { defaultRagFrame, recorded, renderRag } from '../../lib/bench/rag-stage';
+import emailRaw from '../../data/architecture/email-assistant.json';
+import { researchEntry } from '../../lib/bench/research-gate';
+import { CLEAN, NAMES, SUSPECT, fmt, merge } from '../../lib/bench/research';
+import { TONES } from '../../lib/bench/email';
+import {
+  checkerHtml,
+  defaultFrame as emailFrame,
+  gateSvg,
+  readoutHtml,
+  scenarios as emailScenarios,
+} from '../../lib/bench/email-stage';
+
+const pick = (nodes: ReturnType<typeof architectureSchema.parse>['nodes'], ids: string[]) =>
+  ids.map((id) => nodes.find((n) => n.id === id)!);
+const node = pick(architectureSchema.parse(raw).nodes, ['capacity-guard'])[0]!;
+const speechNodes = pick(architectureSchema.parse(speechRaw).nodes, ['value-normalizer', 'row-omission']);
+const ragNodes = pick(architectureSchema.parse(ragRaw).nodes, ['accept-threshold', 'repair-step']);
+const emailNodes = pick(architectureSchema.parse(emailRaw).nodes, ['code-validation', 'input-checker']);
+const speechDefault = speechFrame(defaultLine);
+const research = await researchEntry();
+type Channel = { id: string; name: string; sub: string; flag: string };
+const channels: Channel[] = [
+  { id: 'pool', name: 'Ride pooling', sub: 'capacity guard', flag: 'refused' },
+  { id: 'email', name: 'Email', sub: 'input check', flag: 'asks first' },
+  { id: 'rag', name: 'Retrieval', sub: 'verify and repair', flag: 'one repair attempt' },
+  { id: 'speech', name: 'Extraction', sub: 'report parsing', flag: 'row omitted' },
+  ...(research ? [{ id: 'research', name: 'Research', sub: 'sealed', flag: 'results withheld' }] : []),
+];
+const mergedDefault = merge(0.5, [true, true, true, true]);
+const frame = {
+  state: initialState(),
+  seats: 2,
+  decision: 409 as const,
+  lastBefore: 3,
+  lastSeats: 2,
+  stale: false,
+  limit: false,
+  simultaneous: false,
+  selected: null,
+};
+const traceArt: Record<string, string> = {
+  pool: '<svg viewBox="0 0 520 34" aria-hidden="true"><rect class="surf" x="0" y="8" width="40" height="18"/><rect class="surf" x="44" y="8" width="80" height="18"/><path class="ac" d="M128 0V34"/><rect x="132" y="8" width="80" height="18" fill="url(#bench-hatch)" stroke="var(--invalid)" stroke-dasharray="3 2"/></svg>',
+  email:
+    '<svg viewBox="0 0 520 34" aria-hidden="true"><rect class="ln" x="0" y="8" width="64" height="18"/><rect class="ln" x="76" y="8" width="64" height="18"/><rect class="ln" x="152" y="8" width="64" height="18"/><path class="ln" d="M216 17h24"/><path class="ln" d="M262 3l14 14 -14 14 -14 -14z"/><path class="ac" d="M276 17h40"/><rect class="surf" x="316" y="6" width="60" height="22" style="stroke:var(--accent)"/></svg>',
+  rag: '<svg viewBox="0 0 520 34" aria-hidden="true"><rect class="mu" x="0" y="10" width="200" height="14"/><rect x="0" y="10" width="72" height="14" fill="var(--partial)" fill-opacity=".3"/><path class="ac" d="M120 6v22M200 17h30"/><rect class="mu" x="230" y="10" width="200" height="14" style="stroke:var(--accent)"/><path class="ac" d="M350 6v22"/></svg>',
+  research:
+    '<svg viewBox="0 0 520 34" aria-hidden="true"><rect class="surf" x="0" y="8" width="100" height="18"/><rect class="surf" x="110" y="8" width="100" height="18"/><path class="ac" d="M214 17h24"/><rect x="244" y="8" width="160" height="18" fill="url(#bench-hatch)" stroke="var(--muted)" stroke-dasharray="3 2"/></svg>',
+  speech:
+    '<svg viewBox="0 0 520 34" aria-hidden="true"><rect x="0" y="10" width="54" height="14" class="okf"/><rect x="62" y="10" width="54" height="14" class="okf"/><rect x="124" y="10" width="54" height="14" class="okf"/><rect x="186" y="10" width="54" height="14" class="okf"/><rect x="248" y="10" width="54" height="14" fill="url(#bench-hatch)" stroke="var(--invalid)" stroke-dasharray="3 2"/><rect x="310" y="10" width="54" height="14" class="okf"/><rect x="372" y="10" width="54" height="14" class="okf"/><rect x="434" y="10" width="54" height="14" class="okf"/></svg>',
+};
+---
+
+<section class="bench" aria-labelledby="bench-heading">
+  <h2 id="bench-heading" class="visually-hidden">
+    System behavior bench
+  </h2>
+  <svg class="bench-defs" width="0" height="0" aria-hidden="true">
+    <defs>
+      <pattern
+        id="bench-hatch"
+        width="7"
+        height="7"
+        patternUnits="userSpaceOnUse"
+        patternTransform="rotate(45)"
+      >
+        <path d="M0 0V7" stroke="var(--invalid)" stroke-width="1.5" opacity=".55" />
+      </pattern>
+      <pattern
+        id="bench-hatch-soft"
+        width="7"
+        height="7"
+        patternUnits="userSpaceOnUse"
+        patternTransform="rotate(45)"
+      >
+        <path d="M0 0V7" stroke="var(--invalid)" stroke-width="1.5" opacity=".13" />
+      </pattern>
+    </defs>
+  </svg>
+  <div class="wrap bench-inner">
+    {channels.map((channel, index) => (
+      <input
+        class="channel-radio"
+        type="radio"
+        name="bench-channel"
+        id={`ch-${channel.id}`}
+        aria-label={`${channel.name}, ${channel.sub}`}
+        aria-describedby="bench-channel-hint"
+        value={channel.id}
+        checked={index === 0}
+      />
+    ))}
+    <span id="bench-channel-hint" class="visually-hidden">
+      Choose which system to operate. The page moves to its chapter. Arrow keys move between systems.
+    </span>
+    <noscript>
+      <p class="nojs-note mono">
+        Scripts are off, so the Bench shows each system's recorded state and cannot be operated. The chapters
+        below explain every system.
+      </p>
+    </noscript>
+    <div class="chips" style={`--n:${channels.length}`}>
+      {channels.map((channel) => (
+        <label for={`ch-${channel.id}`}>{channel.name}</label>
+      ))}
+    </div>
+    <div class="bgrid">
+      <div class="stagecol">
+        {channels.map((channel) => (
+          <div class={`channel case ${channel.id}`}>
+            <div class="notes-layer">
+              {(stageNotes[channel.id] ?? []).map((n) => (
+                <Note {...n} />
+              ))}
+            </div>
+            <div class="chead">
+              <div>
+                <b>{channel.name}</b> <small>{channel.sub}</small>
+              </div>
+              {channel.id !== 'research' && (
+                <button
+                  type="button"
+                  class="header-inspect"
+                  data-inspect-channel={channel.id}
+                  aria-label={`Inspect ${channel.name}`}
+                >
+                  inspect
+                </button>
+              )}
+              <details class="provenance">
+                <summary>
+                  {channel.id === 'research' ? (
+                    <EvidenceTag kind="model" label="Synthetic example" />
+                  ) : channel.id === 'pool' ||
+                    channel.id === 'speech' ||
+                    channel.id === 'rag' ||
+                    channel.id === 'email' ? (
+                    <>
+                      <span data-provenance="replay">
+                        <EvidenceTag kind="replay" />
+                      </span>
+                      <span data-provenance="executed" hidden>
+                        <EvidenceTag kind="executed" />
+                      </span>
+                    </>
+                  ) : (
+                    <EvidenceTag kind="model" />
+                  )}
+                </summary>
+                <p>
+                  {channel.id === 'research'
+                    ? "Synthetic arithmetic that illustrates the published method. It is not the group's model and not data."
+                    : channel.id === 'pool'
+                      ? "Recorded from the project's own test run at the commits before and after the guard, with an in-memory database mock."
+                      : channel.id === 'speech'
+                        ? 'Observed OCR misreads recorded in the project README (author-reported evaluation); raw OCR outputs are not committed.'
+                        : channel.id === 'rag'
+                          ? 'Final scores recorded in the committed evaluation runs (mock generator, not answer quality).'
+                          : "Outcomes recorded in the project's committed evaluation: ten synthetic scenarios, one run; the judge and generator models were not recorded."}
+                </p>
+                <p data-executed-explain hidden>
+                  {channel.id === 'speech'
+                    ? "A port of the repository's row and value parsing running in this page, checked against lines run through the original Python (see the golden tests)."
+                    : channel.id === 'rag'
+                      ? "The acceptance rule and repair routing from the repository's router, running in this page. This models control flow only: no retrieval or generation happens."
+                      : channel.id === 'email'
+                        ? "A port of the project's request validation running in this page, checked against the original Python. The input checker is a model call and is not run here."
+                        : 'A port of the capacity guard arithmetic running in this page. Checked against the recorded harness states.'}
+                </p>
+              </details>
+            </div>
+            {channel.id === 'pool' ? (
+              <div class="tesla-stage">
+                <div class="tesla-svg desktop" set:html={staticControls(renderTesla(frame, false))} />
+                <div class="tesla-svg mobile" set:html={staticControls(renderTesla(frame, true))} />
+                <button type="button" class="reset" data-reset aria-label="Reset the ride pooling test">
+                  reset
+                </button>
+              </div>
+            ) : channel.id === 'rag' ? (
+              <div class="rag-stage">
+                <div class="rag-top">
+                  <span>Recorded scores (drafts from a stand-in generator)</span>
+                  <div class="rag-chips">
+                    {recorded.map((item) => (
+                      <button type="button" data-rag-chip={item.id} aria-pressed={item.id === 'q3'}>
+                        {item.id} {item.score}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div class="rag-art desktop" set:html={renderRag(defaultRagFrame)} />
+                <div class="rag-art mobile" set:html={renderRag(defaultRagFrame, true)} />
+                <p class="rag-assumption" hidden>
+                  your assumption: the score after repair is not recorded
+                </p>
+              </div>
+            ) : channel.id === 'speech' ? (
+              <div class="speech-stage">
+                <div class="speech-top">
+                  <span>OCR line</span>
+                  <div class="speech-presets">
+                    {Object.keys(presets).map((name) => (
+                      <button
+                        type="button"
+                        data-speech-preset={name}
+                        aria-pressed={name === '1.2 x 1043 misread'}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div class="speech-scroll">
+                  <div class="speech-line-width">
+                    <input
+                      type="text"
+                      aria-label="OCR line"
+                      spellcheck="false"
+                      autocomplete="off"
+                      value={defaultLine}
+                    />
+                    <div class="speech-brackets" set:html={speechDefault.brackets} />
+                  </div>
+                </div>
+                <div class="speech-results">
+                  <div class="speech-table">
+                    <div class="speech-tr speech-header">
+                      <span>test</span>
+                      <span>value</span>
+                      <span>unit</span>
+                      <span>range</span>
+                      <span>flag</span>
+                      <span class="speech-status">status</span>
+                    </div>
+                    <div data-speech-rows set:html={speechDefault.table} />
+                  </div>
+                  <div class="speech-readout">
+                    <div class="speech-number" data-speech-number>
+                      4 of 5
+                    </div>
+                    <div class="speech-word">rows kept</div>
+                    <div class="speech-explain" data-speech-explain>
+                      value did not match any form
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : channel.id === 'email' ? (
+              <div class="email-stage">
+                <div class="email-top">
+                  <span>Request</span>
+                  <select aria-label="Recorded scenario" data-email-scenario>
+                    <option value="own">Your own request</option>
+                    {emailScenarios.map((item) => (
+                      <option value={String(item.id)} selected={item.id === 3}>
+                        {item.id}. {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div class="email-grid">
+                  <div class="email-builder">
+                    <label class="email-field">
+                      <span>intent</span>
+                      <textarea rows="2" data-email-intent set:text={emailFrame.input.intent} />
+                    </label>
+                    <div class="email-field">
+                      <span id="email-facts-label">key facts</span>
+                      <div data-email-facts role="group" aria-labelledby="email-facts-label">
+                        {emailFrame.input.keyFacts.map((fact) => (
+                          <div class="email-fact">
+                            <input type="text" aria-label="Key fact" value={fact} />
+                            <button type="button" aria-label="Remove fact" data-email-remove>
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button type="button" class="email-add" data-email-add>
+                        add a fact
+                      </button>
+                    </div>
+                    <label class="email-field">
+                      <span>tone</span>
+                      <select data-email-tone>
+                        {TONES.map((tone) => (
+                          <option value={tone} selected={tone === emailFrame.input.tone}>
+                            {tone}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <button
+                    type="button"
+                    class="email-gate"
+                    data-inspect-gate
+                    aria-label="Inspect request validation"
+                    set:html={gateSvg(true)}
+                  />
+                  <button
+                    type="button"
+                    class="email-checker"
+                    data-inspect-checker
+                    aria-label="Inspect the input checker"
+                  >
+                    <span class="email-checker-label">
+                      Is there enough to write from?{' '}
+                      <small>input checker, a model call, not run in this page</small>
+                    </span>
+                    <span data-email-checker set:html={checkerHtml(emailFrame, { valid: true })} />
+                    <span class="email-limit" data-email-limit hidden>
+                      limit found
+                    </span>
+                  </button>
+                </div>
+                <div class="email-readout" data-email-readout set:html={readoutHtml({ valid: true })} />
+              </div>
+            ) : channel.id === 'research' ? (
+              <div class="research-stage">
+                <div class="research-grid">
+                  <div class="research-toy">
+                    <p class="research-label">Synthetic example: four made-up weights per model</p>
+                    <div class="research-rows" role="table" aria-label="Synthetic weights">
+                      <div class="research-tr research-head" role="row">
+                        <span role="columnheader">weight</span>
+                        <span role="columnheader">suspect</span>
+                        <span role="columnheader">clean</span>
+                        <span role="columnheader">merged</span>
+                      </div>
+                      {NAMES.map((name, i) => (
+                        <div class="research-tr" role="row" data-research-row={i}>
+                          <span role="cell">{name}</span>
+                          <span role="cell">{fmt(SUSPECT[i]!)}</span>
+                          <span role="cell">{fmt(CLEAN[i]!)}</span>
+                          <span role="cell" data-research-merged>
+                            {fmt(mergedDefault[i]!)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <label class="research-alpha">
+                      <span>
+                        mixing weight <b data-research-alpha-value>0.50</b>
+                      </span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value="0.5"
+                        data-research-alpha
+                        aria-label="Mixing weight"
+                      />
+                    </label>
+                    <fieldset class="research-mask">
+                      <legend>merge these weights</legend>
+                      {NAMES.map((name, i) => (
+                        <label>
+                          <input type="checkbox" checked data-research-mask={i} />
+                          <span>{name}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                    <p class="research-formula">
+                      merged = (1 - mixing weight) x suspect + mixing weight x clean
+                    </p>
+                  </div>
+                  <div class="research-sealed">
+                    <p class="research-sealed-title">Not public</p>
+                    <ul>
+                      <li>results of the group's experiments</li>
+                      <li>layer, tensor and parameter counts</li>
+                      <li>datasets and checkpoints</li>
+                      <li>code and thesis text</li>
+                    </ul>
+                    <p>Some evidence is intentionally not public.</p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ))}
+        <section class="inspector" aria-labelledby="inspector-title" hidden tabindex="-1">
+          <div data-tesla-inspector>
+            <div class="inspector-head">
+              <h3 id="inspector-title">{node.label}</h3>
+              <button type="button" data-close aria-label="Close capacity guard inspector">
+                close
+              </button>
+            </div>
+            <dl>
+              <dt>What it does</dt>
+              <dd>{node.role}</dd>
+              <dt>Why it exists</dt>
+              <dd>{node.why}</dd>
+              <dt>In and out</dt>
+              <dd>
+                {node.io?.in} {node.io?.out}
+              </dd>
+              <dt>Decision</dt>
+              <dd>{node.decision}</dd>
+              <dt>What it does not cover</dt>
+              <dd>
+                {node.failure}
+                <br />
+                <button type="button" data-replay>
+                  Replay two requests at the same moment
+                </button>
+              </dd>
+              <dt>Evidence</dt>
+              <dd>
+                {node.evidence?.map((item) => (
+                  <p>
+                    <EvidenceTag kind={item.state === 'verified' ? 'verified' : 'partial'} />
+                    <span>
+                      {item.text} {item.caveat}
+                    </span>
+                  </p>
+                ))}
+              </dd>
+              <dt>Limitation</dt>
+              <dd>{node.limitation}</dd>
+              <dt>Source</dt>
+              <dd class="source">{node.source}</dd>
+            </dl>
+          </div>
+          <div data-speech-inspector hidden>
+            <div class="inspector-head">
+              <h3 id="speech-inspector-title">Value parser</h3>
+              <button type="button" data-speech-close aria-label="Close value parser inspector">
+                close
+              </button>
+            </div>
+            <div class="speech-tabs">
+              {speechNodes.map((item, index) => (
+                <button type="button" data-speech-tab={item.id} aria-pressed={index === 0}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            {speechNodes.map((item, index) => (
+              <dl data-speech-panel={item.id} hidden={index !== 0}>
+                <dt>What it does</dt>
+                <dd>{item.role}</dd>
+                <dt>Why it exists</dt>
+                <dd>{item.why}</dd>
+                <dt>In and out</dt>
+                <dd>
+                  {item.io?.in} {item.io?.out}
+                </dd>
+                <dt>Decision</dt>
+                <dd>{item.decision}</dd>
+                <dt>What it does not cover</dt>
+                <dd>
+                  {item.failure}
+                  {index === 0 && (
+                    <>
+                      <br />
+                      <button type="button" data-load-misread>
+                        Load the documented misread
+                      </button>
+                    </>
+                  )}
+                </dd>
+                <dt>Evidence</dt>
+                <dd>
+                  {item.evidence?.map((e) => (
+                    <p>
+                      <EvidenceTag kind="partial" />
+                      <span>
+                        {e.text} {e.caveat}
+                      </span>
+                    </p>
+                  ))}
+                </dd>
+                <dt>Limitation</dt>
+                <dd>{item.limitation}</dd>
+                <dt>Source</dt>
+                <dd class="source">{item.source}</dd>
+              </dl>
+            ))}
+          </div>
+          <div data-email-inspector hidden>
+            <div class="inspector-head">
+              <h3 id="email-inspector-title">Input checker</h3>
+              <button type="button" data-email-close aria-label="Close email inspector">
+                close
+              </button>
+            </div>
+            <div class="email-tabs">
+              {emailNodes.map((item, index) => (
+                <button type="button" data-email-tab={item.id} aria-pressed={index === 0}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            {emailNodes.map((item, index) => (
+              <dl data-email-panel={item.id} hidden={index !== 0}>
+                <dt>What it does</dt>
+                <dd>{item.role}</dd>
+                <dt>Why it exists</dt>
+                <dd>{item.why}</dd>
+                <dt>In and out</dt>
+                <dd>
+                  {item.io?.in} {item.io?.out}
+                </dd>
+                <dt>Decision</dt>
+                <dd>{item.decision}</dd>
+                <dt>What it does not cover</dt>
+                <dd>
+                  {item.failure}
+                  {item.id === 'input-checker' && (
+                    <>
+                      <br />
+                      <button type="button" data-email-miss>
+                        Show the recorded miss
+                      </button>
+                    </>
+                  )}
+                </dd>
+                <dt>Evidence</dt>
+                <dd>
+                  {item.evidence?.map((e) => (
+                    <p>
+                      <EvidenceTag kind={e.state === 'verified' ? 'verified' : 'partial'} />
+                      <span>
+                        {e.text} {e.caveat}
+                      </span>
+                    </p>
+                  ))}
+                </dd>
+                <dt>Limitation</dt>
+                <dd>{item.limitation}</dd>
+                <dt>Source</dt>
+                <dd class="source">{item.source}</dd>
+              </dl>
+            ))}
+          </div>
+          <div data-rag-inspector hidden>
+            <div class="inspector-head">
+              <h3 id="rag-inspector-title">Acceptance rule</h3>
+              <button type="button" data-rag-close aria-label="Close retrieval inspector">
+                close
+              </button>
+            </div>
+            <div class="rag-tabs">
+              {ragNodes.map((item, index) => (
+                <button type="button" data-rag-tab={item.id} aria-pressed={index === 0}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            {ragNodes.map((item, index) => (
+              <dl data-rag-panel={item.id} hidden={index !== 0}>
+                <dt>What it does</dt>
+                <dd>{item.role}</dd>
+                <dt>Why it exists</dt>
+                <dd>{item.why}</dd>
+                <dt>In and out</dt>
+                <dd>
+                  {item.io?.in} {item.io?.out}
+                </dd>
+                <dt>Decision</dt>
+                <dd>{item.decision}</dd>
+                <dt>What it does not cover</dt>
+                <dd>
+                  {item.failure}
+                  {index === 1 && (
+                    <>
+                      <br />
+                      <button type="button" data-rag-limit-example>
+                        Show a repair that is not accepted
+                      </button>
+                    </>
+                  )}
+                </dd>
+                <dt>Evidence</dt>
+                <dd>
+                  {item.evidence?.map((e) => (
+                    <p>
+                      <EvidenceTag kind={e.state === 'verified' ? 'verified' : 'partial'} />
+                      <span>
+                        {e.text} {e.caveat}
+                      </span>
+                    </p>
+                  ))}
+                </dd>
+                <dt>Limitation</dt>
+                <dd>{item.limitation}</dd>
+                <dt>Source</dt>
+                <dd class="source">{item.source}</dd>
+              </dl>
+            ))}
+          </div>
+        </section>
+        <Deck />
+        <div class="traces" role="group" aria-label="Other systems on the bench">
+          <p class="traces-label">
+            <span>Other systems</span>
+            <span>select one to switch</span>
+          </p>
+          {[...channels].reverse().map((channel) => (
+            <label class={`tr tr-${channel.id}`} for={`ch-${channel.id}`}>
+              <span>
+                <b>{channel.name}</b>
+                <small>{channel.sub}</small>
+              </span>
+              <Fragment set:html={traceArt[channel.id]} />
+              <span class="flag">{channel.flag}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+      <div class="sidecol">
+        <BenchLog />
+        <Chapters />
+        <BenchEnd />
+      </div>
+    </div>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-bench-live></p>
+</section>
+<script>
+  import '../../lib/bench/bench.ts';
+  import '../../lib/bench/chapters.ts';
+</script>

@@ -1,0 +1,567 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.ts';
+import Portrait from '../components/portrait/Portrait.astro';
+
+// Content comes from the owner's CV. Phone number and street address are deliberately not published here.
+const contact = {
+  place: 'Dhaka, Bangladesh',
+  email: site.links.email!,
+  linkedin: site.links.linkedin!,
+  github: site.links.github,
+};
+
+const skills = [
+  {
+    group: 'Machine learning and NLP',
+    items: [
+      'Python',
+      'PyTorch',
+      'scikit-learn',
+      'Pandas',
+      'NumPy',
+      'Hugging Face Transformers',
+      'NLP',
+      'Model training',
+      'Model evaluation',
+    ],
+  },
+  {
+    group: 'Generative AI and retrieval',
+    items: [
+      'LLMs',
+      'RAG',
+      'Embeddings',
+      'BM25',
+      'Vector search',
+      'Hybrid retrieval',
+      'Weighted fusion',
+      'Pinecone',
+    ],
+  },
+  {
+    group: 'Backend and data',
+    items: ['FastAPI', 'REST APIs', 'MongoDB', 'SQLite', 'Redis', 'DuckDB', 'Node.js'],
+  },
+  {
+    group: 'AI infrastructure and cloud',
+    items: [
+      'Docker',
+      'Docker Compose',
+      'CI/CD',
+      'GitHub Actions',
+      'GitHub Container Registry',
+      'DigitalOcean',
+      'AWS',
+      'Git',
+      'Linux',
+    ],
+  },
+];
+
+const work = {
+  role: 'AI Engineer',
+  org: 'Data Solution-360',
+  dates: 'Jan 2026 to Present',
+  place: 'Dhaka, Bangladesh',
+  summary:
+    'Worked on Linx360.com, an AI-powered interview and assessment platform that identifies skill gaps, delivers role-aligned interview practice, and helps candidates become job-ready.',
+  points: [
+    'Built a Python/FastAPI MCQ assessment pipeline with OpenAI API, generating 15 personalized questions from candidate profiles and skill gaps; parallelized requests with Redis TTL storage, cutting latency from about 10 to 15 s down to about 2 to 5 s.',
+    'Built an LLM critic/regeneration loop with strict JSON schemas and Bloom-aligned rubrics, regenerating rejected questions until all 15 passed validation.',
+    'Engineered a scikit-learn ranking/scoring workflow over about 30K records using Pandas/NumPy for feature engineering, leakage-safe proxy targets, and held-out evaluation with Precision@50.',
+    'Migrated Docker services from Linux to DigitalOcean App Platform with automated GitHub Actions and GHCR CI/CD.',
+    'Used Claude Code and Codex with MCP, Superpowers, and pytest TDD to plan, implement, debug, and validate features end to end.',
+  ],
+  stack: [
+    'Python',
+    'FastAPI',
+    'OpenAI API',
+    'Pandas',
+    'NumPy',
+    'scikit-learn',
+    'Redis',
+    'Docker',
+    'GitHub Actions',
+    'GHCR',
+    'DigitalOcean',
+    'pytest',
+    'Claude Code',
+    'OpenAI Codex',
+    'MCP',
+    'Superpowers',
+  ],
+};
+
+const projects = [
+  {
+    title: 'Data-Aware RAG System for Research Papers',
+    line: 'Local multi-paper research assistant with hybrid retrieval and source/page citations.',
+    points: [
+      'Built Python PDF ingestion with Marker and pdfplumber, using page-aware chunking to preserve source and page metadata.',
+      'Generated local all-MiniLM-L6-v2 embeddings with Sentence Transformers and combined dense cosine search with BM25 using normalized weighted fusion.',
+      'Decomposed multi-paper questions into atomic needs, then rewrote and routed queries to retrieve evidence from relevant papers.',
+      'Generated citation-aware answers locally with Ollama, propagating retrieved paper and page metadata into responses.',
+      'Parallelized LLM query classification, reducing an eight-query experiment from 70.6 s to 20.3 s with the same 26/35 score.',
+    ],
+    stack: [
+      'Python',
+      'Sentence Transformers',
+      'all-MiniLM-L6-v2',
+      'BM25',
+      'NumPy',
+      'Marker',
+      'pdfplumber',
+      'SQLite',
+      'Streamlit',
+      'Ollama',
+    ],
+    case: { href: '/work/retrieval-orchestration/', label: 'Read the case study on this site' },
+  },
+  {
+    title: 'ClientManager Pro: AI-Powered Client Management System',
+    line: 'Full-stack client platform with project workflows, real-time communication, and AI-powered repository Q&A.',
+    points: [
+      'Built Next.js frontend and Express/Node.js REST APIs with MongoDB persistence for client and project workflows.',
+      'Implemented JWT authentication and role-based access control across multiple user roles and protected routes.',
+      'Built GitHub repository Q&A with Transformers.js and all-MiniLM-L6-v2, storing embeddings in Pinecone and answering retrieved-context questions with Gemini.',
+      'Reduced repeated AI computation with embedding/answer caching and query deduplication, avoiding unnecessary embedding and generation calls.',
+      'Implemented Socket.IO real-time chat alongside project workflows and automated document generation.',
+    ],
+    stack: [
+      'Next.js',
+      'Node.js',
+      'Express',
+      'MongoDB',
+      'JWT',
+      'Socket.IO',
+      'Pinecone',
+      'Transformers.js',
+      'all-MiniLM-L6-v2',
+      'Gemini',
+    ],
+    case: null,
+  },
+];
+
+const certs = [
+  {
+    name: 'AWS Certified AI Practitioner',
+    by: 'Amazon Web Services (AWS)',
+    when: 'Issued Sep 2026, expires Sep 2029',
+    href: 'https://www.credly.com/badges/f877a355-f105-4953-9784-0ebedbeda19e/linked_in_profile',
+    link: 'View credential',
+  },
+  {
+    name: 'AWS AI & ML Scholars: 2026 Challenge Completion',
+    by: 'Udacity and Amazon Web Services (AWS)',
+    when: 'Issued Mar 2026',
+    href: 'https://www.udacity.com/certificate/e/8c9c2a6e-304d-11f1-8868-ebdef3c7cb51',
+    link: 'View certificate',
+  },
+];
+---
+
+<Base
+  title={`Résumé | ${site.name}`}
+  description="Résumé: AI engineer. Work experience, projects, skills, education and AWS certifications."
+>
+  <div class="wrap rpage">
+    <header class="rh">
+      <Portrait class="rport" size={190} loading="eager" />
+      <p class="kicker">Résumé</p>
+      <h1>Imtiaz Mashrafee Samin</h1>
+      <p class="rrole">AI Engineer</p>
+      <ul class="meta" aria-label="Contact">
+        <li>{contact.place}</li>
+        <li>
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
+        </li>
+        <li>
+          <a href={contact.linkedin} rel="noopener">
+            LinkedIn
+          </a>
+        </li>
+        <li>
+          <a href={contact.github} rel="noopener">
+            GitHub
+          </a>
+        </li>
+      </ul>
+      <div class="ractions">
+        <a class="btn" href="/work/">
+          Case studies
+        </a>
+      </div>
+    </header>
+
+    <p class="profile">
+      AI Engineer with industry experience building and deploying LLM, RAG, and machine-learning systems.
+      Experienced across PyTorch, retrieval systems, Docker/CI/CD, and production AI deployments, with
+      research focused on transformer robustness and backdoor defense.
+    </p>
+
+    <div class="rgrid">
+      <div class="rmain">
+        <section aria-labelledby="exp-h">
+          <h2 id="exp-h">
+            <span>01</span> Work experience
+          </h2>
+          <article class="entry">
+            <div class="etop">
+              <h3>
+                {work.role} <span class="at">at {work.org}</span>
+              </h3>
+              <p class="edate">
+                {work.dates}
+                <span>{work.place}</span>
+              </p>
+            </div>
+            <p class="esum">{work.summary}</p>
+            <ul class="points">
+              {work.points.map((p) => (
+                <li>{p}</li>
+              ))}
+            </ul>
+            <ul class="chips" aria-label="Technologies">
+              {work.stack.map((s) => (
+                <li>{s}</li>
+              ))}
+            </ul>
+          </article>
+        </section>
+
+        <section aria-labelledby="proj-h">
+          <h2 id="proj-h">
+            <span>02</span> Projects
+          </h2>
+          {projects.map((p) => (
+            <article class="entry">
+              <div class="etop">
+                <h3>{p.title}</h3>
+              </div>
+              <p class="esum">{p.line}</p>
+              <ul class="points">
+                {p.points.map((x) => (
+                  <li>{x}</li>
+                ))}
+              </ul>
+              <ul class="chips" aria-label="Technologies">
+                {p.stack.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+              {p.case && (
+                <p class="elink">
+                  <a class="arrow-link" href={p.case.href}>
+                    {p.case.label} →
+                  </a>
+                </p>
+              )}
+            </article>
+          ))}
+        </section>
+      </div>
+
+      <aside class="rside">
+        <section aria-labelledby="skills-h">
+          <h2 id="skills-h">
+            <span>03</span> Core skills
+          </h2>
+          {skills.map((s) => (
+            <div class="sk">
+              <h3>{s.group}</h3>
+              <ul class="chips">
+                {s.items.map((i) => (
+                  <li>{i}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+
+        <section aria-labelledby="edu-h">
+          <h2 id="edu-h">
+            <span>04</span> Education
+          </h2>
+          <div class="edu">
+            <h3>BRAC University</h3>
+            <p>Computer Science</p>
+            <p class="muted mono">Sep 2022 to Sep 2026 &nbsp;/&nbsp; CGPA 3.65</p>
+            <p class="thesis">
+              <span class="mono muted">Thesis</span>
+              Data-Free Backdoor Removal From Privately Fine-Tuned BERT Classifiers
+            </p>
+          </div>
+        </section>
+
+        <section aria-labelledby="cert-h">
+          <h2 id="cert-h">
+            <span>05</span> Certifications
+          </h2>
+          {certs.map((c) => (
+            <div class="cert">
+              <h3>{c.name}</h3>
+              <p>{c.by}</p>
+              <p class="muted mono">{c.when}</p>
+              <p>
+                <a class="arrow-link" href={c.href} rel="noopener">
+                  {c.link} →
+                </a>
+              </p>
+            </div>
+          ))}
+        </section>
+      </aside>
+    </div>
+
+    <p class="rfoot muted mono">
+      This is a summary of the owner's CV. Figures such as latency and speed-up are as reported there; the
+      case studies on this site say what was measured and what was not.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .rpage {
+    padding-block: clamp(32px, 6vh, 64px) var(--s5);
+  }
+  .rh {
+    position: relative;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .rh :global(.rport) {
+    position: absolute;
+    top: 22px;
+    right: 14px;
+  }
+  @media (min-width: 1000px) {
+    h1 {
+      max-width: calc(100% - 250px);
+    }
+  }
+  @media (max-width: 999px) {
+    .rh :global(.rport) {
+      position: relative;
+      top: 0;
+      right: 0;
+      margin: 12px 0 28px 11px;
+    }
+  }
+  .kicker {
+    margin: 0 0 12px;
+    color: var(--accent);
+    font: 500 12px var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .kicker::after {
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 1px;
+    margin-left: 12px;
+    background: var(--accent);
+    vertical-align: middle;
+  }
+  h1 {
+    margin: 0;
+    font: 400 clamp(2.6rem, 5.6vw, 4.6rem) / 1 var(--serif);
+    letter-spacing: -0.02em;
+  }
+  .rrole {
+    margin: 10px 0 0;
+    color: var(--accent);
+    font: italic 400 clamp(1.4rem, 2.6vw, 2rem) / 1.1 var(--serif);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin: 20px 0 0;
+    padding: 0;
+    color: var(--muted);
+    font: 400 var(--t-mono) var(--mono);
+    list-style: none;
+  }
+  .meta a {
+    color: var(--text);
+  }
+  .ractions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 24px;
+  }
+  .profile {
+    max-width: 62ch;
+    margin: 32px 0 40px;
+    font: 400 clamp(1.2rem, 1.9vw, 1.5rem) / 1.5 var(--serif);
+  }
+  .rgrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+  }
+  h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding-top: 16px;
+    border-top: 2px solid var(--accent);
+    font: 500 12px var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  h2 span {
+    color: var(--accent);
+  }
+  section + section {
+    margin-top: 44px;
+  }
+  .entry {
+    position: relative;
+    margin-bottom: 36px;
+    padding-left: 22px;
+    border-left: 1px solid var(--rule);
+  }
+  .entry::before {
+    content: '';
+    position: absolute;
+    top: 7px;
+    left: -5px;
+    width: 9px;
+    height: 9px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    background: var(--bg);
+  }
+  .etop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 20px;
+  }
+  .entry h3 {
+    margin: 0;
+    font: 600 1.25rem / 1.25 var(--sans);
+  }
+  .at {
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .edate {
+    margin: 0;
+    color: var(--text);
+    font: 500 var(--t-mono) var(--mono);
+    text-align: right;
+  }
+  .edate span {
+    display: block;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .esum {
+    margin: 10px 0 12px;
+    color: var(--muted);
+    font: 400 1.02rem / 1.55 var(--sans);
+  }
+  .points {
+    display: grid;
+    gap: 9px;
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+  }
+  .points li {
+    position: relative;
+    padding-left: 20px;
+    font: 400 1.02rem / 1.55 var(--sans);
+  }
+  .points li::before {
+    content: '\25B8';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .chips li {
+    padding: 3px 9px;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    font: 400 12px var(--mono);
+  }
+  .elink {
+    margin: 14px 0 0;
+  }
+  .rside h3 {
+    margin: 0 0 8px;
+    font: 600 1rem / 1.3 var(--sans);
+  }
+  .sk {
+    margin-bottom: 20px;
+  }
+  .sk h3 {
+    color: var(--muted);
+    font: 400 12px var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .edu p,
+  .cert p {
+    margin: 0 0 4px;
+  }
+  .edu .thesis {
+    margin-top: 12px;
+    padding-left: 14px;
+    border-left: 2px solid var(--accent);
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+  .edu .thesis .mono {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .cert {
+    margin-bottom: 18px;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+  }
+  .rfoot {
+    max-width: 66ch;
+    margin: 48px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  @media (min-width: 1000px) {
+    .rside {
+      position: sticky;
+      top: 20px;
+    }
+  }
+  @media (max-width: 999px) {
+    .rgrid {
+      grid-template-columns: 1fr;
+    }
+    .edate {
+      text-align: left;
+    }
+  }
+</style>

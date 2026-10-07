@@ -1,0 +1,25 @@
+---
+export type TagKind =
+  'verified' | 'partial' | 'notclaimed' | 'invalid' | 'control' | 'valid' | 'replay' | 'model' | 'executed';
+interface Props {
+  kind: TagKind;
+  label?: string;
+}
+const LABEL: Record<TagKind, string> = {
+  verified: 'Verified',
+  partial: 'Partially verified',
+  notclaimed: 'Not claimed',
+  invalid: 'Invalid state',
+  control: 'Rejected transition',
+  valid: 'Valid state',
+  replay: 'Recorded project run',
+  model: 'Modelled from the code',
+  executed: 'Runs in browser',
+};
+const { kind, label } = Astro.props;
+---
+
+<span class={`tag ${kind}`}>
+  <i aria-hidden="true"></i>
+  {label ?? LABEL[kind]}
+</span>

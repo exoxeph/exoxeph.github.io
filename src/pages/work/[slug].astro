@@ -1,0 +1,149 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import EvidenceTag from '../../components/evidence/EvidenceTag.astro';
+import Section from '../../components/project/Section.astro';
+import Ledger from '../../components/project/Ledger.astro';
+import Claim from '../../components/evidence/Claim.astro';
+import ProjectDiagram from '../../components/project/ProjectDiagram.astro';
+import Limitations from '../../components/project/Limitations.astro';
+import Links from '../../components/project/Links.astro';
+import TraceEmbed from '../../components/trace/TraceEmbed.astro';
+import ArchitectureMap from '../../components/project/ArchitectureMap.astro';
+import FlowFrame from '../../components/flow/FlowFrame.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((p) => ({ params: { slug: p.id }, props: { project: p } }));
+}
+
+const { project } = Astro.props;
+Astro.locals.project = project;
+const d = project.data;
+const { Content } = await render(project);
+const typeLabel =
+  d.type === 'solo' ? 'Solo project' : d.type === 'team' ? 'Team project' : 'Research group project';
+const repo = d.links[0];
+---
+
+<Base title={`${d.title} | Imtiaz Mashrafee`} description={d.description}>
+  <div class="wrap">
+    <p class="crumbs mono">
+      <a href="/">Home</a> / <a href="/work/">Work</a> / {d.title}
+    </p>
+    <header class="head">
+      <div>
+        <h1>{d.title}</h1>
+        <p class="lede">{d.description}</p>
+        <p class="facts mono">
+          {typeLabel}, {d.domain}. {d.technologies.join(', ')}.
+        </p>
+        <ul class="role mono">
+          <li>
+            <b>My role</b>
+            {d.contribution.role} {d.contribution.personal}
+          </li>
+          <li>
+            <b>Evidence</b>
+            <EvidenceTag kind="verified" label="Checked by me" /> {d.evidenceLine.text}
+          </li>
+        </ul>
+        <div class="actions">
+          <a class="btn solid" href="#flow">
+            Watch it run ↓
+          </a>
+          {repo && (
+            <a class="btn" href={repo.url} rel="noopener">
+              {repo.label}
+            </a>
+          )}
+        </div>
+      </div>
+    </header>
+  </div>
+  <FlowFrame project={project.id} />
+  <Content
+    components={{ Section, Ledger, Claim, ProjectDiagram, Limitations, Links, TraceEmbed, ArchitectureMap }}
+  />
+</Base>
+
+<style>
+  .crumbs {
+    color: var(--muted);
+    padding: 1.4rem 0 0;
+    margin: 0;
+  }
+  .crumbs a {
+    color: var(--muted);
+  }
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(24px, 5vw, 80px);
+    align-items: start;
+    padding: clamp(18px, 3vw, 32px) 0 clamp(12px, 2vw, 20px);
+  }
+  .head > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    column-gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+  }
+  h1 {
+    grid-column: 1 / -1;
+    font-size: clamp(2rem, 3.8vw, 3.1rem);
+    margin: 0 0 0.8rem;
+  }
+  .lede {
+    grid-column: 1;
+    font: 400 clamp(1.1rem, 1.5vw, 1.3rem) / 1.45 var(--serif);
+    max-width: 46ch;
+    margin: 0 0 0.8rem;
+  }
+  .facts {
+    grid-column: 1;
+    color: var(--muted);
+    margin: 0 0 1rem;
+    line-height: 1.7;
+  }
+  .actions {
+    grid-column: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .role {
+    grid-column: 2;
+    grid-row: 2 / span 3;
+    display: grid;
+    gap: 8px;
+    max-width: 72ch;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .role b {
+    display: inline-block;
+    min-width: 5.5rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+  @media (max-width: 900px) {
+    .head > div {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lede,
+    .facts,
+    .actions,
+    .role {
+      grid-column: 1;
+      grid-row: auto;
+    }
+    .role {
+      margin: 0 0 1rem;
+    }
+  }
+</style>

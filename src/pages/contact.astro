@@ -1,0 +1,157 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.ts';
+
+// Every row comes from site.ts or the résumé: no response times, availability or other promises.
+const rows = [
+  {
+    k: 'Email',
+    note: 'The best way to reach me. There is no contact form.',
+    label: site.links.email,
+    href: site.links.email ? `mailto:${site.links.email}` : null,
+  },
+  {
+    k: 'LinkedIn',
+    note: 'Professional profile and work history.',
+    label: 'linkedin.com/in/imtiazmashrafee',
+    href: site.links.linkedin,
+  },
+  {
+    k: 'GitHub',
+    note: 'Source for every project on this site.',
+    label: 'github.com/exoxeph',
+    href: site.links.github,
+  },
+  {
+    k: 'Résumé',
+    note: 'Work experience, projects, skills, education and certifications.',
+    label: 'Read the résumé',
+    href: site.resume.available ? site.resume.path : null,
+  },
+];
+---
+
+<Base
+  title={`Contact | ${site.name}`}
+  description="Email, LinkedIn, GitHub and the résumé for Imtiaz Mashrafee, an AI engineer based in Dhaka, Bangladesh."
+>
+  <div class="wrap page">
+    <h1>Contact</h1>
+    <p class="intro">
+      If something here is worth a conversation, write to me. Email is the fastest way, and the case studies
+      are the best place to start a question.
+    </p>
+
+    <ul class="rows" aria-label="Contact">
+      {rows.map((r) => (
+        <li>
+          <span class="k mono">{r.k}</span>
+          <span class="v">
+            {r.href ? (
+              <a href={r.href} rel={r.href.startsWith('http') ? 'noopener' : undefined}>
+                {r.label}
+              </a>
+            ) : (
+              <span class="muted">Not published yet</span>
+            )}
+          </span>
+          <span class="n">{r.note}</span>
+        </li>
+      ))}
+    </ul>
+
+    <dl class="facts" aria-label="Where and what">
+      <div>
+        <dt class="mono">Based in</dt>
+        <dd>Dhaka, Bangladesh</dd>
+      </div>
+      <div>
+        <dt class="mono">Studying</dt>
+        <dd>Computer Science, BRAC University</dd>
+      </div>
+      <div>
+        <dt class="mono">Work</dt>
+        <dd>
+          {site.role}: {site.areas.join(', ')}
+        </dd>
+      </div>
+    </dl>
+
+    <p class="more">
+      Before you write: <a href="/work/">the work</a> and <a href="/about/">about</a> say what I build and
+      what was measured.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: clamp(40px, 6vw, 80px);
+  }
+  h1 {
+    font-size: clamp(2.3rem, 4.6vw, 3.6rem);
+    margin-bottom: 1rem;
+  }
+  .intro {
+    font: 400 1.25rem / 1.5 var(--serif);
+    max-width: 52ch;
+    margin: 0 0 2.4rem;
+  }
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 860px;
+    border-top: 2px solid var(--rule-strong);
+  }
+  .rows li {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 0.2rem 1.6rem;
+    padding: 1.3rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .k {
+    color: var(--muted);
+    padding-top: 0.35rem;
+  }
+  .v {
+    font: 400 clamp(1.25rem, 2.2vw, 1.7rem) / 1.3 var(--serif);
+    overflow-wrap: anywhere;
+  }
+  .n {
+    grid-column: 2;
+    color: var(--muted);
+    font-size: var(--t-ui);
+  }
+  .facts {
+    max-width: 860px;
+    margin: 2.4rem 0 0;
+  }
+  .facts > div {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1.6rem;
+    padding: 0.5rem 0;
+  }
+  .facts dt {
+    color: var(--muted);
+  }
+  .facts dd {
+    margin: 0;
+  }
+  .more {
+    margin: 2.4rem 0 0;
+    color: var(--muted);
+  }
+  @media (max-width: 600px) {
+    .rows li,
+    .facts > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.2rem;
+    }
+    .n {
+      grid-column: 1;
+    }
+  }
+</style>

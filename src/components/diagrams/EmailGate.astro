@@ -1,0 +1,44 @@
+---
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<svg
+  class="dg"
+  viewBox="0 0 280 96"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-labelledby={`${id}-t ${id}-d`}
+>
+  <title id={`${id}-t`}>Two-stage email pipeline</title>
+  <desc id={`${id}-d`}>
+    Input goes to a validation gate. If the input is unclear the gate asks a clarifying question first.
+    Otherwise the generator writes the email. A separate evaluation runner scores results with a judge.
+  </desc>
+  <text class="t" x="4" y="14">
+    input
+  </text>
+  <text class="t" x="70" y="14">
+    validate
+  </text>
+  <text class="t" x="150" y="14">
+    generate
+  </text>
+  <text class="t" x="228" y="14">
+    eval
+  </text>
+  <rect class="ln" x="4" y="32" width="34" height="20" />
+  <path class="ln" d="M38 42H84" />
+  <path class="ac" d="M96 30L108 42L96 54L84 42Z" />
+  <path class="ac" d="M96 54V74M92 69L96 74L100 69" />
+  <text class="t hi" x="104" y="84">
+    ask first
+  </text>
+  <path class="ln" d="M108 42H150" />
+  <rect class="ln" x="150" y="32" width="44" height="20" />
+  <path class="ln" d="M194 42H226" />
+  <rect class="ln" x="226" y="32" width="34" height="20" />
+  <path class="tk" d="M232 24V30M242 24V30M252 24V30" />
+</svg>

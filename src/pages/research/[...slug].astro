@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/project/Section.astro';
+
+// Research is built only when an entry is `published`. Drafts stay out of the output, navigation and sitemap.
+export async function getStaticPaths() {
+  const published = await getCollection('research', (r) => r.data.status === 'published');
+  const first = published[0];
+  return first ? [{ params: { slug: undefined }, props: { entry: first } }] : [];
+}
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Base title={`${entry.data.title} | Imtiaz Mashrafee`} description={entry.data.description}>
+  <div class="wrap head">
+    <h1>{entry.data.title}</h1>
+    <p class="lede">{entry.data.description}</p>
+  </div>
+  <Content components={{ Section }} />
+</Base>
+
+<style>
+  .head {
+    padding-top: clamp(40px, 6vw, 80px);
+    padding-bottom: var(--s4);
+  }
+  h1 {
+    font-size: clamp(2.2rem, 4.6vw, 3.6rem);
+    margin-bottom: 1.2rem;
+    max-width: 20ch;
+  }
+  .lede {
+    font: 400 1.25rem / 1.5 var(--serif);
+    max-width: 52ch;
+    margin: 0;
+  }
+</style>

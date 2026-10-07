@@ -1,0 +1,83 @@
+---
+/** A case-study section: margin label on the left, reading column on the right (stacked on small screens). */
+interface Props {
+  id: string;
+  title: string;
+  wide?: boolean;
+}
+const { id, title, wide = false } = Astro.props;
+---
+
+<section class="s" id={id} aria-labelledby={`${id}-h`}>
+  <div class="wrap cs">
+    <h2 id={`${id}-h`}>{title}</h2>
+    <div class:list={['content', { wide }]}>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .s {
+    padding: var(--s5) 0;
+    border-top: 1px solid var(--rule);
+  }
+  .cs {
+    display: grid;
+    grid-template-columns: 200px minmax(0, var(--read)) 1fr;
+    gap: 0 clamp(24px, 4vw, 64px);
+  }
+  h2 {
+    font-size: 1.5rem;
+    grid-column: 1;
+    margin: 0 0 1rem;
+  }
+  .content {
+    grid-column: 2;
+    font: 400 var(--t-prose) / 1.6 var(--serif);
+  }
+  .content.wide {
+    grid-column: 2 / -1;
+    font: 400 var(--t-body) / 1.65 var(--sans);
+  }
+  .content > :global(p) {
+    margin: 0 0 1.1em;
+  }
+  .content > :global(ul),
+  .content > :global(ol) {
+    font: 400 var(--t-body) / 1.6 var(--sans);
+    padding-left: 1.2rem;
+    margin: 0 0 1.2em;
+  }
+  .content > :global(ul) > :global(li),
+  .content > :global(ol) > :global(li) {
+    margin: 0 0 0.55em;
+    padding-left: 0.2rem;
+  }
+  .content > :global(p) :global(strong),
+  .content > :global(ul) :global(strong),
+  .content > :global(ol) :global(strong) {
+    font-weight: 600;
+  }
+  .content > :global(p) :global(code),
+  .content > :global(ul) :global(code),
+  .content > :global(ol) :global(code) {
+    font: 400 0.85em var(--mono);
+    background: var(--surface);
+    padding: 0.1em 0.35em;
+    border-radius: var(--radius);
+  }
+  @media (max-width: 900px) {
+    .s {
+      padding: var(--s4) 0;
+    }
+    .cs {
+      grid-template-columns: 1fr;
+    }
+    h2,
+    .content,
+    .content.wide {
+      grid-column: 1;
+    }
+  }
+</style>

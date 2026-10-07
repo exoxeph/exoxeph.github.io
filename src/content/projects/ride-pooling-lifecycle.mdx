@@ -1,0 +1,154 @@
+---
+title: Ride-pooling lifecycle with guarded transitions
+description: A full-stack ride-pooling MVP for a fixed Tesla fleet in Dhaka, with a guarded request lifecycle, shared pools formed by route compatibility and an audit event for every transition.
+capability: A shared-ride service where a request moves only along a transition table, with a capacity check across a vehicle's pools that holds for sequential accepts; concurrent accepts remain a known gap.
+type: solo
+domain: backend
+status: prototype
+tier: primary
+order: 4
+publicLevel: public-with-attribution-care
+diagram: pool
+chapter:
+  channel: pool
+  question: "How do you stop a car being overbooked?"
+  wrong: "Several riders can ask for seats in the same vehicle, and each request looks fine on its own."
+  matters: "If every request is accepted separately, the car can end up with more riders than it has seats."
+  does: "It adds up the seats already taken across the whole vehicle and refuses a request that would not fit."
+  myPart: "My part: the ride service, the request steps and the seat check. Sole contributor in the commit history (all 125 commits)."
+  decisionPlain: "Count seats for the whole car, not for each group of riders, at the moment a driver accepts a request."
+  evidenceHuman: "Recorded test run: without the check a 3-seat car held 5 riders; with it, 3 of 3. This ran against a stand-in (mock) database, not a real one."
+  limitationPlain: "Two requests accepted at the same moment can both pass the check, which would leave the car at 5 of 3. Seen only against a stand-in (mock) database; a real database was not run."
+  plain: "A ride-sharing backend that refuses a booking when the car would end up with more riders than seats. It does not yet hold when two bookings arrive at the same instant."
+  problem: "Pooling riders into shared trips under constraints while several actors change state at once, with an auditable history."
+  decision: "Guard the vehicle's total seats across pools, not each pool, inside the accept transaction."
+  limitation: "Concurrent accepts across pools are not covered by the guard. Observed under an in-memory mock; PostgreSQL was not run."
+technologies: [TypeScript, Next.js, Express, PostgreSQL]
+contribution:
+  role: Sole contributor in the commit history.
+  personal: All 125 commits and 15 merged pull requests, with iterative work on the core ride service (26 September to 1 October 2026).
+  basis: commit-attributed
+  upstream: Framework scaffolding and standard libraries.
+  aiAssistance: "AI-assisted development: Claude Code was used for scaffolding, backend and frontend implementation, tests and git workflow, and a design plugin guided the visual direction. I made the architecture and design decisions, reviewed and corrected the output, and checked behavior by running the code. The repository keeps a log of what was accepted, rejected and fixed."
+  aiAssistanceConfirmed: true
+  provenance: Built in an assessment context; the assessment brief is not in the repository. The repository documents the AI tools it used in docs/ai-usage-notes.md.
+evidenceLine:
+  text: 71 written test cases exist in the repository. They were counted, not run for this page.
+  state: verified
+  evidenceId: e1
+evidence:
+  - id: e1
+    claim: A lifecycle transition table and 71 test cases across seven backend test files are defined in the repository.
+    state: verified
+    source: apps/api/src/common/rideLifecycle.ts and the backend test files
+    howChecked: Read the source and counted the test cases; passing is not claimed
+  - id: e2
+    claim: The third accept gives different results before and after the capacity guard commit. Without the guard it returns HTTP 200 and the vehicle holds 5 of 3 seats; with it, HTTP 409 and 3 of 3 seats.
+    state: verified
+    source: The project's own tests at commits 3af09ba and 54de79d
+    howChecked: Ran the project's own test harness on both commits and recorded the states
+    caveat: Uses the project's in-memory database mock, not PostgreSQL.
+  - id: e3
+    claim: Two accepts made at the same moment can both pass the capacity guard.
+    state: partially-verified
+    source: The project's test harness
+    howChecked: Ran two simultaneous accepts under the harness
+    caveat: Observed under the mock's interleaving and consistent with the code's read-then-write structure; real PostgreSQL behavior was not run.
+  - id: e4
+    claim: Completing one rider marks the whole pool completed, and cancellation does not release seats.
+    state: verified
+    source: apps/api/src/modules/rides/rides.service.ts
+    howChecked: Read the source
+  - id: e5
+    claim: Every data-touching test mocks the database; the largest suite implements an in-memory database with artificial interleaving.
+    state: verified
+    source: The backend test files
+    howChecked: Read the test setup
+  - id: e6
+    claim: The README states that race conditions were checked against a live database and that tests pass. No results are retained, so neither is claimed here.
+    state: unverified
+    source: README
+    howChecked: Looked for retained results and found none
+limitations:
+  - The project is a local-only MVP with fixed seeded zones, straight-line distances and one vehicle per driver.
+  - The capacity guard reads, sums, then writes, and concurrent behavior against a real database was not run.
+  - Completing one rider completes the whole pool, and cancellation never releases seats.
+  - Tests mock the database, there are no end-to-end or database-backed tests, and there is no CI or deployment.
+links:
+  - { label: Repository, url: 'https://github.com/exoxeph/tesla-pool' }
+traces: [tesla-capacity]
+---
+
+<Section id="problem" title="Problem">
+  Pooling riders into shared trips under constraints (pickup within 1.5 km, destination within 3 km, vehicle
+  capacity) while several actors change state at once, with payments and an auditable history.
+</Section>
+
+<Section id="built" title="What I built">
+  A Next.js front end, an Express API and a PostgreSQL schema accessed through Prisma. A ride request moves
+  from REQUESTED to MATCHED, DRIVER_ARRIVED, STARTED and COMPLETED, and can be cancelled before it starts.
+  Drivers form shared pools when a request is route-compatible, and every transition leaves a status event.
+  Completion settles a simulated wallet or cash payment.
+</Section>
+
+<Section id="contribution" title="My contribution" wide>
+  <Ledger />
+</Section>
+
+<Section id="architecture" title="Architecture">
+<ProjectDiagram caption="Three seats are committed on a vehicle of capacity 3; a request for two more is refused at the capacity line, in a recorded test run." />
+
+1. A passenger creates a request, and the server computes an integer-paisa fare.
+2. A driver accepts it. A conditional update succeeds only if the request is still REQUESTED.
+3. The service joins an existing pool when routes are compatible, or founds a new pool.
+4. Inside one transaction it sums the seats already committed across the vehicle's active pools and refuses the accept if the total would exceed capacity.
+5. Status transitions, including a conflict outcome, are written as audit events.
+
+<ArchitectureMap />
+
+</Section>
+
+<Section id="decisions" title="Engineering decisions">
+
+- **One transition table** for every status change, so no route can skip a state.
+- **Conditional (compare-and-set) updates** for single-row races.
+- **Identity from the verified token,** with ownership checks.
+- **Success events committed with state changes,** and conflict events written after a rollback.
+- **An aggregate guard across pools,** added after an overbooking was reported, because guarding one pool does not protect the vehicle.
+- **Integer paisa for money,** and one vehicle per driver by a unique constraint.
+
+</Section>
+
+<Section id="evaluation" title="Evaluation">
+  Seven backend test files define 71 test cases (52 for rides). There are no frontend, end-to-end or
+  database-backed tests, and no executed results are retained. The recorded behavior shown in the trace below
+  was produced by running the project's own tests at two commits.
+</Section>
+
+<Section id="results" title="Results" wide>
+  <Claim id="e1" />
+  <Claim id="e2" />
+  <Claim id="e3" />
+  <Claim id="e4" />
+  <Claim id="e5" />
+  <Claim id="e6" />
+</Section>
+
+<Section id="limitations" title="Limitations">
+  <Limitations />
+</Section>
+
+<Section id="trace" title="Engineering Trace" wide>
+  <TraceEmbed id="tesla-capacity" />
+</Section>
+
+<Section id="takeaways" title="Takeaways">
+Guarding one row does not guard an invariant that spans rows. The aggregate guard fixed the sequential overbooking and also showed what remains: a check that reads and then writes still needs a stronger mechanism under concurrency.
+
+Tests that mock the database validate logic under chosen interleavings, not database isolation.
+
+</Section>
+
+<Section id="repository" title="Repository">
+  <Links />
+</Section>

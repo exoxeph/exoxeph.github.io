@@ -1,0 +1,133 @@
+---
+title: Speech and report extraction that does not invent values
+description: A FastAPI service with speech transcription and structured extraction from photographed lab-report images, built on provider adapters with mock defaults and a parsing layer that does not invent values.
+capability: Transcribes speech and extracts structured rows from photographed lab reports, omitting rows whose values cannot be parsed and returning zero rows for documents that are not lab reports.
+type: solo
+domain: extraction
+status: prototype
+tier: primary
+order: 3
+publicLevel: public-with-attribution-care
+diagram: speech
+chapter:
+  channel: speech
+  question: "What if a reading looks valid but is not?"
+  plain: "A system that transcribes speech and pulls structured data out of photographed lab reports, leaving out any value it cannot read instead of guessing."
+  wrong: "Reading text from a photographed lab report sometimes misreads a value, and a misread can still look like a perfectly good number."
+  matters: "A wrong lab value that looks valid is worse than a missing one, because nothing warns the reader."
+  does: "It turns report text into structured fields and leaves out values it cannot read. The page also shows the case it cannot catch."
+  myPart: "My part: the whole service: its web endpoints, the code that reads and sorts report text, and the tests and sample data. Sole contributor in the commit history (all 51 commits)."
+  decisionPlain: "Accept only value shapes it knows. Leave out any row that does not match, and keep the raw line for rows that do."
+  evidenceHuman: "Two recorded misreads: one is caught and its row left out, the other looks valid and is kept. Test recordings and synthetic report images are saved in the repository."
+  limitationPlain: "It cannot tell a wrong value that looks valid. A reading of <8.5 in place of <0.5 is parsed and kept, and nothing flags it. There is no confidence measure."
+  problem: "Turning messy audio and photographed documents into structured data without making values up."
+  decision: "Reject a value that does not match a known form, omit that row, and keep the raw line on rows that parse."
+  limitation: "A misread that is still a valid number parses as valid. There is no confidence measure."
+technologies: [Python, FastAPI, faster-whisper, Tesseract]
+contribution:
+  role: Sole contributor in the commit history.
+  personal: All 51 commits, covering routes, schemas, services, adapters, normalizers, tests, containers, documentation and fixtures.
+  basis: commit-attributed
+  upstream: faster-whisper, Tesseract, FastAPI and standard libraries. The test report content is derived from the Synthea synthetic-patient dataset, as documented in the repository.
+  provenance: Built as a take-home assignment; the assignment brief is not in the repository. All commits fall on a single day (August 2026).
+evidenceLine:
+  text: Test recordings and synthetic report images are saved in the repository.
+  state: verified
+  evidenceId: e1
+evidence:
+  - id: e1
+    claim: Twelve audio files, eight report images, reference transcripts and reports, and a decisions record with five decisions are committed. A separate OCR evaluation file is stale and describes older samples.
+    state: verified
+    source: testdata/ and DECISIONS.md
+    howChecked: Read the committed files
+  - id: e2
+    claim: The parsing layer keeps the raw OCR reading, canonicalizes only known unit aliases, and a conservative non-lab detector returns the type unknown with zero rows.
+    state: verified
+    source: DECISIONS.md and the parser, normalizer and document extraction modules
+    howChecked: Read the source and the decisions record
+  - id: e3
+    claim: 'The README reports rows recovered per report image (9, 8, 7, 4, 7, 5, 1 and 0), and notes that English transcription is good while Bengali and code-switched audio are weak.'
+    state: partially-verified
+    source: README evaluation tables
+    howChecked: Read the README tables
+    caveat: Author-reported manual evaluation of the real providers; raw transcription outputs are not committed and the numbers were not reproduced.
+  - id: e4
+    claim: 'Recorded examples of preserved uncertainty: with the header cropped out, metadata is null and 4 rows are recovered; OCR misreads such as CRP <0.5 read as RP <8.5 are kept as read; a non-lab receipt gives the type unknown and 0 rows.'
+    state: partially-verified
+    source: README evaluation tables
+    howChecked: Read the committed inputs and the recorded outcomes
+    caveat: The inputs are committed but the outcome tables are the author's; the non-lab case was tested on one image.
+limitations:
+  - The evaluation sets are small and made by the author, and the parsing heuristics are tuned to the fixtures.
+  - Bengali transcription is weak with the chosen model, and OCR degrades on rotated or angled images.
+  - Transcription orchestration is thin, and there is no lockfile or CI.
+  - Real-provider results need downloaded models and binaries, and the raw outputs are not committed.
+links:
+  - { label: Repository, url: 'https://github.com/exoxeph/speech-doc-extraction' }
+---
+
+<Section id="problem" title="Problem">
+  Turning messy audio and photographed documents into structured data without making values up. Speech may be
+  transcribed in the wrong script, OCR misreads digits, a header may be cropped out, and a document that is
+  not a lab report must not produce invented results.
+</Section>
+
+<Section id="built" title="What I built">
+A service with two workflows. One transcribes Bengali and English speech. The other extracts metadata and result rows from photographed lab-report images, using layout-specific row parsers and value, unit and date normalizers.
+
+Both sit on provider adapters, with a deterministic mock by default and faster-whisper and Tesseract as real providers. The Docker image is mock-only by design.
+
+</Section>
+
+<Section id="contribution" title="My contribution" wide>
+  <Ledger />
+</Section>
+
+<Section id="architecture" title="Architecture">
+<ProjectDiagram caption="Audio and report images pass through a parse stage; a row whose value cannot be parsed is omitted and its raw line is kept elsewhere." />
+
+1. An audio upload goes to the transcription route, the transcription service and a provider adapter (mock or faster-whisper).
+2. An image upload goes to the document route, the extraction service and an OCR adapter (mock or Tesseract).
+3. Text lines pass through metadata extraction and layout-specific row parsers, then value, unit and date normalizers.
+4. A conservative detector returns the type unknown with zero rows for a document that is not a lab report.
+
+<ArchitectureMap />
+
+</Section>
+
+<Section id="decisions" title="Engineering decisions">
+Recorded in the repository's decisions document:
+
+- **Provider adapters with mock defaults,** so the service can be run and tested without models or binaries.
+- **Structured values** that keep operators and both range endpoints.
+- **Preserve uncertain OCR text,** and do not correct it using knowledge of the fixtures.
+- **Tesseract as the real OCR adapter.**
+- **Conservative non-lab detection.**
+</Section>
+
+<Section id="evaluation" title="Evaluation">
+  A manual evaluation by the author of the real providers: eight audio clips (English clean, noisy and low
+  volume; Bengali clean and noisy; code-switched; silence; ambient noise) and eight report images (clean,
+  angled, dark, cropped, rotated, normalization cases and a non-lab receipt). Results are author-reported in README
+  tables; the separate evaluation file in the repository is stale. 75 test functions are defined and none are claimed as passing.
+</Section>
+
+<Section id="results" title="Results" wide>
+  <Claim id="e1" />
+  <Claim id="e2" />
+  <Claim id="e3" />
+  <Claim id="e4" />
+</Section>
+
+<Section id="limitations" title="Limitations">
+  <Limitations />
+</Section>
+
+<Section id="takeaways" title="Takeaways">
+  Keeping the raw OCR line and omitting rows that cannot be parsed makes errors visible. The cost is partial
+  output, such as 4 rows from a report with its header cropped out.
+</Section>
+
+<Section id="repository" title="Repository">
+  <Links />
+</Section>

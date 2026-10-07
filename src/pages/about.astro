@@ -1,0 +1,109 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site.ts';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+// "Used in" index derived at build time from project frontmatter: no ratings, no logos.
+const tech = new Map<string, { id: string; title: string }[]>();
+for (const p of projects)
+  for (const t of p.data.technologies)
+    tech.set(t, [...(tech.get(t) ?? []), { id: p.id, title: p.data.title }]);
+const techList = [...tech.entries()].sort(([a], [b]) => a.localeCompare(b));
+---
+
+<Base
+  title={`About | ${site.name}`}
+  description="Engineering perspective, current focus and a technology index linked to the projects where each technology appears."
+>
+  <div class="wrap page">
+    <h1>About</h1>
+    <div class="prose">
+      <p>
+        I build AI systems where the model is one component among checks. That means validating inputs before
+        a model acts, measuring behavior against recorded cases, and putting guards around state changes.
+      </p>
+      <p>
+        The four case studies here are prototypes. Each one states what was measured, what was not, and what
+        part of the work is mine. Where an assessment brief, a bulk commit or an AI-assisted workflow is part
+        of the history, the page says so.
+      </p>
+      <p>
+        Current focus: LLM pipelines and retrieval with evaluation, structured extraction from noisy inputs,
+        and the backends around them.
+      </p>
+    </div>
+
+    <section aria-labelledby="tech-h" class="tech">
+      <h2 id="tech-h">Technology index</h2>
+      <p class="muted">
+        Technologies as used in each project. This is not a rating of skill; depth is shown by the case
+        studies.
+      </p>
+      <dl>
+        {techList.map(([name, used]) => (
+          <>
+            <dt>{name}</dt>
+            <dd>
+              {used.map((u, i) => (
+                <>
+                  <a href={`/work/${u.id}/`}>{u.title}</a>
+                  {i < used.length - 1 ? ', ' : ''}
+                </>
+              ))}
+            </dd>
+          </>
+        ))}
+      </dl>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: clamp(40px, 6vw, 80px);
+  }
+  h1 {
+    font-size: clamp(2.3rem, 4.6vw, 3.6rem);
+    margin-bottom: 1.6rem;
+  }
+  .tech {
+    margin-top: var(--s5);
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s4);
+  }
+  .tech h2 {
+    margin-bottom: 0.6rem;
+  }
+  dl {
+    display: grid;
+    grid-template-columns: minmax(140px, 220px) 1fr;
+    margin: 1.6rem 0 0;
+    max-width: 900px;
+  }
+  dt,
+  dd {
+    padding: 0.8rem 0;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+  dt {
+    font: 500 var(--t-mono) var(--mono);
+  }
+  dd {
+    font-size: var(--t-ui);
+  }
+  @media (max-width: 900px) {
+    dl {
+      grid-template-columns: 1fr;
+    }
+    dt {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+    dd {
+      border-top: 0;
+      padding-top: 0.1rem;
+    }
+  }
+</style>

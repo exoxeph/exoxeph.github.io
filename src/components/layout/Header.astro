@@ -1,0 +1,223 @@
+---
+import NavLinks from '../navigation/NavLinks.astro';
+import { site } from '../../data/site.ts';
+---
+
+<header class="top">
+  <div class="wrap bar">
+    <a class="mark" href="/">
+      {site.name}
+    </a>
+    <nav class="desktop" aria-label="Primary">
+      <NavLinks />
+    </nav>
+    <button class="notes-toggle" type="button" aria-pressed="true" data-notes-toggle>
+      <span class="nt-dot" aria-hidden="true"></span>
+      <span class="nt-label">Hand notes: on</span>
+    </button>
+    <details class="menu">
+      <summary>Menu</summary>
+      <nav aria-label="Primary (menu)">
+        <NavLinks />
+      </nav>
+    </details>
+  </div>
+</header>
+<!-- The same switch as a floating pop-up, shown once the visitor has scrolled past the opening while the navbar is
+     away. It is a visual duplicate (the navbar button is the accessible control), so it is hidden from assistive
+     technology. It sits outside the header because the header is transformed when it dissolves, and a transformed
+     ancestor would stop `position: fixed` from meaning the viewport. -->
+<button
+  class="notes-toggle float"
+  type="button"
+  aria-hidden="true"
+  tabindex="-1"
+  data-notes-toggle
+  data-float
+>
+  <span class="nt-dot" aria-hidden="true"></span>
+  <span class="nt-label">Hand notes: on</span>
+</button>
+
+<script>
+  const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-notes-toggle]')];
+  const root = document.documentElement;
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem('notes');
+    if (localStorage.getItem('notes-seen')) root.dataset.notesSeen = '1';
+  } catch {
+    /* storage unavailable: notes stay on */
+  }
+  const apply = (on: boolean) => {
+    root.dataset.notes = on ? 'on' : 'off';
+    for (const toggle of toggles) {
+      toggle.setAttribute('aria-pressed', String(on));
+      const label = toggle.querySelector('.nt-label');
+      if (label) label.textContent = on ? 'Hand notes: on' : 'Hand notes: off';
+    }
+    root.dispatchEvent(new Event('notes-toggle'));
+  };
+  apply(stored !== 'off');
+  for (const toggle of toggles)
+    toggle.addEventListener('click', () => {
+      root.dataset.notesSeen = '1';
+      const next = root.dataset.notes === 'off';
+      apply(next);
+      try {
+        localStorage.setItem('notes-seen', '1');
+        localStorage.setItem('notes', next ? 'on' : 'off');
+      } catch {
+        /* storage unavailable */
+      }
+    });
+
+  // Pages with no annotations have nothing to switch.
+  if (!document.querySelector('.note')) root.dataset.noNotes = '1';
+
+  // The pop-up appears once the opening section has scrolled out of view (or after a short scroll on other pages).
+  const hero = document.querySelector<HTMLElement>('.hero');
+  let frame = 0;
+  let lastY = window.scrollY;
+  const menu = document.querySelector<HTMLDetailsElement>('details.menu');
+  // The hero boundary is measured when the hero changes size, not on every scroll frame, and the root attributes are
+  // written only when they change, so scrolling past the opening does not force layout or invalidate styles.
+  let limit = 360;
+  const measure = () => {
+    limit = hero ? hero.offsetTop + hero.offsetHeight - 120 : 360;
+  };
+  const setFlag = (name: 'pastHero' | 'nav', value: string | null) => {
+    if ((root.dataset[name] ?? null) === value) return;
+    if (value === null) delete root.dataset[name];
+    else root.dataset[name] = value;
+  };
+  const update = () => {
+    frame = 0;
+    const y = window.scrollY;
+    setFlag('pastHero', y > limit ? '1' : null);
+    // The navbar stays put through the opening. Below it, it dissolves while the visitor reads down and returns
+    // on the first upward scroll, so there is never a trip back to the top just to reach it.
+    const delta = y - lastY;
+    if (Math.abs(delta) > 6) {
+      lastY = y;
+      // Keyboard focus that scrolls the page up must not bring the navbar back over the control that was just focused.
+      const held = performance.now() < focusHold;
+      setFlag('nav', y <= limit || (delta < 0 && !held) || menu?.open ? null : 'hidden');
+    }
+  };
+  let focusHold = 0;
+  document.addEventListener('focusin', (event) => {
+    const target = event.target as Element;
+    if (target.closest('header.top') || !root.dataset.pastHero || !target.matches(':focus-visible')) return;
+    focusHold = performance.now() + 500;
+    setFlag('nav', 'hidden');
+  });
+  measure();
+  if (hero && 'ResizeObserver' in window) new ResizeObserver(measure).observe(hero);
+  window.addEventListener('resize', measure);
+  window.addEventListener('load', measure);
+  // Opening the menu or focusing a link in the bar always brings it back.
+  menu?.addEventListener('toggle', () => {
+    if (menu.open) delete root.dataset.nav;
+  });
+  document.querySelector('header.top')?.addEventListener('focusin', () => delete root.dataset.nav);
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    },
+    { passive: true },
+  );
+  update();
+</script>
+<style>
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .top {
+      transition:
+        transform 260ms var(--ease),
+        opacity 220ms var(--ease);
+    }
+  }
+  /* A phone on its side has no height to spare: the bar scrolls away with the page instead of covering the content. */
+  @media (max-height: 500px) {
+    .top {
+      position: static;
+    }
+  }
+  /* Scrolling down below the opening: the bar dissolves upward. Reduced motion gets an instant swap. */
+  :global(html[data-nav='hidden']) .top {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  :global(html[data-past-hero]) .top {
+    box-shadow: 0 10px 24px -18px #000;
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 64px;
+    gap: 1.5rem;
+  }
+  .mark {
+    font: 500 1.25rem / 1 var(--serif);
+    text-decoration: none;
+  }
+  .menu {
+    display: none;
+  }
+  .desktop {
+    margin-left: auto;
+  }
+  .menu summary {
+    list-style: none;
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    padding: 0 0.2rem;
+  }
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .menu[open] {
+    flex-basis: 100%;
+  }
+  .menu :global(ul) {
+    display: grid;
+    gap: 0;
+    padding: 0.5rem 0 1rem;
+  }
+  .menu :global(li > a),
+  .menu :global(li > span) {
+    display: block;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .menu :global(a.util) {
+    border: 0;
+    padding: 0.85rem 0;
+    font: 400 var(--t-ui) var(--sans);
+    color: var(--text);
+  }
+  @media (max-width: 900px) {
+    .desktop {
+      display: none;
+    }
+    .menu {
+      display: block;
+    }
+    .bar {
+      flex-wrap: wrap;
+    }
+  }
+</style>

@@ -1,0 +1,72 @@
+/* Diagram primitives: nodes, transitions, thresholds, markers, ticks, annotations. Strokes inherit design tokens. */
+.dg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.dg .ln,
+.dg .mu,
+.dg .ac,
+.dg .th,
+.dg .bar,
+.dg .tk,
+.dg .pt,
+.dg .rq {
+  fill: none;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.dg .ln {
+  stroke: var(--text);
+}
+.dg .mu,
+.dg .tk {
+  stroke: var(--muted);
+}
+.dg .ac {
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+.dg .th {
+  stroke: var(--muted);
+  stroke-dasharray: 3 3;
+}
+.dg .bar {
+  stroke: var(--accent);
+  stroke-width: 3.5;
+}
+.dg .pt {
+  stroke: var(--partial);
+  stroke-dasharray: 3 2;
+  stroke-width: 1.6;
+}
+.dg .rq {
+  stroke: var(--muted);
+  stroke-dasharray: 4 3;
+}
+.dg .s1,
+.dg .s2 {
+  stroke: var(--text);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.dg .s1 {
+  fill: color-mix(in srgb, var(--accent) 30%, transparent);
+  stroke: var(--accent);
+}
+.dg .s2 {
+  fill: color-mix(in srgb, var(--text) 14%, transparent);
+}
+.dg .t {
+  font: 500 11px var(--mono);
+  fill: var(--muted);
+  letter-spacing: 0.01em;
+}
+.dg .t.hi {
+  fill: var(--text);
+}
+.dg .t.ac {
+  fill: var(--accent);
+  stroke: none;
+}

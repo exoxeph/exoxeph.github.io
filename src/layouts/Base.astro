@@ -1,0 +1,66 @@
+---
+import '../styles/global.css';
+import { Font } from 'astro:assets';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import { site } from '../data/site.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  /** path-only canonical, defaults to the current route */
+  canonicalPath?: string;
+  noindex?: boolean;
+  /** structured data for the page, home only */
+  jsonLd?: Record<string, unknown>;
+}
+const { title, description, canonicalPath, noindex = false, jsonLd } = Astro.props;
+const ogImage = new URL('/og.png', site.url).toString();
+const canonical = new URL(canonicalPath ?? Astro.url.pathname, site.url).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#131416" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Imtiaz Mashrafee, AI Engineer" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <Font cssVariable="--font-serif" preload />
+    <Font cssVariable="--font-sans" preload={[{ weight: '400' }]} />
+    <Font cssVariable="--font-mono" />
+    <Font cssVariable="--font-note" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">
+      Skip to content
+    </a>
+    <slot name="skip" />
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

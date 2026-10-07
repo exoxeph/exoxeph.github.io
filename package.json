@@ -1,0 +1,36 @@
+{
+  "name": "exoxeph-github-io",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.19"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview --port 4321",
+    "check": "astro check",
+    "lint:content": "node scripts/validate-content.ts",
+    "release:check": "node scripts/validate-content.ts --release",
+    "size": "node scripts/size-report.ts && node scripts/perf-assets.mjs --check",
+    "perf:assets": "node scripts/perf-assets.mjs",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "format": "prettier --write \"src/**/*.{astro,ts,css,json}\" \"tests/**/*.{ts,json}\" \"scripts/**/*.{ts,mjs}\""
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^8.0.2",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.3"
+  }
+}

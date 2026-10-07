@@ -1,0 +1,119 @@
+---
+import '../../styles/flow.css';
+// The centerpiece of a case study: a playable system flow. The full written flow is rendered here for every
+// scenario (it is the no-JavaScript version and stays available to everyone); src/lib/flow/mount.ts plays it.
+import { architectureSchema } from '../../lib/architecture/schema';
+import pool from '../../data/architecture/ride-pooling-lifecycle.json';
+import speech from '../../data/architecture/speech-doc-extraction.json';
+import rag from '../../data/architecture/data-aware-rag.json';
+import email from '../../data/architecture/email-assistant.json';
+import { buildEmailFlow } from '../../lib/flow/email';
+import { buildRagFlow } from '../../lib/flow/rag';
+import { buildSpeechFlow } from '../../lib/flow/speech';
+import { buildPoolFlow } from '../../lib/flow/pool';
+import { PROV_LABEL, type FlowData } from '../../lib/flow/types';
+
+interface Props {
+  project: string;
+}
+const { project } = Astro.props;
+
+const builders: Record<string, () => Promise<FlowData> | FlowData> = {
+  'llm-email-pipeline': buildEmailFlow,
+  'retrieval-orchestration': buildRagFlow,
+  'speech-document-extraction': buildSpeechFlow,
+  'ride-pooling-lifecycle': buildPoolFlow,
+};
+const archFor: Record<string, unknown> = {
+  'llm-email-pipeline': email,
+  'retrieval-orchestration': rag,
+  'speech-document-extraction': speech,
+  'ride-pooling-lifecycle': pool,
+};
+const copy: Record<string, { h: string; lede: string }> = {
+  'llm-email-pipeline': {
+    h: 'Watch a request travel the pipeline',
+    lede: 'Pick a recorded scenario and press Play. Validation runs in your browser. The model steps are recorded outcomes of the project run.',
+  },
+  'retrieval-orchestration': {
+    h: 'Watch a question pass the quality gate',
+    lede: 'Pick a recorded question and press Play. The pass or repair rule runs in your browser. Only the route, the repair flag and the final score were recorded; the pipeline stages are described from the code, and the drafts came from a mock generator.',
+  },
+  'speech-document-extraction': {
+    h: 'Watch a report line become a row',
+    lede: 'Pick a line and press Play. The parser runs in your browser, the same port that matches the original Python on every golden line.',
+  },
+  'ride-pooling-lifecycle': {
+    h: 'Watch an accept meet the capacity guard',
+    lede: 'Pick a scenario and press Play. The sequential steps are recorded from the project test run. The concurrent case is an observation under a database mock.',
+  },
+};
+
+const build = builders[project];
+const flow = build ? await build() : null;
+const nodes = Object.fromEntries(architectureSchema.parse(archFor[project]).nodes.map((n) => [n.id, n]));
+const json = flow ? JSON.stringify({ data: flow, nodes }).replace(/</g, '\\u003c') : '';
+const stageLabel = (id: string) => flow?.stages.find((s) => s.id === id)?.label ?? id;
+---
+
+{flow && (
+  <section class="cf-frame wrap" id="flow" aria-labelledby="cf-h">
+    <header class="cf-head">
+      <p class="cf-eyebrow mono">Playable system flow</p>
+      <h2 id="cf-h">{copy[project]!.h}</h2>
+      <p class="cf-lede">{copy[project]!.lede}</p>
+    </header>
+    <div class={`cf cf-${flow.kind}`} data-flow>
+      <p class="cf-nojs">The controls need JavaScript. The whole flow is written out below, step by step.</p>
+    </div>
+    <details class="cf-text" open>
+      <summary>The flow in text</summary>
+      {flow.scenarios.map((sc) => (
+        <section class="cf-sc" aria-labelledby={`ft-${sc.id}`}>
+          <h3 id={`ft-${sc.id}`}>
+            {sc.label} <span class="cf-blurb">{sc.blurb}</span>
+          </h3>
+          <ol>
+            {sc.steps.map((s) => (
+              <li>
+                <p class="cf-ftitle">
+                  {stageLabel(s.stage)}: {s.title}{' '}
+                  <span class={`cf-prov prov-${s.prov}`}>{PROV_LABEL[s.prov]}</span>
+                </p>
+                <dl>
+                  <dt>What came in</dt>
+                  <dd>{s.came}</dd>
+                  <dt>What acted</dt>
+                  <dd>{s.acted}</dd>
+                  <dt>What it decided</dt>
+                  <dd>{s.decided}</dd>
+                  <dt>What changed</dt>
+                  <dd>{s.changed}</dd>
+                  <dt>What happens next</dt>
+                  <dd>{s.next}</dd>
+                </dl>
+                {s.extra && (
+                  <dl>
+                    {s.extra.map((e) => (
+                      <>
+                        <dt>{e.k}</dt>
+                        <dd>{e.v}</dd>
+                      </>
+                    ))}
+                  </dl>
+                )}
+                <p class="cf-provnote">{s.provNote}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </details>
+    <script type="application/json" data-flow-json set:html={json} />
+    <script>
+      const start = () => import('../../lib/flow/mount.ts');
+      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1200 });
+      else setTimeout(start, 200);
+    </script>
+  </section>
+)}

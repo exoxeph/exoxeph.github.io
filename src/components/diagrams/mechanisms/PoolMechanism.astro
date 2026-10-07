@@ -1,0 +1,53 @@
+---
+const { id } = Astro.props;
+---
+
+<svg class="dg mech-svg" viewBox="0 0 280 100" role="img" aria-labelledby={`${id}-t ${id}-d`}>
+  <title id={`${id}-t`}>Shared vehicle capacity guard</title>
+  <desc id={`${id}-d`}>
+    When one of three seats is committed, a two seat request fits and commits the remaining seats. When all
+    three seats are committed, that request is refused at the capacity guard with HTTP 409.
+  </desc>
+  <text class="t" x="4" y="14">
+    seats committed: 3 of 3
+  </text>
+  <rect class="s1" x="4" y="26" width="28" height="28" />
+  <text class="t hi" x="18" y="44" text-anchor="middle">
+    A
+  </text>
+  <rect class="s2 a" x="36" y="26" width="28" height="28" />
+  <rect class="s2 a" x="68" y="26" width="28" height="28" />
+  <rect class="s2 b" x="36" y="26" width="28" height="28" />
+  <rect class="s2 b" x="68" y="26" width="28" height="28" />
+  <text class="t hi a" x="50" y="44" text-anchor="middle">
+    C
+  </text>
+  <text class="t hi a" x="82" y="44" text-anchor="middle">
+    C
+  </text>
+  <text class="t hi b" x="50" y="44" text-anchor="middle">
+    B
+  </text>
+  <text class="t hi b" x="82" y="44" text-anchor="middle">
+    B
+  </text>
+  <path class="th a" d="M102 20V62" />
+  <path class="bar b" d="M104 20V62" />
+  <g class="pool-request">
+    <rect class="rq" x="172" y="26" width="84" height="28" />
+    <text class="t hi" x="214" y="44" text-anchor="middle">
+      request C
+    </text>
+  </g>
+  <g class="a">
+    <text class="t hi" x="4" y="84">
+      request C accepted: 2 seats
+    </text>
+  </g>
+  <g class="b">
+    <path class="ac" d="M174 40H114M119 36L114 40L119 44" />
+    <text class="t hi" x="4" y="84">
+      guard refuses: HTTP 409
+    </text>
+  </g>
+</svg>

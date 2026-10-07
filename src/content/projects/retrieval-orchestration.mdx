@@ -1,0 +1,134 @@
+---
+title: Retrieval over research papers with verify and repair
+description: A Python system for question answering over parsed research PDFs, with hybrid retrieval, a verify-and-repair step, layered caches and a harness that records each evaluated query's path.
+capability: A plan-driven pipeline that retrieves, scores the draft answer with a rule-based quality check and makes one repair attempt when the score is below a threshold.
+type: solo
+domain: retrieval
+status: prototype
+tier: primary
+order: 2
+publicLevel: public
+diagram: rag
+chapter:
+  channel: rag
+  question: "When should an AI trust its first answer?"
+  plain: "An AI that answers questions about research papers, scores its own draft for quality, and gets one retry when the draft falls short."
+  wrong: "A first draft can be too short, drift away from the question, read badly or stop mid-thought, and nothing would tell the reader."
+  matters: "An answer returned without any check is only as good as the first attempt."
+  does: "It scores each draft with simple quality rules. Below the required quality, it makes one more attempt with tighter settings and scores again."
+  myPart: "My part: the whole system: reading the papers, finding sources, writing and checking answers, and the code that tests it. Sole contributor in the commit history (all six commits)."
+  decisionPlain: "Do not return the first draft. Score it, accept it at the required quality, and allow one bounded repair attempt below it."
+  evidenceHuman: "Four recorded queries: two accepted on the first draft, two tried again and still below the requirement. The drafts came from a stand-in (mock) generator."
+  limitationPlain: "Repair is an attempt, not a guarantee: both repaired answers stayed below the requirement. The drafts came from a stand-in (mock) generator and the score is a simple rule-based quality check, so it shows how the checking behaves, not how good or correct the answers are."
+  problem: "Answering questions over research papers, including tables, with answers that are checked rather than trusted."
+  decision: "Score each draft with the rule-based verifier, accept at a threshold, and make one bounded repair attempt below it."
+  limitation: "The committed runs use a mock generator, so scores describe harness behavior and not answer quality. Repair is not a guarantee."
+technologies: [Python, FastAPI, DuckDB, sentence-transformers]
+contribution:
+  role: Sole contributor in the commit history.
+  personal: All six commits in the repository, which hold the ingestion, retrieval, generation, verification, caching, API and evaluation code.
+  basis: commit-attributed
+  upstream: Third-party libraries and models, including a PDF-parsing wrapper, sentence-transformers embeddings, DuckDB, FastAPI and Streamlit.
+  provenance: Most of the code arrived in a few very large commits (five in October 2025, one in December 2025), so the development history is not visible. Scaffold placeholder metadata remains in the repository.
+evidenceLine:
+  text: Saved evaluation runs record which path each question took through the pipeline.
+  state: verified
+  evidenceId: e1
+evidence:
+  - id: e1
+    claim: Eight committed evaluation runs of a 20-query set record each query's pipeline path, verify score, acceptance flag and whether repair was used.
+    state: verified
+    source: runs/*/results.csv and summary.md
+    howChecked: Read the committed run files
+  - id: e2
+    claim: 'Figures from the committed runs: Accept@1 50%, average verify score 0.709, repair rate 50% and mean latency of about 9.5 ms with a mock generator.'
+    state: partially-verified
+    source: runs/*/summary.md
+    howChecked: Read the committed summaries
+    caveat: The generator is a mock, so these figures describe harness behavior, not answer quality.
+  - id: e3
+    claim: The code defaults to a mock generator, and the committed runs were produced with it, which is why per-query answers are generic.
+    state: verified
+    source: generation/generator.py and the committed run outputs
+    howChecked: Read the source and the run outputs
+  - id: e4
+    claim: The README states a 400 times answer-cache speedup. In the repository the figure is repeated in README prose, status documents and example-script text, with no retained timing benchmark, so it is not claimed here.
+    state: unverified
+    source: README and an example script
+    howChecked: Searched the repository for timing artifacts and found none
+limitations:
+  - The default generator is a mock, so committed evaluation figures describe pipeline plumbing, not answer quality.
+  - No real-model or real-corpus evaluation is committed, so the full path from PDF to answer with a real model is not demonstrated.
+  - Chat paths contain TODOs and placeholder sources, two integration test files are empty and the README status is stale.
+  - Test functions are defined (308 unit and 43 integration) but passing is not claimed, and there is no CI.
+links:
+  - { label: Repository, url: 'https://github.com/exoxeph/Data-Aware-RAG' }
+---
+
+<Section id="problem" title="Problem">
+  Answering questions over research papers, including tables, with answers that are checked rather than
+  trusted, and with repeated work made cheaper through caching.
+</Section>
+
+<Section id="built" title="What I built">
+An ingestion path that parses PDFs, chunks them and normalizes tables into DuckDB and Parquet. Two indexes (BM25 and an in-memory embedding store using cosine similarity) behind an ensemble retriever. A query plan chosen from the question's intent, then executed as retrieve, rerank, prune, contextualize, generate, verify and repair.
+
+Around the pipeline: SQLite stores and three cache layers, asynchronous ingestion jobs, chat history and memory modules, a FastAPI service, command-line tools, a Streamlit app and an evaluation runner.
+
+</Section>
+
+<Section id="contribution" title="My contribution" wide>
+  <Ledger />
+</Section>
+
+<Section id="architecture" title="Architecture">
+<ProjectDiagram caption="Plan, retrieve, verify and answer, with one repair attempt back through retrieval when the verify score is low. The answer is returned either way." />
+
+1. PDFs are parsed, chunked and indexed (lexical and vector).
+2. A query is turned into an intent plan, and the plan is run: retrieve, rerank, prune at sentence level, contextualize, generate.
+3. The verifier scores the draft. A score at or above the threshold skips repair. A lower score sends the run through one repair attempt, and the answer is then returned either way, marked not accepted if the score is still below the threshold.
+4. Embedding, retrieval and answer results are cached in three layers.
+5. The evaluation runner records each query's path, score and latency to CSV, Parquet and Markdown.
+
+<ArchitectureMap />
+
+</Section>
+
+<Section id="decisions" title="Engineering decisions">
+
+- **A plan keyed on query intent** instead of one fixed chain of steps.
+- **Sentence-level pruning** before contextualization, so the generator sees less irrelevant text.
+- **A verify-then-repair step,** so a low-scoring draft gets one more pass, not a retry loop.
+- **Hybrid lexical and vector retrieval.**
+- **A generator abstraction with a mock default,** so tests and demos run offline.
+- **An evaluation harness that records the path,** not only the final answer.
+
+</Section>
+
+<Section id="evaluation" title="Evaluation">
+  Eight committed runs of a 20-query set, produced by the harness with the mock generator. Metrics include
+  Accept@1, average verify score, repair rate and latency. Test functions are defined (308 unit, 43
+  integration) and none are claimed as passing.
+</Section>
+
+<Section id="results" title="Results" wide>
+  <Claim id="e1" />
+  <Claim id="e2" />
+  <Claim id="e3" />
+  <Claim id="e4" />
+</Section>
+
+<Section id="limitations" title="Limitations">
+  <Limitations />
+</Section>
+
+<Section id="takeaways" title="Takeaways">
+A metric is only as informative as the component behind it. The harness reported Accept@1 of 50% while the answers were generic, because the generator was a mock, so the figures are labeled as plumbing evidence.
+
+A claim in a README needs an artifact. The speedup figure has none, so it stays out of this page.
+
+</Section>
+
+<Section id="repository" title="Repository">
+  <Links />
+</Section>

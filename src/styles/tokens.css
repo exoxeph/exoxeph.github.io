@@ -1,0 +1,51 @@
+/* Design tokens: approved Phase 11 system, dark only. Keep this file small and legible. */
+:root {
+  color-scheme: dark;
+
+  /* color roles */
+  --bg: #131416;
+  --surface: #1b1d20;
+  --paper: color-mix(in srgb, var(--surface) 55%, var(--bg));
+  --text: #ece9e1;
+  --muted: #a5a49e;
+  --rule: #2e3033;
+  --rule-strong: #ece9e1;
+  --accent: #9ca9ff; /* signal accent: control, interaction, focus */
+  --on-accent: #131416;
+  --verified: #7acf9f;
+  --partial: #e2b35c;
+  --invalid: #f28d7b;
+  --control: var(--accent);
+  --focus: var(--accent);
+
+  /* type */
+  --serif: var(--font-serif, Georgia, serif);
+  --sans: var(--font-sans, system-ui, sans-serif);
+  --mono: var(--font-mono, ui-monospace, monospace);
+  --t-mono: 0.8125rem; /* 13px: technical labels, never smaller */
+  --t-tag: 0.75rem; /* 12px: evidence and state tags */
+  --t-ui: 0.9375rem; /* 15px */
+  --t-body: 1.0625rem; /* 17px */
+  --t-prose: 1.25rem; /* 20px, long-form serif */
+  --t-h3: 1.5625rem;
+  --t-h2: 2rem;
+  --t-h1: clamp(2.3rem, 5vw, 4.5rem);
+
+  /* space and layout */
+  --s1: 0.5rem;
+  --s2: 1rem;
+  --s3: 1.5rem;
+  --s4: 2.5rem;
+  --s5: 4rem;
+  --s6: 6rem;
+  --page: 1240px; /* page width */
+  --wide: 1080px; /* technical wide width (diagrams, ledgers) */
+  --read: 66ch; /* reading width */
+  --pad: clamp(20px, 5vw, 64px);
+  --radius: 2px;
+
+  /* motion */
+  --m-micro: 120ms;
+  --m-state: 220ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}

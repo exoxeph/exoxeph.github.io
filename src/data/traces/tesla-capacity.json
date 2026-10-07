@@ -1,0 +1,144 @@
+{
+  "project": "ride-pooling-lifecycle",
+  "title": "One vehicle, three requests",
+  "summary": "A vehicle has 3 seats. Three requests of 1, 2 and 2 seats are accepted one after another, each into its own pool. What stops the vehicle from carrying 5?",
+  "capability": "The service accepts ride requests into shared pools and is designed not to commit more seats to one vehicle than the vehicle has.",
+  "expectedBehavior": "Requests A (1 seat) and B (2 seats) fill the 3-seat vehicle. Each pool is individually under capacity, and a third request of 2 seats must not be admitted.",
+  "trigger": "Request C (2 seats, a pickup too far from A and B to share a pool) is accepted after A and B.",
+  "control": "The accept transaction sums the seats already committed across all of the vehicle's active pools before it commits, and refuses the accept when the total would exceed capacity.",
+  "measurement": "Committed seats on the vehicle after the third accept, the HTTP status returned, and the audit events written.",
+  "outcome": "With the guard: HTTP 409, C stays REQUESTED, a conflict event is recorded and the vehicle holds 3 of 3 seats. Without it: HTTP 200 and the vehicle holds 5 of 3 seats.",
+  "limitation": "The guard reads the pools, sums the seats, then writes. Two accepts at the same moment can both pass the check; this was observed under the test harness and has not been run against a real database.",
+  "verificationStatus": "partially-verified",
+  "evidence": [
+    {
+      "claim": "The third accept gives different results before and after the guard commit: HTTP 200 and 5 of 3 seats before, HTTP 409 and 3 of 3 seats after.",
+      "state": "verified",
+      "caveat": "Recorded by running the project's own test harness on the project's own service code at both commits, with the project's in-memory database mock."
+    },
+    {
+      "claim": "Two accepts made at the same moment can both pass the guard.",
+      "state": "partially-verified",
+      "caveat": "Observed under the mock's interleaving (5 of 3 seats, both HTTP 200). Real PostgreSQL transaction behavior was not run."
+    }
+  ],
+  "provenance": {
+    "method": "States were recorded by running the project's own jest tests and service code at the commit before the capacity guard and at the commit that added it; this site did not generate or simulate the states. The first state condenses the creation of the three requests into one step.",
+    "database": "In-memory mock (not PostgreSQL)",
+    "commits": { "before": "3af09ba", "after": "54de79d" },
+    "testName": "caps total committed seats across ALL of a Tesla's active pools, not just the one pool being joined or founded"
+  },
+  "variants": [
+    { "id": "with-guard", "label": "With the guard" },
+    { "id": "without-guard", "label": "Without the guard" }
+  ],
+  "states": [
+    {
+      "id": "start",
+      "variant": "*",
+      "stages": ["capability", "expected"],
+      "kind": "valid",
+      "title": "The vehicle has 3 seats",
+      "text": "Requests A (1 seat), B (2 seats) and C (2 seats) are waiting. Their pickups are 4.5 km or more apart, so none can share a pool.",
+      "visual": { "kind": "state-gauge", "capacity": 3, "cells": [] },
+      "record": {
+        "events": [],
+        "requests": [
+          { "label": "A", "seats": 1, "status": "REQUESTED" },
+          { "label": "B", "seats": 2, "status": "REQUESTED" },
+          { "label": "C", "seats": 2, "status": "REQUESTED" }
+        ]
+      }
+    },
+    {
+      "id": "a-accepted",
+      "variant": "*",
+      "stages": ["expected"],
+      "kind": "valid",
+      "title": "Request A is accepted",
+      "text": "A founds its own pool. Committed seats: 1 of 3.",
+      "visual": { "kind": "state-gauge", "capacity": 3, "cells": ["A"] },
+      "record": {
+        "httpStatus": 200,
+        "events": ["SUCCESS"],
+        "requests": [
+          { "label": "A", "seats": 1, "status": "MATCHED", "pool": "Pool 1" },
+          { "label": "B", "seats": 2, "status": "REQUESTED" },
+          { "label": "C", "seats": 2, "status": "REQUESTED" }
+        ]
+      }
+    },
+    {
+      "id": "b-accepted",
+      "variant": "*",
+      "stages": ["expected"],
+      "kind": "valid",
+      "title": "Request B is accepted",
+      "text": "B also founds its own pool. Committed seats: 3 of 3. Each pool is individually under capacity.",
+      "visual": {
+        "kind": "state-gauge",
+        "capacity": 3,
+        "cells": ["A", "B", "B"],
+        "pending": { "label": "C", "seats": 2 }
+      },
+      "record": {
+        "httpStatus": 200,
+        "events": ["SUCCESS", "SUCCESS"],
+        "requests": [
+          { "label": "A", "seats": 1, "status": "MATCHED", "pool": "Pool 1" },
+          { "label": "B", "seats": 2, "status": "MATCHED", "pool": "Pool 2" },
+          { "label": "C", "seats": 2, "status": "REQUESTED" }
+        ]
+      }
+    },
+    {
+      "id": "c-guarded",
+      "variant": "with-guard",
+      "stages": ["control", "measurement", "outcome"],
+      "kind": "rejected",
+      "title": "Request C meets the guard",
+      "text": "The accept transaction sums the vehicle's active pools (3) and finds that 3 + 2 is more than 3. HTTP 409. C stays REQUESTED and no pool is created.",
+      "visual": {
+        "kind": "state-gauge",
+        "capacity": 3,
+        "cells": ["A", "B", "B"],
+        "pending": { "label": "C", "seats": 2 },
+        "refused": true
+      },
+      "record": {
+        "httpStatus": 409,
+        "httpMessage": "This vehicle is already carrying too many committed seats across its current trips",
+        "events": ["SUCCESS", "SUCCESS", "CONFLICT"],
+        "requests": [
+          { "label": "A", "seats": 1, "status": "MATCHED", "pool": "Pool 1" },
+          { "label": "B", "seats": 2, "status": "MATCHED", "pool": "Pool 2" },
+          { "label": "C", "seats": 2, "status": "REQUESTED" }
+        ]
+      }
+    },
+    {
+      "id": "c-unguarded",
+      "variant": "without-guard",
+      "stages": ["invalid"],
+      "kind": "invalid",
+      "title": "Request C is accepted",
+      "text": "C founds a third pool. Committed seats: 5 of 3, more than the vehicle has. Recorded at the commit before the guard: HTTP 200.",
+      "visual": { "kind": "state-gauge", "capacity": 3, "cells": ["A", "B", "B", "C", "C"] },
+      "record": {
+        "httpStatus": 200,
+        "events": ["SUCCESS", "SUCCESS", "SUCCESS"],
+        "requests": [
+          { "label": "A", "seats": 1, "status": "MATCHED", "pool": "Pool 1" },
+          { "label": "B", "seats": 2, "status": "MATCHED", "pool": "Pool 2" },
+          { "label": "C", "seats": 2, "status": "MATCHED", "pool": "Pool 3" }
+        ]
+      }
+    }
+  ],
+  "alsoKnown": {
+    "title": "Two accepts at the same moment",
+    "text": "The guard reads, sums, then writes. In the project's test harness, accepting B and C at the same moment (A already accepted) let both through: 5 of 3 seats, both HTTP 200.",
+    "state": "partially-verified",
+    "caveat": "An observation under the mock's interleaving, consistent with the code's read-then-write structure. Real PostgreSQL behavior was not run."
+  }
+}
