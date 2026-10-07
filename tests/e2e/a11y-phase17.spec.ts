@@ -23,6 +23,8 @@ async function selectChannel(page: Page, id: string) {
     node.dispatchEvent(new Event('change', { bubbles: true }));
   });
   if (id !== 'pool') await expect(page.locator(`.bench[data-ready-${id}]`)).toBeAttached();
+  // The ride-pooling controller has no ready marker; let its dynamic import settle before the keyboard is used.
+  else await page.waitForLoadState('networkidle');
 }
 
 async function openInspector(page: Page, id: string) {

@@ -294,6 +294,8 @@ function start() {
   window.addEventListener('resize', placeAll);
   window.addEventListener('load', placeAll);
   void document.fonts?.ready.then(placeAll);
+  // The note font loads lazily, after the first placement; its width changes once it arrives, so place again.
+  document.fonts?.addEventListener('loadingdone', placeAll);
   for (const type of ['bench:beat', 'change', 'input', 'click', 'keyup', 'pointerup'])
     document.addEventListener(type, placeAll, true);
   // Transitions and animations end all over the page (navbar, chapter header, hover colors); only those inside a
