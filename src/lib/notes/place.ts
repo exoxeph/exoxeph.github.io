@@ -165,8 +165,11 @@ function place(layer: HTMLElement) {
     const isMargin = note.classList.contains('margin');
     const dx0 = Number(note.dataset.dx ?? 0);
     const dy0 = Number(note.dataset.dy ?? 0);
+    const large = r.width * r.height > 20000;
     const obs = collected
-      .filter((o) => !el.contains(o.el) && !(o.control && o.el.contains(el)))
+      // A small target's own label is excluded so the arrow can touch it; the text inside a large target (a whole
+      // table) is still text the note must not cover.
+      .filter((o) => (large || !el.contains(o.el)) && !(o.control && o.el.contains(el)))
       .map((o) => o.box);
 
     // Score a candidate note centre: boxes on text or other notes cost a lot, arrows through text cost some.
@@ -221,6 +224,19 @@ function place(layer: HTMLElement) {
         if (total < pick.s + (pick.cx === want.x ? 0 : 0) - 0.01 && total < pick.s)
           pick = { cx: c.cx, cy: c.cy, ...sc, s: total };
         if (pick.s < 8) break;
+      }
+    }
+
+    if (pick.s >= 1000) {
+      // The ring search found no clear spot (a dense table, a wide note): scan the area around the target on a grid
+      // for the nearest spot that does not sit on text.
+      for (let gy = -260; gy <= 260; gy += 14) {
+        for (let gx = -300; gx <= 300; gx += 14) {
+          const cx = tp.x + gx;
+          const cy = tp.y + gy;
+          const sc = score(cx, cy);
+          if (sc.s < pick.s) pick = { cx, cy, ...sc };
+        }
       }
     }
 
