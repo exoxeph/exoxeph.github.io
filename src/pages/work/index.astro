@@ -15,7 +15,7 @@ const projects = (await getCollection('projects', (p) => p.data.tier === 'primar
 const secondary = [
   {
     name: 'email-spam-classification',
-    line: 'A four-version spam classifier on the Enron dataset, from a TF-IDF and Naive Bayes baseline to a threshold-tuned comparison. The author documents a test-set leak in an early version and corrects it with a validation split (author-reported F1 0.9894, test-selected, then 0.9891, validation-tuned; not independently reproduced).',
+    line: 'A four-version spam classifier on the Enron dataset, from a TF-IDF and Naive Bayes baseline to a threshold-tuned comparison. I document a test-set leak in an early version and correct it with a validation split (self-reported F1 0.9894, test-selected, then 0.9891, validation-tuned; not independently reproduced).',
     tech: 'Python',
     url: 'https://github.com/exoxeph/email-spam-classification',
   },

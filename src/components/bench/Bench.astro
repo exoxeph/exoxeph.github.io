@@ -169,7 +169,7 @@ const traceArt: Record<string, string> = {
                     : channel.id === 'pool'
                       ? "Recorded from the project's own test run at the commits before and after the guard, with an in-memory database mock."
                       : channel.id === 'speech'
-                        ? 'Observed OCR misreads recorded in the project README (author-reported evaluation); raw OCR outputs are not committed.'
+                        ? 'Observed OCR misreads recorded in the project README (self-reported evaluation); raw OCR outputs are not committed.'
                         : channel.id === 'rag'
                           ? 'Final scores recorded in the committed evaluation runs (mock generator, not answer quality).'
                           : "Outcomes recorded in the project's committed evaluation: ten synthetic scenarios, one run; the judge and generator models were not recorded."}

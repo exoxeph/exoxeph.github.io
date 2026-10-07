@@ -19,7 +19,7 @@
         {
           "state": "partially-verified",
           "text": "A receipt returned the type unknown and 0 rows.",
-          "caveat": "Tested on one image; author-reported."
+          "caveat": "Tested on one image; self-reported."
         }
       ]
     },
@@ -32,7 +32,7 @@
         {
           "state": "partially-verified",
           "text": "With the header cropped out, metadata is null and 4 rows are recovered.",
-          "caveat": "Author-reported README tables."
+          "caveat": "Self-reported README tables."
         }
       ]
     },
@@ -52,7 +52,7 @@
         {
           "state": "partially-verified",
           "text": "The README records Tesseract reading CRP <0.5 as RP <8.5 and 1.2 x 10^3 as 1.2 x 1043.",
-          "caveat": "Author-reported evaluation; raw OCR outputs are not committed."
+          "caveat": "Self-reported evaluation; raw OCR outputs are not committed."
         }
       ],
       "limitation": "There is no confidence measure, so the parser cannot detect a misread that is still a valid number.",
@@ -75,7 +75,7 @@
         {
           "state": "partially-verified",
           "text": "Recorded examples: with the header cropped out, 4 rows are recovered; a receipt returns the type unknown and 0 rows.",
-          "caveat": "Author-reported README tables."
+          "caveat": "Self-reported README tables."
         }
       ],
       "limitation": "The OCR text of dropped rows is not returned.",

@@ -196,7 +196,7 @@ function build(
       ],
       prov: 'recorded',
       provNote:
-        'Recorded: the project README records this OCR misread (author-reported evaluation); the raw OCR output is not committed.',
+        'Recorded: the project README records this OCR misread (self-reported evaluation); the raw OCR output is not committed.',
       v: {
         ...base,
         show: 'meaning',
