@@ -12,7 +12,8 @@ const BUDGET = {
   // sheets. Measured: 15.9 KB on the home page, the largest.
   // Phase 19R-B: 18 to 19 KB for the four story strips (home measures 18.2 KB, every page inlines the sheet).
   // Phase 20: case-study pages also carry the playable-flow styles (home is 18.5 KB; the case studies are 19.8 KB).
-  cssGz: 20 * 1024,
+  // Phase 21 launch: 20 to 21 KB for the big-screen layout (wider page and right column on 1600px+ screens).
+  cssGz: 21 * 1024,
   // Phase 16 measured 125.6 KB of fonts (Newsreader instanced to 400 to 700) and no image above 25 KB.
   fontsRaw: 135 * 1024,
   // Raised from 40 KB in Phase 19R: the home page now carries a recruiter layer and the engineering layer for all four

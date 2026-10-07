@@ -160,7 +160,7 @@ if (process.argv.includes('--check')) {
   const BUDGET = {
     homeInitialJsGz: 9 * KB,
     homeFullBenchJsGz: 31 * KB,
-    routeCssGz: 20 * KB, // Phase 20: case-study pages also carry the playable-flow styles (19.8 KB); home is 18.5 KB
+    routeCssGz: 21 * KB, // Phase 20: case-study pages also carry the playable-flow styles (19.8 KB); home is 18.5 KB. Phase 21: 21 KB for the big-screen layout rules
     preloadedFontsRaw: 72 * KB,
     homeTransferBr: 122 * KB,
     caseStudyTransferBr: 105 * KB,

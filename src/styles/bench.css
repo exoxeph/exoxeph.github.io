@@ -2490,3 +2490,23 @@
 .cblock > .df.df-story[data-inline] {
   content-visibility: visible;
 }
+
+/* Big screens: the page uses more of the width. The stage keeps its size on screens up to 1080px tall (it scales with
+   its width, and a bigger one would no longer fit the screen), so the extra width goes to the right column. On tall,
+   wide screens the stage grows too, and the diagrams scale up with it. Pages without the Bench keep the normal width. */
+@media (min-width: 1600px) {
+  body:has(.bench) {
+    --page: 1560px;
+  }
+  .bgrid {
+    grid-template-columns: minmax(0, 1fr) 660px;
+  }
+}
+@media (min-width: 2200px) and (min-height: 1300px) {
+  body:has(.bench) {
+    --page: 2040px;
+  }
+  .bgrid {
+    grid-template-columns: minmax(0, 1fr) 560px;
+  }
+}
