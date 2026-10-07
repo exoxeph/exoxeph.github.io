@@ -2641,3 +2641,12 @@
 .cidx::after {
   background: var(--tint);
 }
+
+/* The blanket `.cblock p { margin: 0 }` out-ranks the margins on the button row and the next-system link (both are paragraphs),
+   so they sat flush against whatever came before. They keep their own spacing here. */
+.cblock .clinks {
+  margin-top: 22px;
+}
+.cblock .cnext {
+  margin-top: 30px;
+}
