@@ -151,13 +151,17 @@ const certs = [
     when: 'Issued Sep 2026, expires Sep 2029',
     href: 'https://www.credly.com/badges/f877a355-f105-4953-9784-0ebedbeda19e/linked_in_profile',
     link: 'View credential',
+    logo: '/certs/aws-ai-practitioner.png',
+    logoAlt: 'AWS Certified AI Practitioner badge',
   },
   {
-    name: 'AWS AI & ML Scholars: 2026 Challenge Completion',
-    by: 'Udacity and Amazon Web Services (AWS)',
-    when: 'Issued Mar 2026',
-    href: 'https://www.udacity.com/certificate/e/8c9c2a6e-304d-11f1-8868-ebdef3c7cb51',
+    name: 'Future AWS Agent Engineer Nanodegree',
+    by: 'Udacity',
+    when: 'Completed Oct 2026',
+    href: 'https://www.udacity.com/certificate/e/be79146e-900d-11f1-84b6-df558e132a0d',
     link: 'View certificate',
+    logo: '/certs/udacity.png',
+    logoAlt: 'Udacity logo',
   },
 ];
 ---
@@ -301,14 +305,17 @@ const certs = [
           </h2>
           {certs.map((c) => (
             <div class="cert">
-              <h3>{c.name}</h3>
-              <p>{c.by}</p>
-              <p class="muted mono">{c.when}</p>
-              <p>
-                <a class="arrow-link" href={c.href} rel="noopener">
-                  {c.link} →
-                </a>
-              </p>
+              <img class="clogo" src={c.logo} alt={c.logoAlt} width="84" height="84" loading="lazy" decoding="async" />
+              <div>
+                <h3>{c.name}</h3>
+                <p>{c.by}</p>
+                <p class="muted mono">{c.when}</p>
+                <p>
+                  <a class="arrow-link" href={c.href} rel="noopener">
+                    {c.link} →
+                  </a>
+                </p>
+              </div>
             </div>
           ))}
         </section>
@@ -541,6 +548,18 @@ const certs = [
     margin-bottom: 18px;
     padding: 12px 14px;
     border: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cert > div {
+    min-width: 0;
+  }
+  .clogo {
+    flex: none;
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
   }
   .rfoot {
     max-width: 66ch;
