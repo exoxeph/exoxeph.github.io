@@ -39,6 +39,16 @@ if (bench) {
 
   // Story flow: the active chapter is marked, and when scrolling hands the stage to the next system the outgoing
   // diagram lifts away as a ghost while the incoming one rises in. Nothing animates for reduced motion or on phones.
+  // Restarting the animation needs the class removed and re-added with a reflow in between.
+  let shiftTimer: number | undefined;
+  const shift = () => {
+    if (reduced.matches) return;
+    bench.classList.remove('is-shift');
+    void bench.offsetWidth;
+    bench.classList.add('is-shift');
+    window.clearTimeout(shiftTimer);
+    shiftTimer = window.setTimeout(() => bench.classList.remove('is-shift'), 1800);
+  };
   const setActive = (channel: string) =>
     chapters.forEach((section) => section.classList.toggle('is-active', section.dataset.chapter === channel));
   const ghostOut = () => {
@@ -89,6 +99,10 @@ if (bench) {
       .forEach((tick) => tick.classList.toggle('on', Number(tick.dataset.tick) <= Math.min(beat, count - 1)));
   };
 
+  // The stage hands over to the next project a little before that chapter reaches the top, so the diagram and the
+  // colour do not lag behind the text that is already on screen. Phones do not pin a stage, so they need no lead.
+  const lead = () => (wide.matches ? Math.round(window.innerHeight * 0.25) : 0);
+
   let lastY = -9999;
   let settledUntil = 0;
   // Scrolling never overwrites what the visitor just did on the stage.
@@ -104,13 +118,16 @@ if (bench) {
     if (performance.now() < settledUntil) quiet = true;
     const { chapter: yc, beat: yb } = lines();
     // The last chapter whose top has reached the reading line (with slack for layout settling).
-    const current = chapters.filter((section) => section.getBoundingClientRect().top <= yc + 28).pop();
+    const current = chapters
+      .filter((section) => section.getBoundingClientRect().top <= yc + 28 + lead())
+      .pop();
     if (!current) return;
     const channel = current.dataset.chapter!;
     if (channel !== activeChapter) {
       activeChapter = channel;
       activeBeat = -1;
       setActive(channel);
+      shift();
       ghostOut();
       select(channel);
     }
@@ -137,7 +154,7 @@ if (bench) {
       elements.forEach((element) => observer.observe(element));
       observers.push(observer);
     };
-    band(chapter, chapters);
+    band(chapter + lead(), chapters);
     band(
       beat,
       chapters.flatMap((section) => [...section.querySelectorAll('[data-beat]')]),
@@ -166,6 +183,7 @@ if (bench) {
     activeChapter = channel;
     activeBeat = 0;
     setActive(channel);
+    shift();
     document.documentElement.dataset.stageMoved = '1';
     showBeat(section, 0);
     section.scrollIntoView({ block: 'start', behavior: reduced.matches ? 'auto' : 'smooth' });

@@ -144,6 +144,33 @@ const rows = [
     margin: 2.4rem 0 0;
     color: var(--muted);
   }
+  /* Wide screens: the ways to reach me sit beside the facts, instead of leaving half the page empty. */
+  @media (min-width: 1300px) {
+    .page {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: clamp(56px, 6vw, 120px);
+      align-items: start;
+    }
+    h1,
+    .intro,
+    .more {
+      grid-column: 1 / -1;
+    }
+    .rows {
+      grid-column: 1;
+      grid-row: 3;
+      max-width: none;
+    }
+    .facts {
+      grid-column: 2;
+      grid-row: 3;
+      max-width: none;
+      margin: 0;
+      padding-top: 0.6rem;
+      border-top: 2px solid var(--rule-strong);
+    }
+  }
   @media (max-width: 600px) {
     .rows li,
     .facts > div {

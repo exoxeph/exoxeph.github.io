@@ -93,6 +93,26 @@ const techList = [...tech.entries()].sort(([a], [b]) => a.localeCompare(b));
   dd {
     font-size: var(--t-ui);
   }
+  /* Wide screens: the prose and the technology index sit side by side instead of leaving half the page empty. */
+  @media (min-width: 1300px) {
+    .page {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      column-gap: clamp(56px, 6vw, 120px);
+      align-items: start;
+    }
+    .page h1 {
+      grid-column: 1 / -1;
+    }
+    .tech {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+    dl {
+      max-width: none;
+    }
+  }
   @media (max-width: 900px) {
     dl {
       grid-template-columns: 1fr;

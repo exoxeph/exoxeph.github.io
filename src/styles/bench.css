@@ -2050,9 +2050,17 @@
 /* Cover the strip above the pinned header so chapter text does not show through it. */
 @media (min-width: 1000px) {
   .cid {
-    box-shadow:
-      0 -20px 0 0 var(--paper),
-      0 10px 14px -12px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 10px 14px -12px rgba(0, 0, 0, 0.9);
+  }
+  /* The strip above the pinned card carries the chapter's tint and fades out upward, so scrolling text still goes under
+     it without leaving a flat band against the colour wash. */
+  .cid::before {
+    content: '';
+    position: absolute;
+    inset: -23px 0 calc(100% + 3px) 0;
+    background: color-mix(in srgb, var(--tint) 9%, var(--paper));
+    mask-image: linear-gradient(0deg, #000 35%, transparent);
+    pointer-events: none;
   }
 }
 
@@ -2493,9 +2501,9 @@
 
 /* Big screens: the page uses more of the width. The stage keeps its size on screens up to 1080px tall (it scales with
    its width, and a bigger one would no longer fit the screen), so the extra width goes to the right column. On tall,
-   wide screens the stage grows too, and the diagrams scale up with it. Pages without the Bench keep the normal width. */
+   wide screens the stage grows too, and the diagrams scale up with it. Every page uses the wider width; only the Bench grows further on tall screens. */
 @media (min-width: 1600px) {
-  body:has(.bench) {
+  :root {
     --page: 1560px;
   }
   .bgrid {
@@ -2509,4 +2517,127 @@
   .bgrid {
     grid-template-columns: minmax(0, 1fr) 560px;
   }
+}
+
+/* Project atmosphere. One continuous field sits behind the whole Bench and follows the viewport (a sticky layer, so there
+   is nothing to repaint on scroll). It is built from several very large, overlapping, off-centre ellipses whose edges ease
+   out to nothing, so there is no boundary to find: the graphite simply develops a little more depth, in the active
+   project's hue, toward the middle and gives way to the page's own charcoal toward the sides. Colour is a small shift in
+   the existing black, never coloured light. The indigo accent still marks every control, link, tick and focus ring. */
+.atmos,
+.bgrid,
+.chapter {
+  --tint: var(--accent);
+}
+.chapter[data-chapter='pool'],
+#ch-pool:checked ~ .atmos,
+#ch-pool:checked ~ .bgrid {
+  --tint: #7aa2ff;
+}
+.chapter[data-chapter='email'],
+#ch-email:checked ~ .atmos,
+#ch-email:checked ~ .bgrid {
+  --tint: #5fd0bf;
+}
+.chapter[data-chapter='rag'],
+#ch-rag:checked ~ .atmos,
+#ch-rag:checked ~ .bgrid {
+  --tint: #d98ac6;
+}
+.chapter[data-chapter='speech'],
+#ch-speech:checked ~ .atmos,
+#ch-speech:checked ~ .bgrid {
+  --tint: #8fcf8a;
+}
+.bench {
+  overflow-x: clip;
+}
+.bgrid {
+  position: relative;
+}
+.atmos {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  margin: 0 0 -100vh calc(50% - 50vw);
+  margin-bottom: -100svh;
+  pointer-events: none;
+  background-color: color-mix(in srgb, var(--tint) 14%, var(--paper));
+  opacity: 0.56;
+  mask-image:
+    radial-gradient(
+      ellipse 64% 50% at 47% 50%,
+      #000,
+      rgb(0 0 0 / 0.86) 16%,
+      rgb(0 0 0 / 0.62) 34%,
+      rgb(0 0 0 / 0.36) 52%,
+      rgb(0 0 0 / 0.16) 70%,
+      rgb(0 0 0 / 0.05) 86%,
+      transparent
+    ),
+    radial-gradient(
+      ellipse 40% 44% at 68% 36%,
+      rgb(0 0 0 / 0.42),
+      rgb(0 0 0 / 0.26) 38%,
+      rgb(0 0 0 / 0.1) 66%,
+      transparent
+    ),
+    radial-gradient(
+      ellipse 34% 40% at 27% 70%,
+      rgb(0 0 0 / 0.34),
+      rgb(0 0 0 / 0.2) 40%,
+      rgb(0 0 0 / 0.07) 68%,
+      transparent
+    );
+}
+/* Faint grain over the field: smooth gradients in very dark tones band into visible rings on 8-bit screens, and a
+   little noise breaks that up without any blur or filter at run time. */
+.atmos::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.17;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* At a handover the atmosphere swells to full strength and settles back, so moving on to another project is felt across the
+   whole page and not only seen in the stage. */
+@keyframes atmos-shift {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  32% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bench.is-shift .atmos {
+    animation: atmos-shift 1700ms ease-in-out;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .atmos,
+  .sidecol {
+    transition:
+      background-color 1400ms ease-in-out,
+      border-color 1400ms ease-in-out;
+  }
+}
+.sidecol {
+  border-left-color: color-mix(in srgb, var(--tint) 40%, var(--rule));
+}
+.cid {
+  border-top: 3px solid var(--tint);
+  background: color-mix(in srgb, var(--tint) 14%, var(--paper));
+}
+.cidx {
+  color: var(--tint);
+  font: 400 2.8rem / 1 var(--serif);
+  letter-spacing: -0.01em;
+}
+.cidx::after {
+  background: var(--tint);
 }
