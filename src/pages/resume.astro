@@ -151,7 +151,7 @@ const certs = [
     when: 'Issued Sep 2026, expires Sep 2029',
     href: 'https://www.credly.com/badges/f877a355-f105-4953-9784-0ebedbeda19e/linked_in_profile',
     link: 'View credential',
-    logo: '/certs/aws-ai-practitioner.png',
+    logo: '/certs/aws-ai-practitioner.webp',
     logoAlt: 'AWS Certified AI Practitioner badge',
   },
   {
@@ -160,7 +160,7 @@ const certs = [
     when: 'Completed Oct 2026',
     href: 'https://www.udacity.com/certificate/e/be79146e-900d-11f1-84b6-df558e132a0d',
     link: 'View certificate',
-    logo: '/certs/udacity.png',
+    logo: '/certs/udacity.webp',
     logoAlt: 'Udacity logo',
   },
 ];
@@ -305,7 +305,15 @@ const certs = [
           </h2>
           {certs.map((c) => (
             <div class="cert">
-              <img class="clogo" src={c.logo} alt={c.logoAlt} width="84" height="84" loading="lazy" decoding="async" />
+              <img
+                class="clogo"
+                src={c.logo}
+                alt={c.logoAlt}
+                width="84"
+                height="84"
+                loading="lazy"
+                decoding="async"
+              />
               <div>
                 <h3>{c.name}</h3>
                 <p>{c.by}</p>
