@@ -1,11 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
-import { Image } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Legend from '../../components/evidence/Legend.astro';
 import EvidenceTag from '../../components/evidence/EvidenceTag.astro';
 import avatar from '../../assets/github-avatar.webp';
 import { site } from '../../data/site.ts';
+
+// The avatar loads live from GitHub, so changing the GitHub profile picture updates this page within minutes
+// (GitHub caches it for about 5 minutes). 280px is 2x the 140px display size. If GitHub cannot be reached,
+// the image falls back to a bundled copy so the page never shows a broken image.
+const avatarLive = 'https://github.com/exoxeph.png?size=280';
+const avatarFallback = await getImage({ src: avatar, width: 280, height: 280, format: 'webp' });
 
 // The page reads like a GitHub profile: the handle, a short facts panel, then repositories as cards.
 // Every fact below comes from the project files; there are no counts, stars or activity figures.
@@ -47,15 +53,15 @@ const typeLabel = (t: string) =>
       <div class="whero-id">
         <div class="whero-who">
           <div class="avatar">
-            <Image
-              src={avatar}
+            <img
+              src={avatarLive}
               alt=""
-              width={140}
-              height={140}
-              densities={[1, 2]}
-              format="webp"
+              width="140"
+              height="140"
               loading="eager"
               decoding="async"
+              referrerpolicy="no-referrer"
+              onerror={`this.onerror=null;this.src='${avatarFallback.src}'`}
             />
           </div>
           <p class="who">
