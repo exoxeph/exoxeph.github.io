@@ -38,16 +38,77 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 4px 16px;
   padding: 2px 0 0;
 }
+.chead > div:first-child {
+  flex: 1 1 auto;
+}
+.chead b,
+.tr b {
+  letter-spacing: -0.01em;
+  color: var(--text);
+  white-space: nowrap;
+}
 .chead b {
-  font: 500 15px var(--sans);
+  /* Scales with width and height: the stage is pinned to the viewport, so a short window gets a smaller headline. */
+  font: 500 clamp(2rem, min(4.4vw, 5.4vh), 3.4rem) / 1 var(--serif);
+}
+/* Shimmer: a soft accent highlight sweeps across the headline. Both ends of the gradient are the plain text
+   colour, so the resting state is ordinary text. It plays a few times each time a system is shown. */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .chead b,
+  .tr b {
+    background-image: linear-gradient(100deg, var(--text) 0 36%, var(--accent) 50%, var(--text) 64% 100%);
+    background-size: 260% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chead b {
+    animation: head-shimmer 4s ease-in-out 0.5s 3;
+  }
+}
+@keyframes head-shimmer {
+  0%,
+  30% {
+    background-position: 100% 0;
+  }
+  70%,
+  100% {
+    background-position: 0 0;
+  }
+}
+/* The "Other systems" rows sit below the fold, so their shimmer is tied to scrolling them into view where
+   the browser supports it, and to hover or keyboard focus everywhere. Nothing runs by itself on a timer. */
+@media (prefers-reduced-motion: no-preference) {
+  .tr b {
+    animation: head-shimmer linear both;
+    animation-timeline: view();
+    animation-range: entry 20% cover 60%;
+  }
+  .tr:is(:hover, :focus-visible) b {
+    animation: head-shimmer 1.4s ease-in-out 1;
+  }
+}
+@media (forced-colors: active) {
+  .chead b,
+  .tr b {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+    animation: none;
+  }
 }
 .chead small {
-  font: 400 12px var(--mono);
+  font: 400 0.9375rem var(--mono);
   color: var(--muted);
-  margin-left: 10px;
+  margin-left: 14px;
 }
 .header-inspect {
   margin-left: auto;
@@ -283,7 +344,7 @@
 }
 .tr {
   display: grid;
-  grid-template-columns: 210px minmax(0, 1fr) 150px;
+  grid-template-columns: 250px minmax(0, 1fr) 150px;
   align-items: center;
   gap: 16px;
   min-height: 58px;
@@ -294,12 +355,12 @@
   border-bottom: 0;
 }
 .tr b {
-  font: 500 14px var(--sans);
-  color: var(--text);
+  display: inline-block;
+  font: 500 clamp(1.25rem, min(2.2vw, 3.2vh), 1.65rem) / 1 var(--serif);
 }
 .tr small {
   display: block;
-  font: 400 12px var(--mono);
+  font: 400 13px / 1.25 var(--mono);
   color: var(--muted);
 }
 .tr svg {
