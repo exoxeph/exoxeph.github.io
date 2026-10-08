@@ -31,3 +31,7 @@ Node 24 (see `.nvmrc`; Node 22.19 or later also works) and npm.
 ## Rules
 
 Evidence states (verified, partially verified, not claimed) are part of the content schema. Results are stated only with their evidence. Do not commit secrets or private material; the build needs none.
+
+## Revamping
+
+Read [`REVAMP_GUIDE.md`](REVAMP_GUIDE.md) before changing the site: the CI gate, the size budgets, the content and design rules, and the mistakes to avoid.
