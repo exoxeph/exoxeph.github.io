@@ -131,7 +131,7 @@ These are the things that look safe to change and are not. Each has a test that 
 - Retrieval case study still lacks a genuinely recorded answer; Ride pooling concurrency (two accepts at once) is a stated gap; the Email case could use stronger recorded outputs.
 - LinkedIn cannot be checked by script (it returns 405); click it by hand.
 - The résumé header uses the formal full name while the site uses "Imtiaz Mashrafee"; confirm that is intended.
-- `scripts/perf-lighthouse.mjs` and `scripts/perf-runtime.mjs` write into a folder outside the repo that no longer exists; create it or change the path before using them.
+- Four dev-only scripts still point at folders that were deleted in the October 2026 cleanup: `scripts/gen-rag-golden.py` and `scripts/gen-speech-golden.py` read local clones at `G:/exoxeph/repos/` (re-clone `exoxeph/Data-Aware-RAG` and `exoxeph/speech-doc-extraction` there, or change the path), and `scripts/perf-lighthouse.mjs` and `scripts/perf-runtime.mjs` write into `../exoxeph/design/perf/` (create it first). The committed test data does not need them, so the build and all tests are unaffected.
 - `scripts/assets/` holds the generators for `public/og.png`, `public/apple-touch-icon.png` and the line-engraving portrait. `node scripts/assets/make-og.mjs` was re-run and works (the icon is identical, the OG image is close but not byte-identical, because the committed file was optimised afterwards, so check before committing a regenerated one). `make-portrait.mjs` needs the source photo, which is the CV portrait stored inside `Imtiaz Mashrafee.docx` (`word/media/image1.png`).
 
 ## 10. Record of the October 2026 cleanup
