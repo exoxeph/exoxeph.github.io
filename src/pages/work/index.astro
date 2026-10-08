@@ -8,7 +8,7 @@ import avatar from '../../assets/github-avatar.webp';
 import { site } from '../../data/site.ts';
 
 // The avatar loads live from GitHub, so changing the GitHub profile picture updates this page within minutes
-// (GitHub caches it for about 5 minutes). 280px is 2x the 140px display size. If GitHub cannot be reached,
+// (GitHub caches it for about 5 minutes). 280px is twice the 140px display size. If GitHub cannot be reached,
 // the image falls back to a bundled copy so the page never shows a broken image.
 const avatarLive = 'https://github.com/exoxeph.png?size=280';
 const avatarFallback = await getImage({ src: avatar, width: 280, height: 280, format: 'webp' });
