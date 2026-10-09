@@ -102,12 +102,25 @@ for (const p of projects) {
       ).toBeAttached();
     });
 
-    test('deep link: the step is in the address and survives a reload', async ({ page }) => {
+    test('the address stays clean while stepping, and the page still knows the step', async ({ page }) => {
       await btn(page, 'Step').click();
       await btn(page, 'Step').click();
-      await expect(page).toHaveURL(/#flow=[\w-]+\.2$/);
-      await page.reload();
       await expect(count(page)).toContainText('Step 3 of');
+      expect(new URL(page.url()).hash).toBe('');
+    });
+
+    test('switching tabs pauses a running play and keeps the step', async ({ page }) => {
+      await btn(page, 'Play').click();
+      await expect(btn(page, 'Pause')).toHaveAttribute('aria-pressed', 'true');
+      await expect(count(page)).toContainText('Step 2 of', { timeout: 6000 });
+      await page.evaluate(() => {
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+      await expect(btn(page, 'Play')).toBeVisible();
+      const held = await count(page).textContent();
+      await page.waitForTimeout(3000);
+      await expect(count(page)).toHaveText(held ?? '');
     });
 
     test('the written flow is complete without scripts', async ({ browser }) => {

@@ -19,22 +19,11 @@ type NodeInfo = {
 const PROV_ORDER: Prov[] = ['executed', 'recorded', 'modelled'];
 const INTERVAL = 2400;
 
-const readHash = () => /[#&]flow=([\w-]+)\.(\d+)/.exec(location.hash);
-
 export function mountFlow(host: HTMLElement, data: FlowData, nodes: Record<string, NodeInfo>) {
   let scen: FlowScenario = data.scenarios[0]!;
   let index = 0;
   let inspecting = false;
   let timer = 0;
-
-  const saved = readHash();
-  if (saved) {
-    const found = data.scenarios.find((s) => s.id === saved[1]);
-    if (found) {
-      scen = found;
-      index = Math.min(Number(saved[2]), found.steps.length - 1);
-    }
-  }
 
   const uid = `cf-${data.kind}`;
   const live = h('p', { class: 'visually-hidden', role: 'status', 'aria-live': 'polite' });
@@ -239,7 +228,6 @@ export function mountFlow(host: HTMLElement, data: FlowData, nodes: Record<strin
 
   function go(next: number, announce = false) {
     index = Math.max(0, Math.min(next, scen.steps.length - 1));
-    history.replaceState(null, '', `#flow=${scen.id}.${index}`);
     draw(true || announce);
   }
 
