@@ -691,8 +691,10 @@ const walks: [string, string][] = [
   .dr-svg .tl {
     fill: var(--invalid);
   }
+  /* The stage reaches out into the left margin, so the label is pulled back in to where the page's text starts. */
   .dr-floor {
     margin: 0 0 6px;
+    padding-left: var(--bleed, 0px);
     color: var(--accent);
     font-size: 12px;
     letter-spacing: 0.14em;
