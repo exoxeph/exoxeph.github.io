@@ -1,0 +1,307 @@
+---
+// A small live readout beside each résumé point: its own numbers, played on the same three beats as the room (the
+// b1, b2 and b3 classes drive --lit from 0 to 1 while that beat plays). Every value shown is in the point's CV text.
+// It repeats what the text already says, so assistive technology skips it.
+interface Props {
+  kind: string;
+}
+const { kind } = Astro.props;
+const dots = Array.from({ length: 15 }, (_, i) => i);
+const raw = [6, 14, 9, 3, 12, 7, 15, 5, 10, 2, 13, 8, 4, 11, 6, 9, 3, 12, 7, 5];
+const sorted = [...raw].sort((a, b) => b - a);
+const delay = (s: number) => `animation-delay:${s}s`;
+---
+
+<div class={`pulse p-${kind}`} aria-hidden="true">
+  {kind === 'latency' && (
+    <>
+      <div class="ptiles b1">
+        {dots.map((i) => (
+          <i style={delay((i % 5) * 0.02)} />
+        ))}
+        <span>15 requests, at once</span>
+      </div>
+      <div class="prow">
+        <span class="plab">before</span>
+        <span class="ptrack">
+          <i class="pbar old" />
+        </span>
+        <span class="pval">10 to 15 s</span>
+      </div>
+      <div class="prow b3">
+        <span class="plab">after</span>
+        <span class="ptrack">
+          <i class="pbar grow" style="--w:30%" />
+        </span>
+        <span class="pval lit">2 to 5 s</span>
+      </div>
+    </>
+  )}
+  {kind === 'critic' && (
+    <>
+      <div class="pdots b3">
+        {dots.map((i) => (
+          <i class={i === 8 ? 'rej' : ''} />
+        ))}
+      </div>
+      <p class="pnote">
+        <span class="b2 chip">schema + rubric check</span>
+        <span class="b3 chip ok">15 / 15 passed</span>
+      </p>
+    </>
+  )}
+  {kind === 'rank' && (
+    <>
+      <div class="pstrip b2">
+        <div class="praw">
+          {raw.map((h) => (
+            <i style={`--h:${h}`} />
+          ))}
+        </div>
+        <div class="psorted">
+          {sorted.map((h, i) => (
+            <i style={`--h:${h}`} class={i < 5 ? 'b3 top' : ''} />
+          ))}
+        </div>
+      </div>
+      <p class="pnote">
+        <span class="b1 chip">about 30K records</span>
+        <span class="b2 chip">leakage-safe targets</span>
+        <span class="b3 chip ok">Precision@50, held out</span>
+      </p>
+    </>
+  )}
+  {kind === 'ship' && (
+    <p class="pflow">
+      <span class="b1 chip">Docker on Linux</span>
+      <b>→</b>
+      <span class="b2 chip">build</span>
+      <b>→</b>
+      <span class="b2 chip" style={delay(0.45)}>
+        GHCR
+      </span>
+      <b>→</b>
+      <span class="b2 chip" style={delay(0.9)}>
+        deploy
+      </span>
+      <b>→</b>
+      <span class="b3 chip ok">DigitalOcean App Platform</span>
+    </p>
+  )}
+  {kind === 'tdd' && (
+    <>
+      <p class="pflow">
+        <span class="b1 chip">plan ✓</span>
+        <span class="b2 chip">Claude Code</span>
+        <span class="b2 chip" style={delay(0.3)}>
+          Codex
+        </span>
+        <span class="b2 chip" style={delay(0.6)}>
+          MCP
+        </span>
+      </p>
+      <div class="ptests">
+        <span class="plab">pytest</span>
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <i class="b3" style={delay(i * 0.12)} />
+        ))}
+      </div>
+    </>
+  )}
+  {kind === 'valid' && (
+    <div class="ptime">
+      <span class="b2 chip">issued Sep 2026</span>
+      <span class="ptrack b3">
+        <i class="pbar grow" style="--w:100%" />
+      </span>
+      <span class="b3 chip ok">valid until Sep 2029</span>
+    </div>
+  )}
+  {kind === 'done' && (
+    <div class="ptime">
+      <span class="b1 chip">Udacity</span>
+      <span class="b2 chip">Nanodegree</span>
+      <span class="ptrack b3">
+        <i class="pbar grow" style="--w:100%" />
+      </span>
+      <span class="b3 chip ok">completed Oct 2026</span>
+    </div>
+  )}
+</div>
+
+<style is:global>
+  .pulse {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--surface) 60%, transparent);
+    font: 400 12px var(--mono);
+    color: var(--muted);
+  }
+  .pulse .chip {
+    display: inline-block;
+    padding: 3px 8px;
+    border: 1px solid color-mix(in srgb, var(--accent) calc(var(--lit) * 100%), var(--rule));
+    background: color-mix(in srgb, var(--accent) calc(var(--lit) * 18%), transparent);
+    color: color-mix(in srgb, var(--text) calc(var(--lit) * 100%), var(--muted));
+  }
+  .pulse .chip.ok {
+    border-color: color-mix(in srgb, var(--verified) calc(var(--lit) * 100%), var(--rule));
+    background: color-mix(in srgb, var(--verified) calc(var(--lit) * 16%), transparent);
+  }
+  .pnote,
+  .pflow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 10px 0 0;
+  }
+  .pflow {
+    margin: 0;
+  }
+  .pflow b {
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .prow,
+  .ptests,
+  .ptime {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ptests {
+    margin-top: 10px;
+  }
+  .prow + .prow {
+    margin-top: 6px;
+  }
+  .plab {
+    width: 52px;
+    flex: none;
+  }
+  .pval {
+    width: 76px;
+    flex: none;
+    text-align: right;
+  }
+  .pval.lit {
+    color: color-mix(in srgb, var(--verified) calc(var(--lit) * 100%), var(--muted));
+  }
+  .ptrack {
+    position: relative;
+    flex: 1;
+    height: 8px;
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+  }
+  .pbar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 100%;
+    background: color-mix(in srgb, var(--invalid) 70%, var(--bg));
+  }
+  .pbar.grow {
+    width: calc(var(--w) * var(--lit));
+    background: var(--verified);
+  }
+  .ptiles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .ptiles i,
+  .ptests i {
+    width: 12px;
+    height: 12px;
+    background: color-mix(
+      in srgb,
+      var(--accent) calc(var(--lit) * 100%),
+      color-mix(in srgb, var(--text) 12%, transparent)
+    );
+  }
+  .ptiles span {
+    margin-left: 8px;
+    color: color-mix(in srgb, var(--text) calc(var(--lit) * 100%), var(--muted));
+  }
+  .pdots {
+    display: flex;
+    gap: 5px;
+  }
+  .pdots i {
+    flex: 1;
+    max-width: 18px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: color-mix(
+      in srgb,
+      var(--verified) calc(var(--lit) * 100%),
+      color-mix(in srgb, var(--text) 14%, transparent)
+    );
+  }
+  .ptests i {
+    background: color-mix(in srgb, var(--verified) calc(var(--lit) * 100%), var(--invalid));
+  }
+  .pstrip {
+    position: relative;
+    height: 44px;
+  }
+  .praw,
+  .psorted {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  .praw {
+    opacity: calc(1 - var(--lit));
+  }
+  .psorted {
+    opacity: var(--lit);
+  }
+  .pstrip i {
+    flex: 1;
+    height: calc(var(--h) * 2.8px);
+    background: color-mix(in srgb, var(--text) 30%, transparent);
+  }
+  .psorted i.top {
+    background: color-mix(
+      in srgb,
+      var(--accent) calc(var(--lit) * 100%),
+      color-mix(in srgb, var(--text) 30%, transparent)
+    );
+  }
+  .ptime {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+  .ptime .ptrack {
+    min-width: 60px;
+  }
+  .pdots {
+    flex-wrap: wrap;
+  }
+  .pdots i {
+    min-width: 12px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .step.is-active .pdots .rej {
+      animation: dr-rej 6s infinite;
+    }
+  }
+  @keyframes dr-rej {
+    0%,
+    34%,
+    62%,
+    100% {
+      box-shadow: none;
+    }
+    38%,
+    58% {
+      box-shadow: 0 0 0 9px var(--invalid) inset;
+    }
+  }
+</style>

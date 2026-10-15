@@ -160,11 +160,13 @@ if (process.argv.includes('--check')) {
   const BUDGET = {
     homeInitialJsGz: 9 * KB,
     homeFullBenchJsGz: 31 * KB,
-    routeCssGz: 21.5 * KB, // Phase 20: case-study pages also carry the playable-flow styles (19.8 KB); home is 18.5 KB. Phase 21: 21 KB for the big-screen layout rules. Shimmering system headlines: 21.5 KB
+    // Résumé dev room: its scene, mascot poses, readouts and cozy details bring /resume/ to 26.1 KB of CSS: 28 KB.
+    routeCssGz: 28 * KB, // Phase 20: case-study pages also carry the playable-flow styles (19.8 KB); home is 18.5 KB. Phase 21: 21 KB for the big-screen layout rules. Shimmering system headlines: 21.5 KB
     preloadedFontsRaw: 72 * KB,
     homeTransferBr: 122 * KB,
     caseStudyTransferBr: 105 * KB,
-    otherTransferBr: 100 * KB,
+    // Résumé dev room: the inline two-floor scene and its city bring /resume/ to about 135 KB br: 150 KB.
+    otherTransferBr: 150 * KB,
   };
   const fails = [];
   const check = (what, value, limit) => {

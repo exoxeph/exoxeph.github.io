@@ -27,7 +27,9 @@ for (const [width, height] of sizes) {
         const W = document.documentElement.clientWidth;
         const found: string[] = [];
         for (const el of document.querySelectorAll('body *')) {
-          if (el.closest('.note, .notes-layer, .visually-hidden, .speech-scroll, pre')) continue;
+          // The résumé room's camera zooms inside its own SVG, which clips it: the SVG itself is still checked.
+          if (el.closest('.note, .notes-layer, .visually-hidden, .speech-scroll, pre, .dr-svg [data-cam]'))
+            continue;
           const cs = getComputedStyle(el);
           if (cs.display === 'none' || cs.visibility === 'hidden') continue;
           const r = el.getBoundingClientRect();

@@ -1,0 +1,3113 @@
+---
+// The résumé's experience and certifications as a scroll story: a pinned, two-floor isometric dev room on one side, the
+// CV points on the other. As each point reaches the middle of the screen, the mascot walks to its station (and up through
+// the portal for the certifications) and acts it out in three beats; the words on the page that each beat shows light at
+// the same moment, with a small live readout of the point's own numbers. Without scripts this is a plain, complete list; with reduced motion nothing moves.
+import { renderRail, renderRoom } from '../../lib/resume/room.ts';
+import Pulse from './Pulse.astro';
+import Waypoint from './Waypoint.astro';
+
+type Fact = (string | number)[];
+type Point = {
+  id: string;
+  place: string;
+  title: string;
+  lede: string;
+  text: string;
+  facts: Fact[];
+  pulse: string;
+  stack: string[];
+};
+type Cert = {
+  id: string;
+  name: string;
+  by: string;
+  when: string;
+  href: string;
+  link: string;
+  logo: string;
+  logoAlt: string;
+  place: string;
+  lede: string;
+  facts: Fact[];
+  pulse: string;
+  covers?: (string | number)[][];
+  format?: string;
+};
+interface Props {
+  work: { role: string; org: string; dates: string; place: string; summary: string };
+  points: Point[];
+  certs: Cert[];
+}
+const { work, points, certs } = Astro.props;
+const svg = renderRoom([
+  ...points.map((p, i) => ({ id: p.id, label: `Station ${i + 1}, ${p.place.toLowerCase()}: ${p.title}` })),
+  ...certs.map((c, i) => ({ id: c.id, label: `Station ${points.length + i + 1}, upstairs: ${c.name}` })),
+]);
+/** CV text with beats marked [[n:words]]: plain chunks and beat chunks, in order. */
+const beats = (t: string) =>
+  t.split(/\[\[(\d):(.*?)\]\]/).reduce<{ b: string | null; s: string }[]>((out, s, i, all) => {
+    if (i % 3 === 0) out.push({ b: null, s });
+    else if (i % 3 === 2) out.push({ b: all[i - 1]!, s });
+    return out;
+  }, []);
+const pad = (n: number) => String(n).padStart(2, '0');
+const total = points.length + certs.length;
+const rail = renderRail(['desk', 'conveyor', 'board', 'rack', 'agents', 'fireplace', 'trophies']);
+/** Each walk on the page: where it ends, and the picture of that station. */
+const walks: [string, string][] = [
+  ['the desk', 'desk'],
+  ['the conveyor', 'conveyor'],
+  ['the whiteboard', 'board'],
+  ['the rack', 'rack'],
+  ['the standing desk', 'agents'],
+  ['the fireplace', 'portal'],
+  ['the trophy case', 'trophy'],
+];
+---
+
+<div class="droom" data-droom>
+  <div class="dr-left">
+    <div class="dr-stage">
+      <p class="dr-floor mono" data-floor aria-hidden="true">
+        Ground floor · the work
+      </p>
+      <div class="dr-scene">
+        <Fragment set:html={svg} />
+      </div>
+      <p class="dr-hint mono" aria-hidden="true">
+        scroll to walk · click a station to jump or replay
+      </p>
+    </div>
+
+    <div class="dr-rail">
+      <Fragment set:html={rail} />
+    </div>
+  </div>
+
+  <div class="dr-steps">
+    <section aria-labelledby="exp-h">
+      <h2 id="exp-h">
+        <span>01</span> Work experience
+      </h2>
+      <div class="dr-intro" data-intro>
+        <div class="etop">
+          <h3>
+            {work.role} <span class="at">at {work.org}</span>
+          </h3>
+          <p class="edate">
+            {work.dates}
+            <span>{work.place}</span>
+          </p>
+        </div>
+        <p class="esum">{work.summary}</p>
+        <p class="dr-how mono">
+          Five points, five stations on the ground floor. Each plays in three beats, and the words that match
+          each beat light up as it happens.
+        </p>
+        <Waypoint k={0} to={walks[0]![0]} kind={walks[0]![1]} />
+      </div>
+      <ol class="dr-list">
+        {points.map((p, i) => (
+          <>
+            {i > 0 && <Waypoint k={i} to={walks[i]![0]} kind={walks[i]![1]} li />}
+            <li class="step" id={p.id} data-step={i}>
+              <p class="snum mono">
+                {pad(i + 1)} / {pad(total)} · {p.place}
+              </p>
+              <h4>{p.title}</h4>
+              <p class="lede">{p.lede}</p>
+              <p class="stext">
+                {beats(p.text).map((c) => (c.b ? <span class={`beat b${c.b}`}>{c.s}</span> : c.s))}
+              </p>
+              <dl class="facts">
+                {p.facts.map(([k, v, b]) => (
+                  <div class={`fact b${b}`}>
+                    <dt>{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <Pulse kind={p.pulse} />
+              <ul class="dr-chips" aria-label="Technologies">
+                {p.stack.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+            </li>
+          </>
+        ))}
+      </ol>
+    </section>
+
+    <section aria-labelledby="cert-h">
+      <h2 id="cert-h">
+        <span>02</span> Certifications
+      </h2>
+      <p class="dr-how mono">Through the portal to the second floor, where the certificates are kept.</p>
+      <Waypoint k={points.length} to={walks[points.length]![0]} kind="portal" up />
+      <ol class="dr-list">
+        {certs.map((c, i) => (
+          <>
+            {i > 0 && (
+              <Waypoint
+                k={points.length + i}
+                to={walks[points.length + i]![0]}
+                kind={walks[points.length + i]![1]}
+                li
+              />
+            )}
+            <li class="step" id={c.id} data-step={points.length + i}>
+              <p class="snum mono">
+                {pad(points.length + i + 1)} / {pad(total)} · {c.place}
+              </p>
+              <div class="cert">
+                <img
+                  class="clogo"
+                  src={c.logo}
+                  alt={c.logoAlt}
+                  width="84"
+                  height="84"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div>
+                  <h3>{c.name}</h3>
+                  <p>{c.by}</p>
+                  <p class="muted mono">{c.when}</p>
+                  <p>
+                    <a class="arrow-link" href={c.href} rel="noopener">
+                      {c.link} →
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <p class="lede">{c.lede}</p>
+              {c.covers && (
+                <div class="covers">
+                  <p class="mono covers-h">What it covers</p>
+                  <ul>
+                    {c.covers.map(([label, w]) => (
+                      <li>
+                        <span>{label}</span>
+                        {w ? (
+                          <>
+                            <i style={`--w:${w}`} />
+                            <b class="mono">{w}%</b>
+                          </>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                  {c.format && <p class="mono covers-f">{c.format}</p>}
+                </div>
+              )}
+              <dl class="facts">
+                {c.facts.map(([k, v, b]) => (
+                  <div class={`fact b${b}`}>
+                    <dt>{k}</dt>
+                    <dd>{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <Pulse kind={c.pulse} />
+            </li>
+          </>
+        ))}
+      </ol>
+    </section>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-droom]');
+  const svg = root?.querySelector<SVGSVGElement>('.dr-svg');
+  const mascot = svg?.querySelector<SVGGElement>('[data-mascot]');
+  const flip = svg?.querySelector<SVGGElement>('[data-flip]');
+  const cam = svg?.querySelector<SVGGElement>('[data-cam]');
+  const art = svg?.querySelector<SVGGElement>('[data-art]');
+  const groundWords = svg?.querySelector<SVGGElement>('.lbl-g');
+  const upperWords = svg?.querySelector<SVGGElement>('.lbl-u');
+  const groundFloor = svg?.querySelector<SVGGElement>('.floor-g');
+  const upperFloor = svg?.querySelector<SVGGElement>('.floor-u');
+  const outside = svg?.querySelector<SVGGElement>('[data-outside]');
+  if (root && svg && mascot && flip && cam && art && groundWords && upperWords && groundFloor && upperFloor) {
+    root.classList.add('is-live');
+    const steps = [...root.querySelectorAll<HTMLElement>('[data-step]')];
+    const intro = root.querySelector<HTMLElement>('[data-intro]')!;
+    const stage = root.querySelector<HTMLElement>('.dr-stage')!;
+    const floorLabel = root.querySelector<HTMLElement>('[data-floor]')!;
+    const stations = [...svg.querySelectorAll<SVGAElement>('.st')].sort(
+      (a, b) => Number(a.dataset.st) - Number(b.dataset.st),
+    );
+    const route = JSON.parse(svg.dataset.route!) as [number, number][];
+    const zs = JSON.parse(svg.dataset.z!) as number[];
+    const stops = JSON.parse(svg.dataset.stops!) as number[];
+    const PAN = Number(svg.dataset.pan);
+    const UP = Number(svg.dataset.up);
+    const vb = svg.viewBox.baseVal;
+    // Distance along the route (in view units) at each point, and at each stop: the door, then one per station.
+    const dist = [0];
+    for (let i = 1; i < route.length; i++)
+      dist.push(dist[i - 1]! + Math.hypot(route[i]![0] - route[i - 1]![0], route[i]![1] - route[i - 1]![1]));
+    const at = stops.map((i) => dist[i]!);
+    const pointAt = (d: number): [number, number, number] => {
+      let i = 1;
+      while (i < route.length - 1 && dist[i]! < d) i++;
+      const [a, b] = [route[i - 1]!, route[i]!];
+      const t = Math.min(1, Math.max(0, (d - dist[i - 1]!) / (dist[i]! - dist[i - 1]! || 1)));
+      return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, zs[i - 1]! + (zs[i]! - zs[i - 1]!) * t];
+    };
+    const ease = (t: number) => t * t * (3 - 2 * t);
+    const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const railSvg = root.querySelector<SVGSVGElement>('[data-rail]');
+    const railIcon = railSvg?.querySelector<SVGGElement>('[data-rail-icon]');
+    const railFill = railSvg?.querySelector<SVGLineElement>('[data-rail-fill]');
+    const railNodes = [...(railSvg?.querySelectorAll<SVGGElement>('[data-node]') ?? [])];
+    const railY = railSvg ? (JSON.parse(railSvg.dataset.y!) as number[]) : [];
+    const railX = Number(railSvg?.dataset.x ?? 0);
+    const stacked = matchMedia('(max-width: 999px)');
+
+    let cur = 0;
+    let target = 0;
+    let want = -1;
+    let on = -1;
+    let face = 1;
+    let view = { x: 0, y: 0 };
+    let raf = 0;
+    let level = -1;
+
+    // Where the reader is. The focus line is the middle of the space the points scroll through (on a phone, the part
+    // below the pinned room). Each point holds the mascot at its station for the middle of its height; the walk to the
+    // next station is spread over the scroll in between.
+    const walksOnPage = [...root.querySelectorAll<HTMLElement>('[data-transit]')].sort(
+      (a, b) => Number(a.dataset.transit) - Number(b.dataset.transit),
+    );
+    let walkK = -1;
+    let walkT = 0;
+    // The walk in progress lights its footprints; walks already made stay lit, walks ahead stay dark.
+    const footprints = () => {
+      const done = walkK >= 0 ? walkK : want + 1;
+      walksOnPage.forEach((el, k) => {
+        el.classList.toggle('is-walking', k === walkK);
+        el.style.setProperty('--t', k === walkK ? walkT.toFixed(3) : k < done ? '1' : '0');
+      });
+    };
+    const measure = () => {
+      locate();
+      footprints();
+    };
+    const locate = () => {
+      const vh = innerHeight;
+      const top = stacked.matches ? Math.max(0, stage.getBoundingClientRect().bottom) : 0;
+      const focus = top + (vh - top) * 0.5;
+      const rects = steps.map((s) => s.getBoundingClientRect());
+      const arrive = (r: DOMRect) => r.top + r.height * 0.28;
+      const leave = (r: DOMRect) => r.top + r.height * 0.72;
+      want = -1;
+      walkK = -1;
+      const first = arrive(rects[0]!);
+      const start = Math.min(intro.getBoundingClientRect().top, first - 160);
+      if (focus < first) {
+        walkT = clamp((focus - start) / (first - start));
+        walkK = walkT > 0 ? 0 : -1;
+        target = at[0]! + (at[1]! - at[0]!) * ease(walkT);
+        return;
+      }
+      for (let i = 0; i < rects.length; i++) {
+        if (focus <= leave(rects[i]!)) {
+          want = i;
+          target = at[i + 1]!;
+          return;
+        }
+        const next = rects[i + 1];
+        if (next && focus < arrive(next)) {
+          walkT = clamp((focus - leave(rects[i]!)) / (arrive(next) - leave(rects[i]!)));
+          walkK = i + 1;
+          target = at[i + 1]! + (at[i + 2]! - at[i + 1]!) * ease(walkT);
+          return;
+        }
+      }
+      want = rects.length - 1;
+      target = at[at.length - 1]!;
+    };
+
+    const words = [...svg.querySelectorAll<SVGGElement>('.stl')].sort(
+      (a, b) => Number(a.dataset.stl) - Number(b.dataset.stl),
+    );
+    const play = (i: number, restart = false) => {
+      if (i === on && !restart) return;
+      stations[on]?.classList.remove('is-on');
+      words[on]?.classList.remove('is-on');
+      steps[on]?.classList.remove('is-active');
+      delete mascot.dataset.pose;
+      on = i;
+      if (on < 0) return;
+      if (restart) void svg.getBoundingClientRect();
+      stations[on]!.classList.add('is-on');
+      words[on]?.classList.add('is-on');
+      steps[on]!.classList.add('is-active');
+      mascot.dataset.pose = stations[on]!.dataset.pose;
+    };
+
+    // The mascot walks at a steady pace, as a character in a pixel RPG does, rather than gliding: a walking speed that
+    // rises a little when it has far to go, so it never falls far behind the page.
+    let last = 0;
+    let snap = false;
+    const frame = (now: number = performance.now()) => {
+      raf = 0;
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 1 / 60;
+      last = now;
+      const before = pointAt(cur);
+      const gap = target - cur;
+      const pace = (150 + Math.abs(gap) * 1.4) * dt;
+      if (snap || reduce.matches || Math.abs(gap) <= pace) cur = target;
+      else cur += Math.sign(gap) * pace;
+      const [px, py, z] = pointAt(cur);
+      const [x, y] = [px, py];
+      const walking = Math.abs(target - cur) > 0.4;
+      const arrived = want >= 0 && !walking && Math.abs(cur - at[want + 1]!) < 1;
+      if (arrived) face = Number(stations[want]!.dataset.face) as 1 | -1;
+      else if (Math.abs(px - before[0]) > 0.05) face = px > before[0] ? 1 : -1;
+      mascot.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      flip.setAttribute('transform', `scale(${face} 1)`);
+      mascot.classList.toggle('walk', walking);
+      // Between the floors the mascot is in the portal's beam: it floats instead of walking.
+      const floating = z > 6.5 && z < UP - 0.5;
+      mascot.classList.toggle('float', floating);
+      svg.classList.toggle('is-beam', floating);
+      play(arrived ? want : -1);
+      // The rail beside the text: the small mascot sits at the same point of the journey as the big one.
+      if (railIcon && railFill) {
+        let k = 0;
+        while (k < at.length - 2 && cur > at[k + 1]!) k++;
+        const f = clamp((cur - at[k]!) / (at[k + 1]! - at[k]! || 1));
+        const ry = (railY[k]! + (railY[k + 1]! - railY[k]!) * f).toFixed(1);
+        railIcon.setAttribute('transform', `translate(${railX} ${ry})`);
+        railFill.setAttribute('y1', ry);
+        railNodes.forEach((n, i) => {
+          n.classList.toggle('is-past', cur >= at[i]! - 0.5);
+          n.classList.toggle('is-here', i === on + 1 && on >= 0);
+        });
+        railSvg!.classList.toggle('is-beam', floating);
+      }
+
+      // Floors: the upper one fades in as the mascot climbs, the ground one fades out beneath it, and the camera pans up.
+      const up = clamp(z / UP);
+      groundFloor.style.opacity = String(1 - 0.62 * clamp((up - 0.25) / 0.6));
+      upperFloor.style.opacity = String(clamp((up - 0.35) / 0.5));
+      groundFloor.style.pointerEvents = up > 0.5 ? 'none' : '';
+      upperFloor.style.visibility = up > 0.35 ? 'visible' : 'hidden';
+      // The words on each floor follow its floor; the ground floor's step aside once the camera has gone up.
+      groundWords.style.opacity = up > 0.3 ? '0' : groundFloor.style.opacity;
+      upperWords.style.opacity = upperFloor.style.opacity;
+      upperWords.style.visibility = upperFloor.style.visibility;
+      // The city is further away than the room: it moves less as the camera rises.
+      outside?.setAttribute('transform', `translate(0 ${(-0.45 * PAN * up).toFixed(1)})`);
+      const floor = up > 0.5 ? 1 : 0;
+      if (floor !== level) {
+        level = floor;
+        floorLabel.textContent = floor ? 'Level 2 · certifications' : 'Ground floor · the work';
+      }
+      // The camera: on a wide screen it shows the whole floor; on a phone it follows the mascot, closer in.
+      const k = stacked.matches ? 1.6 : 1;
+      const topEdge = -PAN * up;
+      const bottomEdge = vb.height - PAN * up;
+      const tx = clamp(vb.width / 2 - k * x, vb.width - k * vb.width, 0);
+      const ty = clamp(vb.height / 2 - k * (y - 50), vb.height - k * bottomEdge, -k * topEdge);
+      const lag = reduce.matches || snap ? 1 : 0.14;
+      view = { x: view.x + (tx - view.x) * lag, y: view.y + (ty - view.y) * lag };
+      snap = false;
+      cam.setAttribute('transform', `translate(${view.x.toFixed(1)} ${view.y.toFixed(1)}) scale(${k})`);
+      const settling = Math.abs(tx - view.x) > 0.5 || Math.abs(ty - view.y) > 0.5;
+      if (walking || settling) raf = requestAnimationFrame(frame);
+      else last = 0;
+    };
+    const update = () => {
+      measure();
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+
+    // On a wide screen the scene runs out to the window's left edge instead of stopping at the page margin.
+    const bleed = () =>
+      root.style.setProperty(
+        '--bleed',
+        stacked.matches ? '0px' : `${Math.max(0, Math.round(root.getBoundingClientRect().left))}px`,
+      );
+    bleed();
+    addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', () => {
+      bleed();
+      update();
+    });
+    stacked.addEventListener('change', update);
+
+    // Stations are modular: clicking one sends the mascot straight there. It blinks out, the page jumps to that point,
+    // and it blinks in at the station, instead of walking through every station in between.
+    const warp = (i: number) => {
+      if (reduce.matches) {
+        steps[i]!.scrollIntoView({ block: 'center' });
+        return;
+      }
+      mascot.classList.add('warp');
+      setTimeout(() => {
+        // 'instant', not 'auto': the page's own smooth scrolling would otherwise walk the mascot the long way.
+        steps[i]!.scrollIntoView({ behavior: 'instant', block: 'center' });
+        measure();
+        snap = true;
+        if (!raf) raf = requestAnimationFrame(frame);
+        setTimeout(() => mascot.classList.remove('warp'), 60);
+      }, 220);
+    };
+
+    // A station is a link to its point: it scrolls there, and clicking the station in use plays its scene again.
+    for (const st of stations) {
+      const i = Number(st.dataset.st);
+      st.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (i === on) play(i, true);
+        else warp(i);
+      });
+    }
+    // Pointing at a point on the page lights its station in the room.
+    steps.forEach((step, i) => {
+      step.addEventListener('pointerenter', () => stations[i]?.classList.add('is-hover'));
+      step.addEventListener('pointerleave', () => stations[i]?.classList.remove('is-hover'));
+    });
+    update();
+  }
+</script>
+
+<style is:global>
+  @property --lit {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
+  .droom {
+    display: grid;
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+    margin-bottom: 56px;
+  }
+  /* The room and the rail share the left column, so the text column lines up with the skills column further down. */
+  .dr-left {
+    display: flex;
+    align-self: stretch;
+    gap: clamp(12px, 1.6vw, 24px);
+  }
+  .dr-stage {
+    position: sticky;
+    top: 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: calc(100vh - 24px);
+    margin-left: calc(-1 * var(--bleed, 0px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  /* The scene has no frame: the city and the street run past the drawing and fade into the page at every edge. */
+  .dr-scene {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: radial-gradient(
+      120% 85% at 50% 38%,
+      color-mix(in srgb, var(--accent) 9%, var(--bg)) 0%,
+      var(--bg) 72%
+    );
+    /* It fades out across the margin on the left, reaching full strength where the page's text column begins. */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 calc(var(--bleed, 0px) + 32px), #000 97.5%, transparent),
+      linear-gradient(to bottom, transparent, #000 9%, #000 88%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent, #000 calc(var(--bleed, 0px) + 32px), #000 97.5%, transparent),
+      linear-gradient(to bottom, transparent, #000 9%, #000 88%, transparent);
+    mask-composite: intersect;
+  }
+  .dr-svg {
+    display: block;
+    flex: none;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    /* Full size, nudged right: away from the faded margin, towards the page's own column. */
+    transform: translateX(calc(var(--bleed, 0px) * 0.25));
+    overflow: visible;
+    font-family: var(--mono);
+  }
+  .dr-rail {
+    position: sticky;
+    top: 12px;
+    flex: none;
+    width: 96px;
+    height: calc(100vh - 24px);
+    display: flex;
+    align-items: center;
+  }
+  .dr-rail-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 88%;
+    font-family: var(--mono);
+  }
+  .dr-rail-svg .r-star {
+    fill: var(--text);
+    opacity: 0.6;
+  }
+  .dr-rail-svg .r-moon {
+    fill: color-mix(in srgb, var(--text) 85%, var(--bg));
+  }
+  .dr-rail-svg .r-plane {
+    fill: color-mix(in srgb, var(--text) 70%, var(--bg));
+    transform: translate(10px, 34px);
+  }
+  .dr-rail-svg .r-city {
+    fill: color-mix(in srgb, var(--text) 7%, var(--bg));
+  }
+  .dr-rail-svg .r-roof {
+    fill: color-mix(in srgb, var(--text) 22%, var(--surface));
+  }
+  .dr-rail-svg .r-bld {
+    fill: color-mix(in srgb, var(--text) 4%, var(--surface));
+    stroke: color-mix(in srgb, var(--text) 18%, transparent);
+  }
+  .dr-rail-svg .r-slab {
+    fill: color-mix(in srgb, var(--text) 16%, var(--surface));
+  }
+  .dr-rail-svg .r-floor {
+    fill: var(--muted);
+    font-size: 7px;
+    letter-spacing: 0.12em;
+  }
+  .dr-rail-svg .r-win {
+    fill: color-mix(in srgb, var(--text) 10%, var(--bg));
+  }
+  .dr-rail-svg .r-win.lit {
+    fill: color-mix(in srgb, var(--partial) 55%, var(--bg));
+  }
+  .dr-rail-svg .r-beam {
+    opacity: 0.55;
+    transition: opacity 300ms var(--ease);
+  }
+  .dr-rail-svg.is-beam .r-beam {
+    opacity: 1;
+  }
+  .dr-rail-svg .r-pad {
+    fill: color-mix(in srgb, var(--accent) 30%, var(--bg));
+    stroke: var(--accent);
+  }
+  .dr-rail-svg .r-street {
+    fill: color-mix(in srgb, var(--text) 8%, var(--bg));
+  }
+  .dr-rail-svg .r-lane {
+    stroke: color-mix(in srgb, var(--partial) 60%, transparent);
+    stroke-dasharray: 5 5;
+  }
+  .dr-rail-svg .r-track {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 25%, transparent);
+    stroke-dasharray: 2 3;
+  }
+  .dr-rail-svg .r-fill {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+  .dr-rail-svg .r-node circle {
+    fill: var(--bg);
+    stroke: color-mix(in srgb, var(--text) 40%, transparent);
+    stroke-width: 1.5;
+    transition:
+      fill var(--m-state) var(--ease),
+      stroke var(--m-state) var(--ease);
+  }
+  .dr-rail-svg .r-node text {
+    fill: var(--muted);
+    font-size: 8px;
+  }
+  .dr-rail-svg .r-node.is-past circle {
+    fill: var(--accent);
+    stroke: var(--accent);
+  }
+  .dr-rail-svg .r-node.is-here circle {
+    fill: var(--partial);
+    stroke: var(--partial);
+  }
+  .dr-rail-svg .r-node.is-here text {
+    fill: var(--text);
+  }
+  .dr-rail-svg .r-halo {
+    fill: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  /* The street around the building. */
+  .dr-svg .ground {
+    fill: color-mix(in srgb, var(--text) 4%, var(--bg));
+  }
+  .dr-svg .road {
+    fill: color-mix(in srgb, var(--text) 2%, #0c0d0e);
+  }
+  .dr-svg .walk {
+    fill: color-mix(in srgb, var(--text) 9%, var(--bg));
+    stroke: color-mix(in srgb, var(--text) 16%, transparent);
+  }
+  .dr-svg .lane {
+    fill: none;
+    stroke: color-mix(in srgb, var(--partial) 55%, transparent);
+    stroke-width: 1.4;
+  }
+  .dr-svg .zebra {
+    fill: color-mix(in srgb, var(--text) 30%, transparent);
+  }
+  .dr-svg :is(.lpole, .trunk) {
+    stroke: color-mix(in srgb, var(--text) 45%, var(--bg));
+    stroke-width: 2;
+  }
+  .dr-svg .lhead {
+    fill: var(--partial);
+  }
+  .dr-svg .pool {
+    pointer-events: none;
+  }
+  .dr-svg .hl {
+    fill: var(--text);
+  }
+  .dr-svg .beamh {
+    fill: color-mix(in srgb, var(--text) 14%, transparent);
+  }
+  .dr-svg .tl {
+    fill: var(--invalid);
+  }
+  .dr-floor {
+    margin: 0 0 6px;
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .dr-hint {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+  .dr-intro {
+    padding-bottom: 8px;
+  }
+  .dr-how {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .dr-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dr-list .step {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 0 32px 22px;
+    border-left: 1px solid var(--rule);
+    transition: border-color var(--m-state) var(--ease);
+  }
+  .droom.is-live .step:not(.is-active) :is(h4, .stext, .lede) {
+    color: var(--muted);
+  }
+  .droom .step.is-active {
+    border-left-color: var(--accent);
+  }
+  .snum {
+    margin: 0 0 8px;
+    color: var(--accent);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .step h4 {
+    margin: 0 0 10px;
+    font: 400 clamp(1.6rem, 2.4vw, 2.1rem) / 1.12 var(--serif);
+  }
+  .step .lede {
+    margin: 0 0 12px;
+    font: italic 400 1.12rem / 1.5 var(--serif);
+  }
+  .stext {
+    margin: 0 0 16px;
+    font: 400 1.04rem / 1.65 var(--sans);
+  }
+  .dr-steps section + section {
+    margin-top: 24px;
+  }
+
+  /* Beats: the words, facts and room notes for one beat light while that beat plays (--lit runs from 0 to 1). */
+  .step .beat {
+    padding: 1px 3px;
+    margin: 0 -3px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--accent) calc(var(--lit) * 28%), transparent);
+    box-shadow: inset 0 -1.5px 0 color-mix(in srgb, var(--accent) calc(40% + var(--lit) * 60%), transparent);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+  .fact {
+    padding: 8px 10px;
+    border: 1px solid color-mix(in srgb, var(--accent) calc(var(--lit) * 100%), var(--rule));
+    background: color-mix(in srgb, var(--accent) calc(var(--lit) * 10%), transparent);
+  }
+  .fact dt {
+    color: var(--muted);
+    font: 400 11px var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .fact dd {
+    margin: 4px 0 0;
+    font: 500 0.95rem / 1.3 var(--sans);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .step.is-active .b1 {
+      animation: dr-b1 6s infinite;
+    }
+    .step.is-active .b2 {
+      animation: dr-b2 6s infinite;
+    }
+    .step.is-active .b3 {
+      animation: dr-b3 6s infinite;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .step.is-active :is(.b1, .b2, .b3) {
+      --lit: 1;
+    }
+  }
+  @keyframes dr-b1 {
+    0%,
+    6%,
+    97%,
+    100% {
+      --lit: 0;
+    }
+    10%,
+    92% {
+      --lit: 1;
+    }
+  }
+  @keyframes dr-b2 {
+    0%,
+    34%,
+    97%,
+    100% {
+      --lit: 0;
+    }
+    38%,
+    92% {
+      --lit: 1;
+    }
+  }
+  @keyframes dr-b3 {
+    0%,
+    62%,
+    97%,
+    100% {
+      --lit: 0;
+    }
+    66%,
+    92% {
+      --lit: 1;
+    }
+  }
+
+  /* What a certificate covers: the exam's domains with their weights, or the program's topics. */
+  .covers {
+    margin: 0 0 14px;
+  }
+  .covers-h {
+    margin: 0 0 8px;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .covers ul {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .covers li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 30% 34px;
+    align-items: center;
+    gap: 10px;
+    font: 400 0.95rem / 1.35 var(--sans);
+  }
+  .covers li:not(:has(i)) {
+    grid-template-columns: 1fr;
+    padding-left: 14px;
+    position: relative;
+  }
+  .covers li:not(:has(i))::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+  }
+  .covers i {
+    display: block;
+    height: 8px;
+    width: calc(var(--w) / 28 * 100%);
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(0.15);
+    opacity: 0.5;
+    transition:
+      transform 700ms var(--ease),
+      opacity 700ms var(--ease);
+  }
+  .step.is-active .covers i,
+  .droom:not(.is-live) .covers i {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  .covers b {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+    text-align: right;
+  }
+  .covers-f {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  /* The page's own type for headings, dates, chips and certificates (its styles are scoped to the page). */
+  .droom h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding-top: 16px;
+    border-top: 2px solid var(--accent);
+    font: 500 12px var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .droom h2 span {
+    color: var(--accent);
+  }
+  .droom .etop {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 20px;
+  }
+  .droom .dr-intro h3 {
+    margin: 0;
+    font: 600 1.25rem / 1.25 var(--sans);
+  }
+  .droom .at {
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .droom .edate {
+    margin: 0;
+    font: 500 var(--t-mono) var(--mono);
+  }
+  .droom .edate span {
+    display: block;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .droom .esum {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font: 400 1.02rem / 1.55 var(--sans);
+  }
+  .droom .dr-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .droom .dr-chips li {
+    padding: 3px 9px;
+    border: 1px solid var(--rule);
+    color: var(--muted);
+    font: 400 12px var(--mono);
+  }
+  .droom .cert {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .droom .cert h3 {
+    margin: 0 0 6px;
+    font: 400 clamp(1.4rem, 2.2vw, 1.8rem) / 1.15 var(--serif);
+  }
+  .droom .cert p {
+    margin: 0 0 4px;
+  }
+  .droom .clogo {
+    flex: none;
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+  }
+
+  /* The room. Tones follow the Bench stages: a lit top, a mid front, a dark end, one accent. */
+  .dr-svg :is(polygon, path, ellipse) {
+    stroke-width: 0.8;
+    stroke-linejoin: round;
+  }
+  .dr-svg :is(.n, .r, .fl) :is(.t, .f, .e) {
+    stroke: color-mix(in srgb, var(--text) 30%, transparent);
+  }
+  .dr-svg .n .t {
+    fill: color-mix(in srgb, var(--text) 16%, var(--surface));
+  }
+  .dr-svg .n .f {
+    fill: color-mix(in srgb, var(--text) 9%, var(--surface));
+  }
+  .dr-svg .n .e {
+    fill: color-mix(in srgb, var(--text) 4%, var(--surface));
+  }
+  /* Night City at home: purple-tinted walls, a dark glossy floor, magenta and cyan neon. */
+  .dr-svg {
+    --neon-m: #ff5fd2;
+    --neon-c: #4fe3ff;
+  }
+  .dr-svg .r .t {
+    fill: color-mix(in srgb, #5a4685 30%, var(--surface));
+  }
+  .dr-svg .r .f {
+    fill: color-mix(in srgb, #2c2148 55%, var(--surface));
+  }
+  .dr-svg .r .e {
+    fill: color-mix(in srgb, #221a3a 55%, var(--surface));
+  }
+  .dr-svg .fl .t {
+    fill: color-mix(in srgb, #1c1630 65%, var(--bg));
+  }
+  .dr-svg .fl .f {
+    fill: color-mix(in srgb, var(--text) 13%, var(--bg));
+  }
+  .dr-svg .fl .e {
+    fill: color-mix(in srgb, var(--text) 8%, var(--bg));
+  }
+  .dr-svg :is(.l, .a) :is(.t, .f, .e, ellipse, path) {
+    stroke: var(--bg);
+  }
+  .dr-svg .l :is(.t, ellipse) {
+    fill: var(--text);
+  }
+  .dr-svg .l :is(.f, path) {
+    fill: color-mix(in srgb, var(--text) 78%, var(--bg));
+  }
+  .dr-svg .l .e {
+    fill: color-mix(in srgb, var(--text) 58%, var(--bg));
+  }
+  .dr-svg .a :is(.t, ellipse) {
+    fill: var(--accent);
+  }
+  .dr-svg .a :is(.f, path) {
+    fill: color-mix(in srgb, var(--accent) 72%, var(--bg));
+  }
+  .dr-svg .a .e {
+    fill: color-mix(in srgb, var(--accent) 52%, var(--bg));
+  }
+  .dr-svg .w :is(.t, .f, .e, ellipse, path) {
+    stroke: var(--accent);
+    stroke-opacity: 0.8;
+  }
+  .dr-svg .w :is(.t, ellipse) {
+    fill: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .dr-svg .w :is(.f, path) {
+    fill: color-mix(in srgb, var(--accent) 28%, transparent);
+  }
+  .dr-svg .w .e {
+    fill: color-mix(in srgb, var(--accent) 16%, transparent);
+  }
+  .dr-svg .k :is(.t, .f, .e, .m) {
+    fill: var(--bg);
+    stroke: color-mix(in srgb, var(--text) 40%, transparent);
+  }
+  .dr-svg .grid {
+    fill: none;
+    stroke: var(--text);
+    stroke-opacity: 0.06;
+  }
+  .dr-svg .skirt {
+    fill: color-mix(in srgb, var(--text) 14%, var(--surface));
+  }
+  .dr-svg .win {
+    fill: color-mix(in srgb, var(--accent) 12%, var(--bg));
+    stroke: color-mix(in srgb, var(--text) 40%, transparent);
+  }
+  .dr-svg .city {
+    fill: color-mix(in srgb, var(--text) 10%, var(--bg));
+  }
+  .dr-svg :is(.lit, .star) {
+    fill: var(--partial);
+  }
+  .dr-svg .star {
+    fill: var(--text);
+    opacity: 0.8;
+  }
+  .dr-svg .rug {
+    fill: color-mix(in srgb, var(--accent) 10%, var(--bg));
+    stroke: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .dr-svg .rug-in {
+    fill: none;
+    stroke: color-mix(in srgb, var(--accent) 30%, transparent);
+    stroke-dasharray: 3 3;
+  }
+  .dr-svg .carpet {
+    fill: color-mix(in srgb, var(--invalid) 34%, var(--bg));
+    stroke: color-mix(in srgb, var(--partial) 50%, transparent);
+  }
+  .dr-svg .flag.a1 {
+    fill: var(--accent);
+  }
+  .dr-svg .flag.a2 {
+    fill: var(--partial);
+  }
+  .dr-svg .flag.a3 {
+    fill: var(--verified);
+  }
+  .dr-svg .beam {
+    opacity: 0.45;
+    pointer-events: none;
+    transition: opacity 300ms var(--ease);
+  }
+  .dr-svg.is-beam .beam {
+    opacity: 1;
+  }
+  .dr-svg .pglow {
+    fill: color-mix(in srgb, var(--accent) 22%, var(--bg));
+    stroke: var(--accent);
+  }
+  .dr-svg .prune {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.4;
+    stroke-dasharray: 7 5;
+  }
+  .dr-svg .pcore {
+    fill: var(--accent);
+    opacity: 0.7;
+  }
+  .dr-svg .mote {
+    fill: var(--accent);
+    opacity: 0;
+  }
+  .dr-svg .doormat {
+    fill: color-mix(in srgb, var(--partial) 30%, var(--bg));
+    stroke: color-mix(in srgb, var(--partial) 50%, transparent);
+  }
+  .dr-svg .leaf circle {
+    fill: color-mix(in srgb, var(--verified) 55%, var(--bg));
+    stroke: var(--bg);
+  }
+  .dr-svg :is(.cable, .rail, .pole, .rope, .tl, .pipe) {
+    fill: none;
+  }
+  .dr-svg .cable {
+    stroke: color-mix(in srgb, var(--accent) 40%, transparent);
+    stroke-dasharray: 2 3;
+  }
+  .dr-svg :is(.rail, .pole) {
+    stroke: color-mix(in srgb, var(--text) 55%, transparent);
+    stroke-width: 1.6;
+  }
+  .dr-svg .rope {
+    stroke: var(--invalid);
+    stroke-width: 2;
+  }
+  .dr-svg .tl {
+    stroke: color-mix(in srgb, var(--text) 30%, transparent);
+  }
+  .dr-svg .pipe {
+    stroke: color-mix(in srgb, var(--text) 30%, transparent);
+    stroke-dasharray: 2 2;
+  }
+  .dr-svg .clock circle {
+    fill: var(--text);
+    stroke: var(--bg);
+  }
+  .dr-svg .clock .hand {
+    stroke: var(--bg);
+    stroke-width: 1.4;
+    transform-box: view-box;
+    transform-origin: 0 0;
+  }
+  .dr-svg .sign {
+    fill: var(--partial);
+  }
+  .dr-svg .sgn {
+    fill: var(--bg);
+    font-size: 8px;
+    font-weight: 700;
+  }
+  .dr-svg .wt {
+    fill: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+  .dr-svg .wn {
+    fill: var(--text);
+    font-size: 11px;
+  }
+  .dr-svg .wn.sm,
+  .dr-svg .wt.sm {
+    font-size: 10px;
+  }
+  .dr-svg .neon {
+    fill: var(--neon-m);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    paint-order: stroke;
+    stroke: color-mix(in srgb, var(--neon-m) 30%, transparent);
+    stroke-width: 5px;
+  }
+  .dr-svg .ft {
+    fill: color-mix(in srgb, var(--text) 30%, transparent);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .dr-svg .ft.sm {
+    font-size: 8px;
+    letter-spacing: 0.2em;
+  }
+  .dr-svg .stl.is-on .ft {
+    fill: var(--accent);
+  }
+  .dr-svg .scr {
+    fill: var(--neon-c);
+    font-size: 9px;
+  }
+  .dr-svg .bt {
+    fill: var(--bg);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .dr-svg .bt.sm {
+    font-size: 10px;
+    font-weight: 400;
+  }
+  .dr-svg .bt.hit {
+    fill: var(--verified);
+    opacity: 0;
+  }
+  .dr-svg .nt {
+    fill: var(--bg);
+    font-size: 7.5px;
+  }
+  .dr-svg .plq {
+    fill: var(--muted);
+    font-size: 6.5px;
+    letter-spacing: 0.06em;
+  }
+  .dr-svg .board {
+    fill: color-mix(in srgb, var(--text) 86%, var(--bg));
+  }
+  .dr-svg .chalk {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+  }
+  .dr-svg .note {
+    fill: var(--partial);
+  }
+  .dr-svg .frame {
+    fill: color-mix(in srgb, var(--text) 20%, var(--surface));
+    stroke: color-mix(in srgb, var(--text) 40%, transparent);
+  }
+  .dr-svg .disp {
+    fill: var(--bg);
+    stroke: color-mix(in srgb, var(--text) 40%, transparent);
+  }
+  .dr-svg .dt {
+    fill: var(--muted);
+    font-size: 10px;
+  }
+  .dr-svg .dn {
+    fill: var(--partial);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .dr-svg .dn.n15 {
+    fill: var(--verified);
+    opacity: 0;
+  }
+  .dr-svg .belt {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 30%, transparent);
+    stroke-dasharray: 3 3;
+  }
+  .dr-svg .stick {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 2;
+  }
+  .dr-svg .knob {
+    fill: var(--invalid);
+  }
+  .dr-svg .ttl {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 72;
+    opacity: 0;
+  }
+  .dr-svg .orb circle {
+    fill: color-mix(in srgb, var(--accent) 35%, var(--bg));
+    stroke: var(--accent);
+  }
+  .dr-svg .orb.o2 circle {
+    fill: color-mix(in srgb, var(--verified) 35%, var(--bg));
+    stroke: var(--verified);
+  }
+  .dr-svg .orb text {
+    fill: var(--text);
+    font-size: 10px;
+  }
+  .dr-svg .orb circle {
+    opacity: 0.45;
+  }
+  .dr-svg .st.is-on .orb circle {
+    opacity: 1;
+  }
+
+  /* Outside: the city, the sky, and what moves in it. */
+  .dr-svg .city :is(.t, .f, .e) {
+    stroke: color-mix(in srgb, var(--text) 10%, transparent);
+  }
+  .dr-svg .city .t {
+    fill: color-mix(in srgb, var(--text) 9%, var(--bg));
+  }
+  .dr-svg .city .f {
+    fill: color-mix(in srgb, var(--text) 6%, var(--bg));
+  }
+  .dr-svg .city .e {
+    fill: color-mix(in srgb, var(--text) 3.5%, var(--bg));
+  }
+  /* The building's own bulk, so the city never shows through a faded floor. */
+  .dr-svg .mass :is(.t, .f, .e) {
+    fill: var(--bg);
+    stroke: none;
+  }
+  .dr-svg .bw {
+    fill: color-mix(in srgb, var(--partial) 38%, var(--bg));
+    stroke: none;
+  }
+  .dr-svg :is(.ant, .wire) {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 25%, transparent);
+  }
+  .dr-svg .beacon {
+    fill: var(--invalid);
+  }
+  .dr-svg .sky-star {
+    fill: var(--text);
+    opacity: 0.55;
+  }
+  .dr-svg .moon circle {
+    fill: color-mix(in srgb, var(--text) 88%, var(--bg));
+  }
+  .dr-svg .moon .crater {
+    fill: color-mix(in srgb, var(--text) 70%, var(--bg));
+  }
+  .dr-svg .plane {
+    transform: translate(-60px, 190px);
+  }
+  .dr-svg .plane .body {
+    fill: color-mix(in srgb, var(--text) 70%, var(--bg));
+  }
+  .dr-svg .plane .trail {
+    stroke: color-mix(in srgb, var(--text) 20%, transparent);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 4;
+  }
+  .dr-svg .nav.r {
+    fill: var(--invalid);
+  }
+  .dr-svg .nav.g {
+    fill: var(--verified);
+  }
+  .dr-svg .birds path {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 50%, transparent);
+    stroke-width: 1.3;
+  }
+  .dr-svg .birds {
+    transform: translate(240px, 120px);
+  }
+  .dr-svg .fly {
+    fill: var(--partial);
+    opacity: 0.5;
+  }
+  /* Cozy things: lights, warm glows, the bed, the cat, the fire. */
+  .dr-svg .bulb {
+    fill: var(--partial);
+  }
+  .dr-svg .bulb.u1 {
+    fill: var(--accent);
+  }
+  .dr-svg .bulb.u2 {
+    fill: var(--verified);
+  }
+  .dr-svg :is(.warm, .glow) {
+    pointer-events: none;
+  }
+  .dr-svg .mat2 {
+    fill: color-mix(in srgb, var(--verified) 16%, var(--bg));
+    stroke: color-mix(in srgb, var(--verified) 40%, transparent);
+  }
+  .dr-svg .cat :is(ellipse, circle, path) {
+    fill: color-mix(in srgb, var(--partial) 70%, var(--bg));
+    stroke: var(--bg);
+  }
+  .dr-svg .cat .tail {
+    fill: none;
+    stroke: color-mix(in srgb, var(--partial) 70%, var(--bg));
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .dr-svg .rugr {
+    fill: color-mix(in srgb, var(--partial) 14%, var(--bg));
+    stroke: color-mix(in srgb, var(--partial) 40%, transparent);
+    stroke-dasharray: 3 3;
+  }
+  .dr-svg .firebox {
+    fill: #0c0c0d;
+    stroke: color-mix(in srgb, var(--text) 30%, transparent);
+  }
+  .dr-svg .fire path {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .dr-svg .fl1 {
+    fill: var(--invalid);
+  }
+  .dr-svg .fl2 {
+    fill: color-mix(in srgb, var(--partial) 80%, var(--invalid));
+  }
+  .dr-svg .fl3 {
+    fill: var(--partial);
+  }
+  .dr-svg .scope {
+    stroke: color-mix(in srgb, var(--text) 70%, var(--bg));
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+  .dr-svg .lens {
+    fill: var(--accent);
+  }
+  .dr-svg .st:has(.firebox) .spot {
+    opacity: 0.55;
+  }
+  .dr-svg .st.is-on:has(.firebox) .spot {
+    opacity: 1;
+  }
+  @font-face {
+    font-family: 'Pixelify Sans';
+    src: url('/fonts/pixelify-sans-500.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+  }
+  /* Words painted on walls and floors are skewed to their surface; a pixel font smears under that slant (a 6 reads as
+     an 8), so they use the site's monospace, which stays crisp. Upright labels use the pixel font. */
+  .dr-svg text,
+  .dr-rail-svg text {
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+  .dr-svg .orb text,
+  .dr-rail-svg text {
+    font-family: 'Pixelify Sans', var(--mono);
+    font-weight: 500;
+  }
+  .dr-svg .labels {
+    pointer-events: none;
+  }
+  .dr-svg .stl.is-on .wt {
+    fill: var(--neon-c);
+  }
+  /* Warm: wood, terracotta, cream and amber light; the neon is now warm too. */
+  .dr-svg {
+    --neon-m: #ff8a3d;
+    --neon-c: #ffc867;
+    --terra: #e08a55;
+    --cream: #f3e3c6;
+  }
+  .dr-svg .n .t {
+    fill: color-mix(in srgb, #a87048 40%, var(--surface));
+  }
+  .dr-svg .n .f {
+    fill: color-mix(in srgb, #82543a 36%, var(--surface));
+  }
+  .dr-svg .n .m {
+    fill: color-mix(in srgb, #6f4630 36%, var(--surface));
+  }
+  .dr-svg .n .e {
+    fill: color-mix(in srgb, #5a3a26 36%, var(--surface));
+  }
+  .dr-svg .a :is(.t, ellipse) {
+    fill: var(--terra);
+  }
+  .dr-svg .a :is(.f, path) {
+    fill: color-mix(in srgb, var(--terra) 74%, var(--bg));
+  }
+  .dr-svg .a .m {
+    fill: color-mix(in srgb, var(--terra) 64%, var(--bg));
+  }
+  .dr-svg .a .e {
+    fill: color-mix(in srgb, var(--terra) 54%, var(--bg));
+  }
+  .dr-svg .l :is(.t, ellipse) {
+    fill: var(--cream);
+  }
+  .dr-svg .l :is(.f, path) {
+    fill: color-mix(in srgb, var(--cream) 80%, var(--bg));
+  }
+  .dr-svg .l .m {
+    fill: color-mix(in srgb, var(--cream) 70%, var(--bg));
+  }
+  .dr-svg .l .e {
+    fill: color-mix(in srgb, var(--cream) 60%, var(--bg));
+  }
+  .dr-svg .w :is(.t, .f, .e, .m, ellipse, path) {
+    stroke: var(--neon-c);
+  }
+  .dr-svg .w :is(.t, ellipse) {
+    fill: color-mix(in srgb, var(--neon-c) 42%, transparent);
+  }
+  .dr-svg .w :is(.f, path) {
+    fill: color-mix(in srgb, var(--neon-c) 28%, transparent);
+  }
+  .dr-svg .w :is(.e, .m) {
+    fill: color-mix(in srgb, var(--neon-c) 18%, transparent);
+  }
+  .dr-svg .r .t {
+    fill: color-mix(in srgb, #8a5a48 34%, var(--surface));
+  }
+  .dr-svg .r .f {
+    fill: color-mix(in srgb, #4d2e28 58%, var(--surface));
+  }
+  .dr-svg .r .e {
+    fill: color-mix(in srgb, #3c2420 58%, var(--surface));
+  }
+  .dr-svg .fl .t {
+    fill: color-mix(in srgb, #6e4529 58%, var(--bg));
+  }
+  .dr-svg .plank {
+    fill: none;
+    stroke: color-mix(in srgb, #2a170e 60%, transparent);
+    stroke-width: 0.9;
+  }
+  .dr-svg .rug {
+    fill: color-mix(in srgb, #a8452f 45%, var(--bg));
+    stroke: color-mix(in srgb, #e0a050 60%, transparent);
+  }
+  .dr-svg .rug-in {
+    stroke: color-mix(in srgb, #ffc867 55%, transparent);
+  }
+  .dr-svg .rugw {
+    fill: color-mix(in srgb, #c46a3a 40%, var(--bg));
+    stroke: color-mix(in srgb, #ffc867 50%, transparent);
+    stroke-dasharray: 3 3;
+  }
+  .dr-svg .drape {
+    fill: color-mix(in srgb, #c4683f 58%, var(--bg));
+    stroke: color-mix(in srgb, #c4683f 80%, transparent);
+  }
+  .dr-svg .bean-b {
+    fill: color-mix(in srgb, #d9824f 65%, var(--bg));
+  }
+  .dr-svg .bulb.u1 {
+    fill: #ff9a55;
+  }
+  .dr-svg .bulb.u2 {
+    fill: #fff1c9;
+  }
+  .dr-svg .bw.m {
+    fill: color-mix(in srgb, #ff9a55 45%, var(--bg));
+  }
+  .dr-svg .bw.c {
+    fill: color-mix(in srgb, #ffd27a 40%, var(--bg));
+  }
+  .dr-svg :is(.pglow, .prune) {
+    stroke: var(--neon-c);
+  }
+  .dr-svg .pglow {
+    fill: color-mix(in srgb, var(--neon-c) 22%, var(--bg));
+  }
+  .dr-svg .pcore {
+    fill: var(--neon-c);
+  }
+  .dr-svg .mote {
+    fill: var(--neon-c);
+  }
+  .dr-svg .pic {
+    fill: color-mix(in srgb, #ffb057 40%, var(--bg));
+  }
+  .dr-svg .hill {
+    fill: color-mix(in srgb, #7a9a5a 70%, var(--bg));
+  }
+  .dr-svg .sun {
+    fill: #ffe0a0;
+  }
+  .dr-svg .arm {
+    fill: none;
+    stroke: var(--cream);
+    stroke-width: 1.3;
+  }
+  .dr-svg .gbody {
+    fill: #c97a3e;
+    stroke: #6a3a1a;
+  }
+  .dr-svg .ghole {
+    fill: #3a1e0e;
+  }
+  .dr-svg :is(.gneck, .gstand) {
+    fill: none;
+    stroke: #6a3a1a;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+  .dr-svg .ghead {
+    fill: #6a3a1a;
+  }
+  /* The mascot's size lives here (so the warp can shrink it), and it leans into its walk. */
+  .dr-svg .m-warp {
+    transform: scale(0.92);
+    transition:
+      transform 220ms var(--ease),
+      opacity 220ms var(--ease);
+  }
+  .dr-svg .warp .m-warp {
+    transform: scale(0.1) translateY(-30px);
+    opacity: 0;
+  }
+  .dr-svg .m-shadow {
+    transition: opacity 220ms var(--ease);
+  }
+  .dr-svg .warp .m-shadow {
+    opacity: 0;
+  }
+  .dr-svg .m-hop {
+    transition: transform 160ms var(--ease);
+  }
+  /* The mascot's frames: the sheet slides inside the one-frame window. Idle by default; the walk cycles eight frames;
+     each station plays its own poses on the station's 6 s clock. */
+  .dr-svg .hero {
+    overflow: hidden;
+  }
+  .dr-svg .hero-img {
+    transform: translateX(-768px);
+  }
+  .dr-svg .float .hero-img {
+    transform: translateX(-1824px);
+  }
+  .dr-svg [data-pose='sit'] .hero-img {
+    transform: translateX(-1920px);
+  }
+  .dr-svg [data-pose='sit'] .m-shadow {
+    opacity: 0;
+  }
+  .dr-svg [data-pose='lever'] .hero-img {
+    transform: translateX(-1056px);
+  }
+  .dr-svg [data-pose='point'] .hero-img {
+    transform: translateX(-1248px);
+  }
+  .dr-svg [data-pose='carry'] .hero-img {
+    transform: translateX(-1344px);
+  }
+  .dr-svg [data-pose='conduct'] .hero-img {
+    transform: translateX(-1440px);
+  }
+  .dr-svg :is([data-pose='raise'], [data-pose='lift']) .hero-img {
+    transform: translateX(-1632px);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .walk:not(.float) .hero-img {
+      animation: hero-walk 0.72s steps(8) infinite;
+    }
+    .dr-svg .mascot:not(.walk):not(.float):not([data-pose]) .hero-img {
+      animation: hero-idle 7s steps(1) infinite;
+    }
+    .dr-svg [data-pose='sit'] .hero-img {
+      animation: hero-sit 0.5s steps(1) infinite;
+    }
+    .dr-svg [data-pose='lever'] .hero-img {
+      animation: hero-lever 6s steps(1) infinite;
+    }
+    .dr-svg [data-pose='point'] .hero-img {
+      animation: hero-point 6s steps(1) infinite;
+    }
+    .dr-svg [data-pose='carry'] .hero-img {
+      animation: hero-carry 6s steps(1) infinite;
+    }
+    .dr-svg [data-pose='conduct'] .hero-img {
+      animation: hero-conduct 1.2s steps(1) infinite;
+    }
+    .dr-svg :is([data-pose='raise'], [data-pose='lift']) .hero-img {
+      animation: hero-cheer 6s steps(1) infinite;
+    }
+  }
+  @keyframes hero-walk {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-768px);
+    }
+  }
+  @keyframes hero-idle {
+    0%,
+    62%,
+    78%,
+    88%,
+    100% {
+      transform: translateX(-768px);
+    }
+    66% {
+      transform: translateX(-1536px);
+    }
+    82% {
+      transform: translateX(-1440px);
+    }
+  }
+  @keyframes hero-sit {
+    0%,
+    100% {
+      transform: translateX(-1920px);
+    }
+    50% {
+      transform: translateX(-2016px);
+    }
+  }
+  @keyframes hero-lever {
+    0%,
+    26%,
+    62%,
+    100% {
+      transform: translateX(-768px);
+    }
+    30% {
+      transform: translateX(-1056px);
+    }
+    36%,
+    58% {
+      transform: translateX(-1152px);
+    }
+  }
+  @keyframes hero-point {
+    0%,
+    62%,
+    78%,
+    100% {
+      transform: translateX(-1248px);
+    }
+    66%,
+    74% {
+      transform: translateX(-864px);
+    }
+  }
+  @keyframes hero-carry {
+    0%,
+    8%,
+    64%,
+    100% {
+      transform: translateX(-768px);
+    }
+    10%,
+    62% {
+      transform: translateX(-1344px);
+    }
+  }
+  @keyframes hero-conduct {
+    0%,
+    100% {
+      transform: translateX(-1440px);
+    }
+    50% {
+      transform: translateX(-1536px);
+    }
+  }
+  @keyframes hero-cheer {
+    0%,
+    34%,
+    96%,
+    100% {
+      transform: translateX(-768px);
+    }
+    38%,
+    50%,
+    62%,
+    74%,
+    86% {
+      transform: translateX(-1632px);
+    }
+    44%,
+    56%,
+    68%,
+    80%,
+    92% {
+      transform: translateX(-1728px);
+    }
+  }
+  /* Soft shapes: the between-tone for sides that turn, fabric, leaves, steam, clouds. */
+  .dr-svg .soft :is(.e, .m, .f) {
+    stroke: none;
+  }
+  .dr-svg .w .m {
+    fill: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .dr-svg .vine {
+    fill: none;
+    stroke: color-mix(in srgb, var(--verified) 50%, var(--bg));
+    stroke-width: 1.4;
+  }
+  .dr-svg .throw {
+    fill: color-mix(in srgb, var(--partial) 55%, var(--bg));
+    stroke: color-mix(in srgb, var(--bg) 60%, transparent);
+  }
+  .dr-svg .n .m {
+    fill: color-mix(in srgb, var(--text) 6.5%, var(--surface));
+  }
+  .dr-svg .l .m {
+    fill: color-mix(in srgb, var(--text) 68%, var(--bg));
+  }
+  .dr-svg .a .m {
+    fill: color-mix(in srgb, var(--accent) 62%, var(--bg));
+  }
+  .dr-svg .dith {
+    fill: url(#dr-dither);
+    pointer-events: none;
+  }
+  .dr-svg .lf {
+    fill: color-mix(in srgb, var(--verified) 62%, var(--bg));
+  }
+  .dr-svg .lf2 {
+    fill: color-mix(in srgb, var(--verified) 42%, var(--bg));
+  }
+  .dr-svg .drape {
+    fill: color-mix(in srgb, #c4683f 58%, var(--bg));
+    stroke: color-mix(in srgb, #c4683f 80%, transparent);
+  }
+  .dr-svg .fold {
+    fill: none;
+    stroke: color-mix(in srgb, var(--bg) 45%, transparent);
+    stroke-width: 1.2;
+  }
+  .dr-svg .steam {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 45%, transparent);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-dasharray: 4 3;
+  }
+  .dr-svg .bean-b {
+    fill: color-mix(in srgb, var(--neon-m) 38%, var(--bg));
+    stroke: var(--bg);
+  }
+  .dr-svg .bean-c {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 30%, transparent);
+    stroke-width: 1.2;
+  }
+  .dr-svg .arc {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 50%, var(--bg));
+    stroke-width: 2;
+  }
+  .dr-svg .shade {
+    fill: var(--partial);
+    stroke: var(--bg);
+  }
+  .dr-svg .cloud {
+    fill: color-mix(in srgb, var(--accent) 12%, var(--bg));
+    opacity: 0.85;
+  }
+  .dr-svg .canopy {
+    fill: color-mix(in srgb, var(--verified) 40%, var(--bg));
+    stroke: var(--bg);
+  }
+  .dr-svg .canopy-hi {
+    fill: none;
+    stroke: color-mix(in srgb, var(--verified) 70%, var(--bg));
+    stroke-width: 1.5;
+  }
+  /* Neon, light and holograms. */
+  .dr-svg :is(.nh, .nc) {
+    fill: none;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+  .dr-svg .nh {
+    stroke-width: 7;
+    opacity: 0.26;
+  }
+  .dr-svg .nc {
+    stroke-width: 1.8;
+  }
+  .dr-svg :is(.nh, .nc).m {
+    stroke: var(--neon-m);
+  }
+  .dr-svg :is(.nh, .nc).c {
+    stroke: var(--neon-c);
+  }
+  .dr-svg :is(.refl, .shaft, .under) {
+    pointer-events: none;
+  }
+  .dr-svg .slat {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text) 30%, transparent);
+    stroke-width: 1.1;
+  }
+  .dr-svg .holo-p {
+    fill: color-mix(in srgb, var(--neon-c) 12%, transparent);
+    stroke: color-mix(in srgb, var(--neon-c) 75%, transparent);
+  }
+  .dr-svg .scan {
+    fill: none;
+    stroke: color-mix(in srgb, var(--neon-c) 28%, transparent);
+  }
+  .dr-svg .holo-l {
+    fill: none;
+    stroke: var(--neon-c);
+    stroke-width: 1.6;
+  }
+  .dr-svg .holo-g {
+    pointer-events: none;
+  }
+  .dr-svg :is(.nsign-c, .nsign-h) {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .dr-svg .nsign-c {
+    fill: var(--neon-c);
+  }
+  .dr-svg .nsign-h {
+    fill: none;
+    stroke: color-mix(in srgb, var(--neon-c) 35%, transparent);
+    stroke-width: 6px;
+  }
+  .dr-svg .vend {
+    fill: color-mix(in srgb, var(--neon-c) 30%, var(--bg));
+    stroke: var(--neon-c);
+  }
+  .dr-svg .vend-slot {
+    fill: var(--neon-m);
+  }
+  .dr-svg .bw.m {
+    fill: color-mix(in srgb, var(--neon-m) 40%, var(--bg));
+  }
+  .dr-svg .bw.c {
+    fill: color-mix(in srgb, var(--neon-c) 35%, var(--bg));
+  }
+  .dr-svg .bill {
+    fill: color-mix(in srgb, var(--neon-m) 55%, var(--bg));
+  }
+  .dr-svg .fcar rect {
+    fill: color-mix(in srgb, var(--text) 60%, var(--bg));
+  }
+  .dr-svg .flite {
+    fill: var(--neon-c);
+  }
+  .dr-svg .ftrail {
+    stroke: color-mix(in srgb, var(--neon-m) 45%, transparent);
+    stroke-width: 1.4;
+  }
+  .dr-svg .fcar.f1 {
+    transform: translate(-80px, 150px);
+  }
+  .dr-svg .fcar.f2 {
+    transform: translate(1040px, 60px);
+  }
+  /* Stations are links into the page. Pointing at one, or at its point, lights its floor pad. */
+  .dr-svg .st {
+    cursor: pointer;
+  }
+  .dr-svg .st:focus {
+    outline: none;
+  }
+  .dr-svg .pad {
+    fill: color-mix(in srgb, var(--accent) 12%, transparent);
+    stroke: var(--accent);
+    stroke-dasharray: 4 3;
+    opacity: 0;
+    transition: opacity var(--m-state) var(--ease);
+  }
+  .dr-svg .st:is(:hover, :focus-visible, .is-hover, .is-on) .pad {
+    opacity: 1;
+  }
+  .dr-svg .st:focus-visible .pad {
+    stroke-width: 2;
+  }
+  .floor-u {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* Scene parts at rest: the state shown without scripts, and before a station is reached. */
+  .dr-svg .q {
+    fill: color-mix(in srgb, var(--text) 16%, var(--bg));
+  }
+  .dr-svg .bar.old {
+    fill: color-mix(in srgb, var(--invalid) 60%, var(--bg));
+  }
+  .dr-svg :is(.bar.new, .new-t) {
+    fill: var(--verified);
+    opacity: 0;
+  }
+  .dr-svg .lamp {
+    fill: var(--verified);
+  }
+  .dr-svg .card {
+    opacity: 0;
+  }
+  .dr-svg .card.c3 {
+    opacity: 1;
+  }
+  .dr-svg .sorted,
+  .dr-svg .landed {
+    opacity: 0;
+  }
+  .dr-svg .ld {
+    fill: var(--verified);
+    opacity: 0.6;
+  }
+  .dr-svg .pl {
+    fill: color-mix(in srgb, var(--text) 20%, var(--bg));
+    stroke: color-mix(in srgb, var(--text) 50%, transparent);
+  }
+  .dr-svg .lnp {
+    fill: var(--accent);
+    opacity: 0.5;
+  }
+  .dr-svg .tsp {
+    fill: var(--invalid);
+  }
+  .dr-svg .tick {
+    fill: var(--verified);
+    opacity: 0;
+  }
+  .dr-svg .spot {
+    fill: color-mix(in srgb, var(--partial) 18%, transparent);
+    opacity: 0;
+    transition: opacity 400ms var(--ease);
+    pointer-events: none;
+  }
+  .dr-svg :is(.spark, .conf, .holo) {
+    opacity: 0;
+  }
+  .dr-svg .spark {
+    fill: var(--partial);
+  }
+  .dr-svg .conf {
+    fill: var(--partial);
+  }
+  .dr-svg .conf:nth-child(3n) {
+    fill: var(--accent);
+  }
+  .dr-svg .conf:nth-child(3n + 1) {
+    fill: var(--verified);
+  }
+
+  /* The mascot. */
+  .dr-svg .mascot {
+    pointer-events: none;
+  }
+  .dr-svg .m-shadow {
+    fill: #000;
+    stroke: none;
+    opacity: 0.35;
+  }
+  .dr-svg .m-box {
+    opacity: 0;
+  }
+  .dr-svg .m-box .bt {
+    fill: var(--accent);
+  }
+  .dr-svg .m-box .bf {
+    fill: color-mix(in srgb, var(--accent) 72%, var(--bg));
+  }
+  .dr-svg .m-box .be {
+    fill: color-mix(in srgb, var(--accent) 52%, var(--bg));
+  }
+  /* Floating in the portal's beam: arms out, legs together. */
+  .dr-svg .float .m-shadow {
+    opacity: 0.08;
+  }
+  /* Poses that hold still: sitting at the desk, pointing from the stool. */
+
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .clock .h1 {
+      animation: dr-spin 12s linear infinite;
+    }
+    .dr-svg .clock .h2 {
+      animation: dr-spin 60s linear infinite;
+    }
+    .dr-svg .sky-star.tw {
+      animation: dr-twinkle 3.4s ease-in-out infinite alternate;
+      animation-delay: var(--d);
+    }
+    .dr-svg .bw.tw {
+      animation: dr-twinkle 5s steps(2) infinite alternate;
+    }
+    .dr-svg .beacon,
+    .dr-svg .nav {
+      animation: dr-blink-led 1.2s steps(2) infinite;
+      animation-delay: var(--d, 0s);
+    }
+    .dr-svg .plane {
+      animation: dr-fly 26s linear infinite;
+    }
+    .dr-svg .car {
+      animation: dr-drive 13s linear infinite;
+    }
+    .dr-svg .steam {
+      animation: dr-steam 2.4s linear infinite;
+    }
+    .dr-svg .cloud {
+      animation: dr-cloud 60s linear infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .plant {
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+      animation: dr-sway 5s ease-in-out infinite alternate;
+    }
+    .dr-svg .holo-g {
+      animation: dr-holo-flicker 3.2s steps(1) infinite;
+    }
+    .dr-svg .nsign {
+      animation: dr-neon-flicker 5s steps(1) infinite;
+    }
+    .dr-svg .bill {
+      animation: dr-bill 9s linear infinite;
+    }
+    .dr-svg .fcar.f1 {
+      animation: dr-fcar1 11s linear infinite;
+    }
+    .dr-svg .fcar.f2 {
+      animation: dr-fcar2 15s linear -6s infinite;
+    }
+
+    .dr-rail-svg .r-star {
+      animation: dr-twinkle 3s ease-in-out infinite alternate;
+      animation-delay: var(--d);
+    }
+    .dr-rail-svg .r-plane {
+      animation: dr-rail-fly 16s linear infinite;
+    }
+    .dr-svg .birds {
+      animation: dr-birds 34s linear infinite;
+    }
+    .dr-svg .birds path {
+      animation: dr-flap 0.7s ease-in-out infinite alternate;
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+    }
+    .dr-svg .fly {
+      animation: dr-drift 7s ease-in-out infinite alternate;
+      animation-delay: var(--d);
+    }
+    .dr-svg .bulb.tw {
+      animation: dr-twinkle 2.2s ease-in-out infinite alternate;
+      animation-delay: var(--d);
+    }
+    .dr-svg .cat {
+      animation: dr-breathe 3.2s ease-in-out infinite;
+    }
+    .dr-svg .fire path {
+      animation: dr-flicker 0.42s ease-in-out infinite alternate;
+    }
+    .dr-svg .fire .fl2 {
+      animation-duration: 0.36s;
+      animation-delay: -0.2s;
+    }
+    .dr-svg .fire .fl3 {
+      animation-duration: 0.5s;
+    }
+    .dr-svg .prune {
+      animation: dr-rune 3s linear infinite;
+    }
+    .dr-svg .pcore {
+      animation: dr-pulse 1.4s ease-in-out infinite alternate;
+    }
+    .dr-svg .mote {
+      animation: dr-mote 2.7s ease-in infinite;
+      animation-delay: var(--d);
+    }
+
+    /* The poses, on the same 6 s clock as the stations. */
+    .dr-svg [data-pose='carry'] .m-box {
+      animation: dr-hold 6s infinite;
+    }
+    .dr-svg [data-pose='carry'] .m-shuttle {
+      animation: dr-shuttle 6s ease-in-out infinite;
+    }
+    .dr-svg [data-pose='raise'] .m-hop {
+      animation: dr-jump 6s ease-in-out infinite;
+    }
+
+    /* 01 */
+    .dr-svg .is-on .tile .q {
+      animation: dr-tile 6s infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .redis {
+      animation: dr-hop 6s infinite;
+    }
+    .dr-svg .is-on .ttl {
+      animation: dr-ttl 6s linear infinite;
+    }
+    .dr-svg .is-on .bar.old {
+      animation: dr-old 6s infinite;
+    }
+    .dr-svg .is-on :is(.bar.new, .new-t) {
+      animation: dr-new 6s infinite;
+    }
+    /* 02 */
+    .dr-svg .is-on .belt {
+      animation: dr-belt 0.6s linear infinite;
+    }
+    .dr-svg .is-on .card.c1 {
+      animation: dr-card1 6s linear infinite;
+    }
+    .dr-svg .is-on .card.c2 {
+      animation: dr-card2 6s linear infinite;
+    }
+    .dr-svg .is-on .card.c3 {
+      animation: dr-card3 6s linear infinite;
+    }
+    .dr-svg .is-on .card.c2 :is(.t, .f, .e, .m) {
+      animation: dr-red 6s linear infinite;
+    }
+    .dr-svg .is-on .lamp {
+      animation: dr-lamp 6s linear infinite;
+    }
+    .dr-svg .is-on .lever {
+      animation: dr-pull 6s ease-in-out infinite;
+    }
+    .dr-svg .is-on .n14 {
+      animation: dr-old 6s infinite;
+    }
+    .dr-svg .is-on .n15 {
+      animation: dr-new 6s infinite;
+    }
+    /* 03 */
+    .dr-svg .is-on .stack {
+      animation: dr-stack 6s infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .raw {
+      animation: dr-raw 6s infinite;
+    }
+    .dr-svg .is-on .sorted {
+      opacity: 1;
+    }
+    .dr-svg .is-on .sorted > g {
+      animation: dr-rise 6s infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .hit {
+      animation: dr-new 6s infinite;
+    }
+    /* 04 */
+    .dr-svg .is-on .led .ld {
+      animation: dr-blink-led 0.9s steps(2) infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .pl {
+      animation: dr-pl 6s infinite;
+      animation-delay: calc(var(--d) * 0.45s);
+    }
+    .dr-svg .is-on .pick {
+      animation: dr-picked 6s infinite;
+    }
+    .dr-svg .is-on .landed {
+      animation: dr-new 6s infinite;
+    }
+    /* 05 */
+    .dr-svg .is-on .tick {
+      animation: dr-tick 6s infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .ln .lnp {
+      animation: dr-line 6s infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .orb.o1 {
+      animation: dr-orbit 6s ease-in-out infinite;
+    }
+    .dr-svg .is-on .orb.o2 {
+      animation: dr-orbit 6s ease-in-out -0.4s infinite reverse;
+    }
+    .dr-svg .is-on .tsp {
+      animation: dr-green 6s infinite;
+    }
+    .dr-svg .is-on .ts:nth-child(2) .tsp {
+      animation-delay: 0.15s;
+    }
+    /* 06 and 07 */
+    .dr-svg .is-on .spot {
+      opacity: 1;
+    }
+    .dr-svg .is-on .holo {
+      animation: dr-holo 6s ease-out infinite;
+    }
+    .dr-svg .is-on .conf {
+      animation: dr-conf 6s ease-in infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .trophy {
+      animation: dr-lift 6s ease-in-out infinite;
+    }
+    .dr-svg .is-on .spark {
+      animation: dr-spark 6s ease-out infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .is-on .cframe {
+      animation: dr-frame 6s infinite;
+    }
+  }
+
+  /* Reduced motion: nothing moves, but a reached station still shows its result. */
+  @media (prefers-reduced-motion: reduce) {
+    .dr-svg .is-on .tile .q {
+      fill: var(--accent);
+    }
+    .dr-svg .is-on :is(.bar.new, .new-t, .sorted, .tick, .spot, .landed, .hit, .n15, .holo) {
+      opacity: 1;
+    }
+    .dr-svg .is-on :is(.bar.old, .n14) {
+      opacity: 0.3;
+    }
+    .dr-svg .is-on .raw {
+      opacity: 0;
+    }
+    .dr-svg .is-on :is(.pl, .tsp) {
+      fill: var(--verified);
+    }
+  }
+
+  @keyframes dr-blink {
+    0%,
+    94%,
+    100% {
+      transform: scaleY(1);
+    }
+    97% {
+      transform: scaleY(0.1);
+    }
+  }
+  @keyframes dr-pulse {
+    to {
+      opacity: 0.35;
+    }
+  }
+  @keyframes dr-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes dr-breathe-m {
+    0%,
+    100% {
+      transform: scale(1, 1);
+    }
+    50% {
+      transform: scale(1.02, 1.04);
+    }
+  }
+  @keyframes dr-look {
+    0%,
+    30%,
+    70%,
+    100% {
+      transform: translateX(0);
+    }
+    40%,
+    55% {
+      transform: translateX(1.6px);
+    }
+  }
+  @keyframes dr-steam {
+    to {
+      stroke-dashoffset: -14;
+    }
+  }
+  @keyframes dr-cloud {
+    from {
+      transform: translateX(-120px);
+    }
+    to {
+      transform: translateX(120px);
+    }
+  }
+  @keyframes dr-sway {
+    from {
+      transform: rotate(-2deg);
+    }
+    to {
+      transform: rotate(2deg);
+    }
+  }
+  @keyframes dr-holo-flicker {
+    0%,
+    46%,
+    50%,
+    100% {
+      opacity: 0.95;
+    }
+    48% {
+      opacity: 0.5;
+    }
+  }
+  @keyframes dr-neon-flicker {
+    0%,
+    62%,
+    66%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    64%,
+    68% {
+      opacity: 0.35;
+    }
+  }
+  @keyframes dr-bill {
+    0%,
+    100% {
+      fill: color-mix(in srgb, var(--neon-m) 55%, var(--bg));
+    }
+    33% {
+      fill: color-mix(in srgb, var(--neon-c) 55%, var(--bg));
+    }
+    66% {
+      fill: color-mix(in srgb, var(--partial) 55%, var(--bg));
+    }
+  }
+  @keyframes dr-fcar1 {
+    from {
+      transform: translate(-80px, 150px);
+    }
+    to {
+      transform: translate(1060px, 90px);
+    }
+  }
+  @keyframes dr-fcar2 {
+    from {
+      transform: translate(1040px, 60px);
+    }
+    to {
+      transform: translate(-90px, 110px);
+    }
+  }
+  @keyframes dr-drive {
+    from {
+      transform: translate(0, 0);
+    }
+    to {
+      transform: translate(var(--cx), var(--cy));
+    }
+  }
+  @keyframes dr-rail-fly {
+    from {
+      transform: translate(-12px, 40px);
+    }
+    to {
+      transform: translate(124px, 22px);
+    }
+  }
+  @keyframes dr-twinkle {
+    to {
+      opacity: 0.15;
+    }
+  }
+  @keyframes dr-fly {
+    from {
+      transform: translate(-60px, 190px);
+    }
+    to {
+      transform: translate(1040px, 40px);
+    }
+  }
+  @keyframes dr-birds {
+    from {
+      transform: translate(-40px, 130px);
+    }
+    to {
+      transform: translate(1000px, 70px);
+    }
+  }
+  @keyframes dr-flap {
+    to {
+      transform: scaleY(0.4);
+    }
+  }
+  @keyframes dr-drift {
+    from {
+      transform: translate(0, 0);
+      opacity: 0.15;
+    }
+    to {
+      transform: translate(14px, -22px);
+      opacity: 0.8;
+    }
+  }
+  @keyframes dr-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05, 1.08);
+    }
+  }
+  @keyframes dr-flicker {
+    from {
+      transform: scale(0.92, 0.82);
+    }
+    to {
+      transform: scale(1.06, 1.08);
+    }
+  }
+  @keyframes dr-glow {
+    from {
+      opacity: 0.7;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes dr-rune {
+    to {
+      stroke-dashoffset: -24;
+    }
+  }
+  @keyframes dr-mote {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    20% {
+      opacity: 0.9;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-120px);
+    }
+  }
+  @keyframes dr-float {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-4px);
+    }
+  }
+  @keyframes dr-leg {
+    from {
+      transform: rotate(-26deg);
+    }
+    to {
+      transform: rotate(26deg);
+    }
+  }
+  @keyframes dr-bob {
+    to {
+      transform: translateY(-2.5px);
+    }
+  }
+  @keyframes dr-type {
+    from {
+      transform: rotate(-70deg);
+    }
+    to {
+      transform: rotate(-100deg);
+    }
+  }
+  @keyframes dr-nod {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(1.5px);
+    }
+  }
+  @keyframes dr-lever {
+    0%,
+    26%,
+    64%,
+    100% {
+      transform: rotate(-20deg);
+    }
+    32% {
+      transform: rotate(-165deg);
+    }
+    40%,
+    56% {
+      transform: rotate(-75deg);
+    }
+  }
+  @keyframes dr-tap {
+    0%,
+    62%,
+    76%,
+    100% {
+      transform: rotate(-128deg);
+    }
+    66%,
+    72% {
+      transform: rotate(-112deg);
+    }
+    69% {
+      transform: rotate(-124deg);
+    }
+  }
+  @keyframes dr-hold {
+    0%,
+    8%,
+    64%,
+    100% {
+      opacity: 0;
+    }
+    12%,
+    60% {
+      opacity: 1;
+    }
+  }
+  @keyframes dr-shuttle {
+    0%,
+    34%,
+    96%,
+    100% {
+      transform: translate(0, 0);
+    }
+    60%,
+    88% {
+      transform: translate(var(--hx), var(--hy));
+    }
+  }
+  @keyframes dr-wave {
+    from {
+      transform: rotate(-150deg);
+    }
+    to {
+      transform: rotate(-112deg);
+    }
+  }
+  @keyframes dr-wave-b {
+    from {
+      transform: rotate(150deg);
+    }
+    to {
+      transform: rotate(112deg);
+    }
+  }
+  @keyframes dr-raise {
+    0%,
+    34%,
+    96%,
+    100% {
+      transform: rotate(0deg);
+    }
+    42%,
+    90% {
+      transform: rotate(-170deg);
+    }
+  }
+  @keyframes dr-raise-b {
+    0%,
+    34%,
+    96%,
+    100% {
+      transform: rotate(0deg);
+    }
+    42%,
+    90% {
+      transform: rotate(170deg);
+    }
+  }
+  @keyframes dr-jump {
+    0%,
+    62%,
+    74%,
+    100% {
+      transform: translateY(0);
+    }
+    67% {
+      transform: translateY(-9px);
+    }
+    70% {
+      transform: translateY(0);
+    }
+    72% {
+      transform: translateY(-4px);
+    }
+  }
+  @keyframes dr-tile {
+    0%,
+    8%,
+    96%,
+    100% {
+      fill: color-mix(in srgb, var(--text) 16%, var(--bg));
+    }
+    11%,
+    92% {
+      fill: var(--accent);
+    }
+  }
+  @keyframes dr-hop {
+    0%,
+    34%,
+    46%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-5px);
+    }
+  }
+  @keyframes dr-ttl {
+    0%,
+    34% {
+      opacity: 0;
+      stroke-dashoffset: 0;
+    }
+    38% {
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+    92% {
+      opacity: 1;
+      stroke-dashoffset: 72;
+    }
+    96%,
+    100% {
+      opacity: 0;
+      stroke-dashoffset: 72;
+    }
+  }
+  @keyframes dr-old {
+    0%,
+    62%,
+    97%,
+    100% {
+      opacity: 1;
+    }
+    68%,
+    92% {
+      opacity: 0.25;
+    }
+  }
+  @keyframes dr-new {
+    0%,
+    62%,
+    97%,
+    100% {
+      opacity: 0;
+    }
+    68%,
+    92% {
+      opacity: 1;
+    }
+  }
+  @keyframes dr-belt {
+    to {
+      stroke-dashoffset: -6;
+    }
+  }
+  @keyframes dr-card1 {
+    0%,
+    7% {
+      transform: translate(0, 0);
+      opacity: 0;
+    }
+    9% {
+      opacity: 1;
+    }
+    30% {
+      transform: translate(var(--ex), var(--ey));
+      opacity: 1;
+    }
+    33%,
+    100% {
+      transform: translate(var(--ex), var(--ey));
+      opacity: 0;
+    }
+  }
+  @keyframes dr-card3 {
+    0%,
+    13% {
+      transform: translate(0, 0);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    34% {
+      transform: translate(var(--ex), var(--ey));
+      opacity: 1;
+    }
+    36%,
+    100% {
+      transform: translate(var(--ex), var(--ey));
+      opacity: 0;
+    }
+  }
+  @keyframes dr-card2 {
+    0%,
+    18% {
+      transform: translate(0, 0);
+      opacity: 0;
+    }
+    20% {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+    36%,
+    40% {
+      transform: translate(var(--hx), var(--hy));
+    }
+    48% {
+      transform: translate(var(--ux), var(--uy));
+    }
+    56% {
+      transform: translate(var(--vx), var(--vy));
+    }
+    62%,
+    64% {
+      transform: translate(0, 0);
+    }
+    90% {
+      transform: translate(var(--ex), var(--ey));
+      opacity: 1;
+    }
+    93%,
+    100% {
+      transform: translate(var(--ex), var(--ey));
+      opacity: 0;
+    }
+  }
+  @keyframes dr-red {
+    0%,
+    36%,
+    62%,
+    100% {
+      fill: var(--text);
+    }
+    38%,
+    58% {
+      fill: var(--invalid);
+    }
+  }
+  @keyframes dr-lamp {
+    0%,
+    35%,
+    58%,
+    100% {
+      fill: var(--verified);
+    }
+    37%,
+    56% {
+      fill: var(--invalid);
+    }
+  }
+  @keyframes dr-pull {
+    0%,
+    34%,
+    58%,
+    100% {
+      transform: rotate(0deg);
+    }
+    40%,
+    52% {
+      transform: rotate(48deg);
+    }
+  }
+  @keyframes dr-stack {
+    0%,
+    6%,
+    97%,
+    100% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    14%,
+    92% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes dr-raw {
+    0%,
+    34%,
+    97%,
+    100% {
+      opacity: 1;
+    }
+    40%,
+    92% {
+      opacity: 0;
+    }
+  }
+  @keyframes dr-rise {
+    0%,
+    36% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    46%,
+    92% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    97%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes dr-blink-led {
+    to {
+      opacity: 0.15;
+    }
+  }
+  @keyframes dr-pl {
+    0%,
+    34%,
+    96%,
+    100% {
+      fill: color-mix(in srgb, var(--text) 20%, var(--bg));
+    }
+    38%,
+    92% {
+      fill: var(--verified);
+    }
+  }
+  @keyframes dr-picked {
+    0%,
+    9%,
+    97%,
+    100% {
+      opacity: 1;
+    }
+    12%,
+    94% {
+      opacity: 0;
+    }
+  }
+  @keyframes dr-tick {
+    0%,
+    8%,
+    97%,
+    100% {
+      opacity: 0;
+    }
+    12%,
+    92% {
+      opacity: 1;
+    }
+  }
+  @keyframes dr-line {
+    0%,
+    35% {
+      opacity: 0.12;
+    }
+    40%,
+    92% {
+      opacity: 0.95;
+    }
+    97%,
+    100% {
+      opacity: 0.12;
+    }
+  }
+  @keyframes dr-orbit {
+    0%,
+    34%,
+    64%,
+    100% {
+      transform: translate(0, 0);
+    }
+    42% {
+      transform: translate(14px, -8px);
+    }
+    50% {
+      transform: translate(0, -16px);
+    }
+    58% {
+      transform: translate(-14px, -8px);
+    }
+  }
+  @keyframes dr-green {
+    0%,
+    62%,
+    97%,
+    100% {
+      fill: var(--invalid);
+    }
+    68%,
+    92% {
+      fill: var(--verified);
+    }
+  }
+  @keyframes dr-holo {
+    0%,
+    34% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    44%,
+    92% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    97%,
+    100% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+  }
+  @keyframes dr-conf {
+    0%,
+    62% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    66% {
+      opacity: 1;
+    }
+    92% {
+      opacity: 1;
+      transform: translateY(40px) rotate(160deg);
+    }
+    96%,
+    100% {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+  }
+  @keyframes dr-lift {
+    0%,
+    34%,
+    96%,
+    100% {
+      transform: translate(0, 0);
+    }
+    44%,
+    90% {
+      transform: translate(var(--lx), var(--ly));
+    }
+  }
+  @keyframes dr-spark {
+    0%,
+    62% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    70% {
+      opacity: 1;
+    }
+    92%,
+    100% {
+      opacity: 0;
+      transform: translateY(-26px);
+    }
+  }
+  @keyframes dr-frame {
+    0%,
+    62%,
+    97%,
+    100% {
+      stroke: color-mix(in srgb, var(--text) 40%, transparent);
+      stroke-width: 0.8;
+    }
+    68%,
+    92% {
+      stroke: var(--partial);
+      stroke-width: 3;
+    }
+  }
+
+  @media (max-width: 999px) {
+    .droom {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .dr-stage {
+      top: 0;
+      z-index: 20;
+      height: 46svh;
+      margin-inline: calc(var(--pad) * -1);
+      padding: 6px var(--pad) 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--rule);
+    }
+    .dr-left {
+      display: block;
+    }
+    .dr-svg {
+      transform: none;
+    }
+    .dr-stage {
+      width: auto;
+    }
+    .dr-svg {
+      width: 100%;
+      height: 100%;
+    }
+    .dr-hint,
+    .dr-rail {
+      display: none;
+    }
+    .dr-list .step {
+      min-height: 64svh;
+    }
+    .dr-steps {
+      padding-top: 28px;
+    }
+    .facts {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

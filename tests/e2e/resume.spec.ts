@@ -39,7 +39,7 @@ test('the résumé page carries the CV sections, links and certifications', asyn
     '/work/retrieval-orchestration/',
   );
   // The certification is named as the CV lists it, and the phone number is not published.
-  await expect(page.locator('.rside')).toContainText('AWS Certified AI Practitioner');
+  await expect(page.locator('.droom')).toContainText('AWS Certified AI Practitioner');
   const text = await page.locator('main').innerText();
   expect(text).not.toMatch(/\+?880\d{6,}/);
   expect(text).not.toMatch(/[–—]/);

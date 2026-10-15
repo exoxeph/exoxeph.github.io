@@ -2,7 +2,8 @@
 // the way the Anatomy skill draws its solids, without its 30 KB kit. The azimuth must stay negative: the viewer then
 // sees the top, the front (+y) and the left end (-x) of every box, and objects further along x are drawn first.
 export type Camera = { ox: number; oy: number; s: number; az: number };
-export type Tone = 'n' | 'l' | 'a' | 'g' | 'w';
+// The résumé room adds three of its own: k (a dark screen), r (a wall) and fl (the floor).
+export type Tone = 'n' | 'l' | 'a' | 'g' | 'w' | 'k' | 'r' | 'fl';
 
 const ELEVATION = Math.PI / 6;
 const f = (n: number) => +n.toFixed(1);

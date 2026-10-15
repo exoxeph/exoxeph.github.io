@@ -1,0 +1,166 @@
+---
+// The space between two points on the page: the mascot's footprints run down the text's left line from one point to
+// the next, lighting as it walks that stretch, beside a small picture of the station it is heading to. Between the
+// floors the footprints give way to the portal's beam. The room's script sets --t (0 to 1) on the walk in progress.
+// It repeats where the next point is, so assistive technology skips it.
+import { renderIcon } from '../../lib/resume/room.ts';
+
+interface Props {
+  k: number;
+  to: string;
+  kind: string;
+  up?: boolean;
+  li?: boolean;
+}
+const { k, to, kind, up = false, li = false } = Astro.props;
+const Tag = li ? 'li' : 'div';
+const prints = Array.from({ length: 9 }, (_, i) => i);
+const motes = Array.from({ length: 6 }, (_, i) => i);
+---
+
+<Tag class:list={['wp', { 'wp-up': up }]} data-transit={k} aria-hidden="true">
+  <svg class="wp-trail" viewBox="0 0 44 260" preserveAspectRatio="xMidYMid meet">
+    {up ? (
+      <>
+        <rect class="wp-beam" x="13" y="0" width="18" height="260" rx="9" />
+        {motes.map((i) => (
+          <circle class="wp-mote" style={`--d:${i * 0.5}s`} cx={16 + (i % 3) * 6} cy={240 - i * 18} r="2" />
+        ))}
+      </>
+    ) : (
+      prints.map((i) => (
+        <rect
+          class="fp"
+          style={`--i:${i}`}
+          x={i % 2 ? 24 : 13}
+          y={10 + i * 27}
+          width="7"
+          height="11"
+          rx="3.5"
+          transform={`rotate(${i % 2 ? 8 : -8} ${i % 2 ? 27.5 : 16.5} ${15.5 + i * 27})`}
+        />
+      ))
+    )}
+  </svg>
+  <div class="wp-card">
+    <Fragment set:html={renderIcon(kind)} />
+    <div>
+      <p class="wp-k mono">{up ? 'up through the portal to' : 'next stop'}</p>
+      <p class="wp-to">
+        {String(k + 1).padStart(2, '0')} · {to}
+      </p>
+    </div>
+  </div>
+</Tag>
+
+<style is:global>
+  .wp {
+    position: relative;
+    min-height: 34vh;
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
+    border-left: 1px dashed color-mix(in srgb, var(--text) 22%, transparent);
+    list-style: none;
+    --t: 0;
+  }
+  .wp-trail {
+    position: absolute;
+    top: 0;
+    left: -22px;
+    width: 44px;
+    height: 100%;
+  }
+  .wp .fp {
+    fill: color-mix(
+      in srgb,
+      var(--accent) calc(clamp(0, var(--t) * 9 - var(--i), 1) * 100%),
+      color-mix(in srgb, var(--text) 16%, transparent)
+    );
+  }
+  .wp-beam {
+    fill: color-mix(in srgb, var(--accent) 22%, transparent);
+    opacity: calc(0.35 + var(--t) * 0.65);
+  }
+  .wp-mote {
+    fill: var(--accent);
+    opacity: 0.5;
+  }
+  .wp-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 18px 8px 8px;
+    border: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    transition:
+      border-color var(--m-state) var(--ease),
+      box-shadow var(--m-state) var(--ease);
+  }
+  .wp.is-walking .wp-card {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .dr-svg.wp-icon {
+    flex: none;
+    width: 96px;
+    height: auto;
+    max-height: none;
+  }
+  .wp-k {
+    margin: 0 0 4px;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .wp-to {
+    margin: 0;
+    font: 400 1.35rem / 1.2 var(--serif);
+  }
+  .wp-icon .on {
+    fill: var(--accent);
+  }
+  .wp-icon .led.on {
+    fill: var(--verified);
+  }
+  .wp-icon :is(.orb1, .lampc) {
+    fill: var(--accent);
+  }
+  .wp-icon .orb2 {
+    fill: var(--verified);
+  }
+  .wp-icon .wbeam {
+    fill: color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .wp-mote {
+      animation: dr-mote 2.6s ease-in infinite;
+      animation-delay: var(--d);
+    }
+  }
+  @media (max-width: 999px) {
+    .wp {
+      min-height: 26svh;
+    }
+  }
+  .wp-card,
+  .wp-card > div {
+    min-width: 0;
+  }
+  @media (max-width: 420px) {
+    .wp {
+      padding-left: 22px;
+    }
+    .wp-card {
+      gap: 8px;
+      padding-right: 10px;
+    }
+    .dr-svg.wp-icon {
+      width: 58px;
+    }
+    .wp-to {
+      font-size: 1.1rem;
+    }
+  }
+</style>

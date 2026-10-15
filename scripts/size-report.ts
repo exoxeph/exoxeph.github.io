@@ -14,7 +14,8 @@ const BUDGET = {
   // Phase 20: case-study pages also carry the playable-flow styles (home is 18.5 KB; the case studies are 19.8 KB).
   // Phase 21 launch: 20 to 21 KB for the big-screen layout (wider page and right column on 1600px+ screens).
   // Large shimmering system headlines on the Bench and the "Other systems" list: 21 to 21.5 KB (case-study pages measure 21.0).
-  cssGz: 21.5 * 1024,
+  // Résumé dev room: the scene, mascot poses, readouts and the cozy details bring /resume/ to 26.1 KB of inline CSS.
+  cssGz: 28 * 1024,
   // Phase 16 measured 125.6 KB of fonts (Newsreader instanced to 400 to 700) and no image above 25 KB.
   fontsRaw: 135 * 1024,
   // Raised from 40 KB in Phase 19R: the home page now carries a recruiter layer and the engineering layer for all four
@@ -22,6 +23,9 @@ const BUDGET = {
   // Phase 19R-B: 44 to 46 KB for the story strips (home measures 44.3 KB).
   // Isometric retrieval stage: 46 to 48 KB, each prism is three polygons (home measures 47.0 KB).
   htmlGz: 48 * 1024,
+  // Résumé dev room: the scene is inline so its parts can animate with the page; with its soft shapes (curved
+  // furniture, plants, curtains), the cozier Level 2 and the separate layer of words it measures 76.6 KB.
+  resumeHtmlGz: 85 * 1024,
   imageRaw: 40 * 1024,
 };
 
@@ -90,7 +94,9 @@ for (const p of perPage)
 const fails: string[] = [];
 for (const p of perPage) {
   if (p.jsGz > BUDGET.jsPerPageGz) fails.push(`${p.page}: JS ${kb(p.jsGz)} over ${kb(BUDGET.jsPerPageGz)}`);
-  if (p.htmlGz > BUDGET.htmlGz) fails.push(`${p.page}: HTML ${kb(p.htmlGz)} over ${kb(BUDGET.htmlGz)}`);
+  // The résumé page carries the inline two-floor dev room (the city, both floors, the mascot): its own limit.
+  const htmlLimit = p.page.startsWith('resume/') ? BUDGET.resumeHtmlGz : BUDGET.htmlGz;
+  if (p.htmlGz > htmlLimit) fails.push(`${p.page}: HTML ${kb(p.htmlGz)} over ${kb(htmlLimit)}`);
 }
 const worstCss = Math.max(sum(css, 'gz'), ...perPage.map((p) => p.cssGz));
 if (worstCss > BUDGET.cssGz) fails.push(`CSS ${kb(worstCss)} over ${kb(BUDGET.cssGz)}`);
