@@ -1,3 +1,4 @@
+import { camera } from './iso';
 import { DEFAULT_CONFIG, finalDecision } from './rag';
 
 export const recorded = [
@@ -37,6 +38,35 @@ export const defaultRagFrame: RagFrame = {
 const fmt = (n: number) => n.toFixed(2);
 const esc = (s: string) => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
+// The scale runs along world x (0 to 1 is 0 to L), depth is y and height is z. One camera per layout.
+const L = 100;
+const LAYOUT = {
+  desktop: {
+    cam: { ox: 95, oy: 214, s: 6.2, az: -18 },
+    depth: 20,
+    wallH: 14,
+    lift: 6,
+    post: [8, 5],
+    width: 800,
+  },
+  mobile: {
+    cam: { ox: 18, oy: 152, s: 3.2, az: -18 },
+    depth: 18,
+    wallH: 14,
+    lift: 6,
+    post: [8, 5],
+    width: 360,
+  },
+} as const;
+
+/** Where the scale sits on screen (viewBox units), so a pointer's x can be turned back into a value. */
+export function ragAxis(mobile = false) {
+  const { cam, depth, width } = LAYOUT[mobile ? 'mobile' : 'desktop'];
+  const { at } = camera(cam);
+  const x0 = at(0, depth / 2)[0];
+  return { x0, span: at(L, depth / 2)[0] - x0, width };
+}
+
 export function renderRag(frame: RagFrame, mobile = false) {
   const item = recorded.find((row) => row.id === frame.chip) ?? recorded[2];
   const live = frame.mode === 'live';
@@ -45,41 +75,73 @@ export function renderRag(frame: RagFrame, mobile = false) {
     : { repaired: item.repaired, finalScore: item.score, accepted: item.accepted };
   const score = outcome.finalScore;
   const wall = frame.threshold;
-  const x0 = mobile ? 24 : 60;
-  const span = mobile ? 312 : 680;
-  const xx = (n: number) => x0 + n * span;
-  const base = mobile ? 182 : 230;
-  const hatchTop = mobile ? 58 : 70;
-  const tickText = mobile ? 211 : 262;
-  const ticks = Array.from(
-    { length: 11 },
-    (_, i) =>
-      `<path d="M${xx(i / 10)} ${base}v10" stroke="var(--text)" stroke-width="1.2"/><text x="${xx(i / 10)}" y="${tickText}" text-anchor="middle" class="rag-tick">${i === 0 ? '0' : i === 10 ? '1.0' : '.' + i}</text>`,
-  ).join('');
+  const layout = LAYOUT[mobile ? 'mobile' : 'desktop'];
+  const { at, points, prism, puck } = camera(layout.cam);
+  const D = layout.depth;
+  const mid = D / 2;
+  const vx = (n: number) => n * L;
+  const xy = (x: number, y: number, z = 0): [number, number] => {
+    const [px, py] = at(x, y, z);
+    return [+px.toFixed(1), +py.toFixed(1)];
+  };
+  const seg = (a: [number, number, number], b: [number, number, number]) =>
+    `M${xy(...a).join(' ')}L${xy(...b).join(' ')}`;
+  const hatchId = `rag-hatch-${mobile ? 'm' : 'd'}`;
+  // the plate, the zone under the requirement, faint cross lines and the ruler hanging from the front edge
+  const plate = prism(-3, 0, -3, L + 3, D, 0, 'n');
+  const zone = `<polygon points="${points([
+    [0, 0, 0],
+    [vx(wall), 0, 0],
+    [vx(wall), D, 0],
+    [0, D, 0],
+  ])}" fill="url(#${hatchId})"/>`;
   const hair = Array.from(
     { length: 11 },
-    (_, i) => `<path d="M${xx(i / 10)} ${hatchTop}V${base}" stroke="var(--text)" opacity=".07"/>`,
+    (_, i) => `<path d="${seg([vx(i / 10), 0, 0], [vx(i / 10), D, 0])}" stroke="var(--text)" opacity=".1"/>`,
   ).join('');
+  const ticks = Array.from({ length: 11 }, (_, i) => {
+    const [tx, ty] = xy(vx(i / 10), D, -3);
+    return `<path d="${seg([vx(i / 10), D, 0], [vx(i / 10), D, -3])}" stroke="var(--text)" stroke-width="1.2"/><text x="${tx}" y="${+(ty + (mobile ? 12 : 14)).toFixed(1)}" text-anchor="middle" class="rag-tick">${i === 0 ? '0' : i === 10 ? '1.0' : '.' + i}</text>`;
+  }).join('');
   const needle = (value: number, kind: 'draft' | 'after') => {
-    const x = xx(value);
-    const top = kind === 'after' ? (mobile ? 112 : 142) : mobile ? 78 : 104;
-    const grip = top - 20;
-    const label =
-      kind === 'after' ? 'Score after repair' : live ? 'Draft verify score' : 'Recorded final score';
+    const x = vx(value);
+    const ghost = kind === 'after';
+    const h = layout.post[ghost ? 1 : 0];
+    const top = h + 3;
+    // The repair ghost gets its own lane at the back, so it never crowds the draft needle or the wall.
+    const lane = ghost ? 5 : D - 5;
+    const label = ghost ? 'Score after repair' : live ? 'Draft verify score' : 'Recorded final score';
     const text = `${fmt(value)}, ${value < wall ? 'below the threshold, repair would run' : 'at or above the threshold, accepted'}`;
+    const [gx, gy] = xy(x, lane, top);
+    const grooves = [-1.5, 1.5]
+      .map(
+        (dx) =>
+          `<path d="${seg([x + dx, lane + 4.5, h + 0.8], [x + dx, lane + 4.5, top - 0.8])}" stroke="${ghost ? 'var(--accent)' : 'var(--text)'}"/>`,
+      )
+      .join('');
     return `<g class="rag-needle ${kind}" data-rag-slider="${kind}" role="slider" tabindex="0" aria-label="${label}" aria-valuemin="0" aria-valuemax="1" aria-valuenow="${value}" aria-valuetext="${text}">
-      <rect x="${x - 7}" y="${top}" width="14" height="${base - top}" fill="${kind === 'after' ? 'none' : 'var(--text)'}" stroke="${kind === 'after' ? 'var(--accent)' : 'none'}" stroke-dasharray="${kind === 'after' ? '4 3' : 'none'}"/>
-      <rect x="${x - 15}" y="${grip}" width="30" height="24" fill="var(--surface)" stroke="${kind === 'after' ? 'var(--accent)' : 'var(--text)'}" stroke-width="1.5"/>
-      <path d="M${x - 4} ${grip + 6}v12M${x + 4} ${grip + 6}v12" stroke="${kind === 'after' ? 'var(--accent)' : 'var(--text)'}"/>
-      <rect x="${x - 28}" y="${grip - 16}" width="56" height="56" fill="transparent" class="rag-hit"/>
+      ${prism(x - 2, lane - 2, 0, x + 2, lane + 2, h, ghost ? 'g' : 'l')}${prism(x - 3.5, lane - 4.5, h, x + 3.5, lane + 4.5, top, ghost ? 'g' : 'n')}${grooves}
+      <rect x="${+(gx - 28).toFixed(1)}" y="${+(gy - 28).toFixed(1)}" width="56" height="56" fill="transparent" class="rag-hit"/>
     </g>`;
   };
+  const wx = vx(wall);
+  const head = xy(wx, mid, layout.wallH + layout.lift);
   const threshold = `<g data-rag-slider="threshold" role="slider" tabindex="0" aria-label="Acceptance threshold" aria-valuemin="0.05" aria-valuemax="0.95" aria-valuenow="${wall}" aria-valuetext="${fmt(wall)} acceptance threshold">
-    <path d="M${xx(wall)} ${mobile ? 28 : 36}V${base}" stroke="var(--accent)" stroke-width="4"/>
-    <circle cx="${xx(wall)}" cy="${mobile ? 28 : 36}" r="11" fill="var(--accent)"/>
-    <circle cx="${xx(wall)}" cy="${mobile ? 28 : 36}" r="18" fill="none" stroke="var(--accent)" opacity=".5"/>
-    <circle cx="${xx(wall)}" cy="${mobile ? 28 : 36}" r="28" fill="transparent" class="rag-hit"/>
+    ${prism(wx - 1.2, 0, 0, wx + 1.2, D, layout.wallH, 'w')}
+    <path d="${seg([wx, mid, layout.wallH], [wx, mid, layout.wallH + layout.lift])}" stroke="var(--accent)" stroke-width="3"/>
+    <circle cx="${head[0]}" cy="${head[1]}" r="11" fill="var(--accent)"/>
+    <circle cx="${head[0]}" cy="${head[1]}" r="18" fill="none" stroke="var(--accent)" opacity=".5"/>
+    <circle cx="${head[0]}" cy="${head[1]}" r="28" fill="transparent" class="rag-hit"/>
   </g>`;
+  // Further along x is further from the viewer, so it is drawn first.
+  const things = [
+    { x: wx, svg: threshold },
+    { x: vx(frame.draft), svg: needle(frame.draft, 'draft') },
+    ...(live && outcome.repaired ? [{ x: vx(frame.after), svg: needle(frame.after, 'after') }] : []),
+  ]
+    .sort((a, b) => b.x - a.x)
+    .map((thing) => thing.svg)
+    .join('');
   // The phrase is the meaning; the number and the equation beside it are the evidence.
   const readWord = outcome.accepted
     ? outcome.repaired
@@ -103,17 +165,17 @@ export function renderRag(frame: RagFrame, mobile = false) {
     ? stages
         .map(
           (name, i) =>
-            `<g><circle cx="36" cy="${295 + i * 17}" r="${i === last ? 5 : 3}" fill="${i === last ? 'var(--accent)' : 'none'}" stroke="${i === last ? 'var(--accent)' : 'var(--text)'}"/><text x="50" y="${299 + i * 17}" class="rag-route-label">${name}</text></g>`,
+            `<g>${puck(36, 297 + i * 17, i === last ? 6 : 4, i === last ? 4 : 3, i === last ? 'a' : 'n')}<text x="50" y="${299 + i * 17}" class="rag-route-label">${name}</text></g>`,
         )
         .join('') +
-      `<g opacity="${repairOpacity}"><circle cx="190" cy="380" r="5" fill="none" stroke="${repairColor}"/><text x="202" y="384" fill="${repairColor}" class="rag-route-label">one retry</text></g>`
+      `<g opacity="${repairOpacity}">${puck(190, 382, 6, 3, 'g')}<text x="202" y="384" fill="${repairColor}" class="rag-route-label">one retry</text></g>`
     : stages
         .map(
           (name, i) =>
-            `<g><circle cx="${70 + i * 120}" cy="318" r="${i === last ? 8 : 5}" fill="${i === last ? 'var(--accent)' : 'none'}" stroke="${i === last ? 'var(--accent)' : 'var(--text)'}" stroke-width="1.5"/><text x="${70 + i * 120}" y="342" text-anchor="middle" class="rag-route-label">${name}</text>${i < 5 ? `<path d="M${78 + i * 120} 318H${62 + (i + 1) * 120}" stroke="var(--muted)"/>` : ''}</g>`,
+            `<g>${puck(70 + i * 120, 322, i === last ? 11 : 8, i === last ? 7 : 5, i === last ? 'a' : 'n')}<text x="${70 + i * 120}" y="346" text-anchor="middle" class="rag-route-label">${name}</text>${i < 5 ? `<path d="M${84 + i * 120} 319H${56 + (i + 1) * 120}" stroke="var(--muted)"/>` : ''}</g>`,
         )
         .join('') +
-      `<g opacity="${repairOpacity}"><path d="M678 318H748" stroke="${repairColor}" stroke-width="2"/><circle cx="760" cy="318" r="5" fill="none" stroke="${repairColor}"/><text x="760" y="342" text-anchor="middle" fill="${repairColor}" class="rag-route-label">one retry</text></g>`;
+      `<g opacity="${repairOpacity}"><path d="M690 319H744" stroke="${repairColor}" stroke-width="2"/>${puck(760, 322, 8, 4, 'g')}<text x="760" y="346" text-anchor="middle" fill="${repairColor}" class="rag-route-label">one retry</text></g>`;
   const repairCopy = outcome.repaired
     ? mobile
       ? `<text x="24" y="406" class="rag-repair-copy">one retry: more weight on exact keywords,</text><text x="24" y="418" class="rag-repair-copy">stricter trimming, a tighter template</text>`
@@ -121,18 +183,17 @@ export function renderRag(frame: RagFrame, mobile = false) {
     : '';
   const readout = mobile
     ? `<text x="30" y="260" class="rag-score ${outcome.accepted ? 'accepted' : ''}">${fmt(score)}</text><text x="145" y="248" class="rag-word mobile-word">${readWord}</text><text x="145" y="268" class="rag-equation">${esc(equation)}</text><text x="24" y="286" class="rag-route-title">steps</text>`
-    : `<text x="86" y="162" class="rag-score ${outcome.accepted ? 'accepted' : ''}">${fmt(score)}</text><text x="90" y="196" class="rag-word">${readWord}</text><text x="92" y="220" class="rag-equation">${esc(equation)}</text><text x="60" y="292" class="rag-route-title">steps</text>`;
+    : `<text x="70" y="112" class="rag-score ${outcome.accepted ? 'accepted' : ''}">${fmt(score)}</text><text x="74" y="146" class="rag-word">${readWord}</text><text x="76" y="168" class="rag-equation">${esc(equation)}</text><text x="60" y="300" class="rag-route-title">steps</text>`;
   const query = live
     ? ''
-    : `<text x="${mobile ? 24 : 86}" y="${mobile ? 65 : 58}" class="rag-query">recorded run, query ${item.id}: ${esc(item.query)}</text>`;
+    : `<text x="${mobile ? 24 : 72}" y="${mobile ? 24 : 36}" class="rag-query">recorded run, query ${item.id}: ${esc(item.query)}</text>`;
   const marker = frame.limit
-    ? `<text x="${mobile ? 230 : Math.min(720, xx(wall) + 24)}" y="${mobile ? 52 : 60}" class="rag-limit">◆ limit found</text>`
+    ? `<text x="${mobile ? 230 : Math.min(720, head[0] + 24)}" y="${mobile ? 52 : Math.max(24, head[1] + 18)}" class="rag-limit">◆ limit found</text>`
     : '';
   return `<svg class="rag-svg ${mobile ? 'mobile' : 'desktop'}" viewBox="0 0 ${mobile ? '360 420' : '800 400'}" role="group" aria-label="Retrieval verify score against the acceptance threshold">
-    <defs><pattern id="rag-hatch-${mobile ? 'm' : 'd'}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V7" stroke="var(--partial)" stroke-width="1.5" opacity=".16"/></pattern></defs>
-    <rect x="${x0}" y="${hatchTop}" width="${xx(wall) - x0}" height="${base - hatchTop}" fill="url(#rag-hatch-${mobile ? 'm' : 'd'})"/>${hair}
-    <path d="M${x0} ${base}H${xx(1)}" stroke="var(--text)" stroke-width="1.5"/>${ticks}${threshold}
-    <text x="${mobile && wall > 0.4 ? xx(wall) - 15 : Math.min(xx(wall) + (mobile ? 15 : 24), mobile ? 265 : 680)}" y="${mobile ? 31 : 41}" text-anchor="${mobile && wall > 0.4 ? 'end' : 'start'}" class="rag-threshold">required quality ${fmt(wall)}</text>${marker}
-    ${query}${needle(frame.draft, 'draft')}${live && outcome.repaired ? needle(frame.after, 'after') : ''}${readout}${route}${repairCopy}
+    <defs><pattern id="${hatchId}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V7" stroke="var(--partial)" stroke-width="1.5" opacity=".28"/></pattern></defs>
+    ${plate}${zone}${hair}${ticks}
+    <text x="${mobile && wall > 0.4 ? head[0] - 15 : Math.min(head[0] + (mobile ? 15 : 24), mobile ? 265 : 680)}" y="${head[1] + 4}" text-anchor="${mobile && wall > 0.4 ? 'end' : 'start'}" class="rag-threshold">required quality ${fmt(wall)}</text>${marker}
+    ${query}${things}${readout}${route}${repairCopy}
   </svg>`;
 }

@@ -806,6 +806,75 @@
   fill: var(--accent);
   font-size: 11px;
 }
+/* Isometric solids on the retrieval stage: top, front and end faces in three tones, as the Anatomy skill draws them. */
+.rag-svg polygon,
+.rag-svg ellipse,
+.rag-svg path.f {
+  stroke-linejoin: round;
+  stroke-width: 1;
+}
+.rag-svg .n .t,
+.rag-svg .n .f,
+.rag-svg .n .e {
+  stroke: color-mix(in srgb, var(--text) 40%, transparent);
+}
+.rag-svg .n .t {
+  fill: color-mix(in srgb, var(--text) 11%, var(--surface));
+}
+.rag-svg .n .f {
+  fill: color-mix(in srgb, var(--text) 7%, var(--surface));
+}
+.rag-svg .n .e {
+  fill: color-mix(in srgb, var(--text) 3.5%, var(--surface));
+}
+.rag-svg .l .t,
+.rag-svg .l .f,
+.rag-svg .l .e,
+.rag-svg .a .t,
+.rag-svg .a .f,
+.rag-svg .a .e {
+  stroke: var(--bg);
+}
+.rag-svg .l .t {
+  fill: var(--text);
+}
+.rag-svg .l .f {
+  fill: color-mix(in srgb, var(--text) 78%, var(--bg));
+}
+.rag-svg .l .e {
+  fill: color-mix(in srgb, var(--text) 58%, var(--bg));
+}
+.rag-svg .a .t {
+  fill: var(--accent);
+}
+.rag-svg .a .f {
+  fill: color-mix(in srgb, var(--accent) 72%, var(--bg));
+}
+.rag-svg .a .e {
+  fill: color-mix(in srgb, var(--accent) 52%, var(--bg));
+}
+.rag-svg .w .t,
+.rag-svg .w .f,
+.rag-svg .w .e {
+  stroke: var(--accent);
+  stroke-opacity: 0.85;
+}
+.rag-svg .w .t {
+  fill: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.rag-svg .w .f {
+  fill: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+.rag-svg .w .e {
+  fill: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.rag-svg .g .t,
+.rag-svg .g .f,
+.rag-svg .g .e {
+  fill: none;
+  stroke: var(--accent);
+  stroke-dasharray: 4 3;
+}
 .rag-svg [role='slider'] {
   cursor: ew-resize;
   outline: none;

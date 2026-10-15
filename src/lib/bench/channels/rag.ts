@@ -1,6 +1,6 @@
 import { add, subscribe, type LogEntry } from '../engine';
 import { DEFAULT_CONFIG, finalDecision } from '../rag';
-import { defaultRagFrame, recorded, renderRag, type RagFrame } from '../rag-stage';
+import { defaultRagFrame, ragAxis, recorded, renderRag, type RagFrame } from '../rag-stage';
 
 const bench = document.querySelector<HTMLElement>('.bench')!;
 const stage = bench.querySelector<HTMLElement>('.rag-stage')!;
@@ -217,9 +217,8 @@ stage.addEventListener('pointerdown', (event) => {
       geometry = { rect: svg.getBoundingClientRect(), mobile: svg.classList.contains('mobile') };
     }
     const { rect, mobile } = geometry;
-    const position =
-      (ev.clientX - rect.left - rect.width * (mobile ? 24 / 360 : 60 / 800)) /
-      (rect.width * (mobile ? 312 / 360 : 680 / 800));
+    const { x0, span, width } = ragAxis(mobile);
+    const position = (ev.clientX - rect.left - rect.width * (x0 / width)) / (rect.width * (span / width));
     const next = snap(
       position,
       kind === 'threshold' ? 0.01 : 0.005,

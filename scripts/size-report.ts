@@ -20,7 +20,8 @@ const BUDGET = {
   // Raised from 40 KB in Phase 19R: the home page now carries a recruiter layer and the engineering layer for all four
   // projects. Home brotli transfer is 107.4 KB in total; the per-route brotli budgets are unchanged.
   // Phase 19R-B: 44 to 46 KB for the story strips (home measures 44.3 KB).
-  htmlGz: 46 * 1024,
+  // Isometric retrieval stage: 46 to 48 KB, each prism is three polygons (home measures 47.0 KB).
+  htmlGz: 48 * 1024,
   imageRaw: 40 * 1024,
 };
 

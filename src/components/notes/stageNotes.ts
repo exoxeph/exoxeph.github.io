@@ -75,14 +75,14 @@ export const stageNotes: Record<string, NoteData[]> = {
   ],
   rag: [
     inspect,
-    { t: 'pick a recorded query', to: '.rag-chips', at: 'ml', dx: -112, dy: -4, r: -2, w: '120px' },
+    { t: 'pick a recorded query', to: '.rag-chips', at: 'ml', dx: -112, dy: 44, r: -2, w: '120px' },
 
     {
       t: "drag the bar to change the draft's score",
       to: 'g.rag-needle.draft',
       at: 'tc',
-      dx: -92,
-      dy: -66,
+      dx: -150,
+      dy: -44,
       r: -2,
       w: '170px',
     },
