@@ -540,10 +540,13 @@ const walks: [string, string][] = [
     width: 100%;
     height: auto;
     max-height: 100%;
-    /* Full size, nudged right: away from the faded margin, towards the page's own column. */
-    transform: translateX(calc(var(--bleed, 0px) * 0.25));
     overflow: visible;
     font-family: var(--mono);
+  }
+  /* The room is full size, nudged right: away from the faded margin, towards the page's own column. The small
+     station pictures in the waypoint cards are not nudged. */
+  .dr-scene > .dr-svg {
+    transform: translateX(calc(var(--bleed, 0px) * 0.25));
   }
   .dr-rail {
     position: sticky;
@@ -3086,7 +3089,7 @@ const walks: [string, string][] = [
     .dr-left {
       display: block;
     }
-    .dr-svg {
+    .dr-scene > .dr-svg {
       transform: none;
     }
     .dr-stage {
