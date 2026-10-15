@@ -26,7 +26,8 @@ const BUDGET = {
   // Résumé dev room: the scene is inline so its parts can animate with the page; with its soft shapes (curved
   // furniture, plants, curtains), the cozier Level 2 and the separate layer of words it measures 76.6 KB.
   resumeHtmlGz: 85 * 1024,
-  imageRaw: 40 * 1024,
+  // The mascot's sprite sheet (resume-hero.png, 22 frames in one 64-colour image) measures 51 KB, the only image above 40.
+  imageRaw: 60 * 1024,
 };
 
 interface F {
