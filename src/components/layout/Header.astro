@@ -40,6 +40,43 @@ import { site } from '../../data/site.ts';
 </button>
 
 <script>
+  // The magic line: one thin line under the desktop links. It follows the pointer (or keyboard focus) from link to
+  // link, stretching as it goes, and settles back under the current page when the pointer leaves.
+  {
+    const nav = document.querySelector<HTMLElement>('nav.desktop');
+    const links = nav ? [...nav.querySelectorAll<HTMLAnchorElement>('li > a:not(.util)')] : [];
+    if (nav && links.length) {
+      const line = document.createElement('span');
+      line.className = 'magic-line';
+      line.setAttribute('aria-hidden', 'true');
+      nav.append(line);
+      const current = links.find((a) => a.getAttribute('aria-current') === 'page') ?? null;
+      const go = (a: HTMLAnchorElement | null) => {
+        if (!a) {
+          line.style.opacity = '0';
+          return;
+        }
+        const r = a.getBoundingClientRect();
+        const n = nav.getBoundingClientRect();
+        line.style.opacity = '1';
+        line.style.width = `${r.width}px`;
+        line.style.transform = `translate(${r.left - n.left}px, ${r.bottom - n.top - 2}px)`;
+      };
+      const settle = () => go(current);
+      // The first placement happens without travelling there from the corner.
+      line.style.transition = 'none';
+      settle();
+      requestAnimationFrame(() => requestAnimationFrame(() => (line.style.transition = '')));
+      for (const a of links) {
+        a.addEventListener('pointerenter', () => go(a));
+        a.addEventListener('focus', () => go(a));
+        a.addEventListener('blur', settle);
+      }
+      nav.addEventListener('pointerleave', settle);
+      addEventListener('resize', settle);
+      if (document.fonts) document.fonts.ready.then(settle);
+    }
+  }
   const toggles = [...document.querySelectorAll<HTMLButtonElement>('[data-notes-toggle]')];
   const root = document.documentElement;
   let stored: string | null = null;
@@ -208,6 +245,61 @@ import { site } from '../../data/site.ts';
     padding: 0.85rem 0;
     font: 400 var(--t-ui) var(--sans);
     color: var(--text);
+  }
+  /* The editorial links: each word rolls up into an italic accent copy on hover or focus, and the magic line
+     (see the script) replaces the plain underline. */
+  .desktop {
+    position: relative;
+  }
+  .desktop :global(a[aria-current='page']),
+  .desktop :global(li > a:not(.util):hover) {
+    border-bottom-color: transparent;
+  }
+  .desktop :global(.roll) {
+    display: inline-block;
+    height: 1.5em;
+    overflow: hidden;
+    line-height: 1.5;
+    vertical-align: bottom;
+    /* Room for the italic copy's overhang, so its last letter is not clipped. */
+    padding-right: 0.15em;
+    margin-right: -0.15em;
+  }
+  .desktop :global(.roll > span) {
+    display: block;
+  }
+  .desktop :global(.roll > span::after) {
+    /* The alternative text after the slash keeps this copy out of what a screen reader says. */
+    content: attr(data-t) / '';
+    display: block;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .desktop :global(.magic-line) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    border-radius: 2px;
+    background: var(--accent);
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .desktop :global(.roll > span) {
+      transition: transform 450ms var(--ease);
+    }
+    .desktop :global(.magic-line) {
+      transition:
+        transform 500ms var(--ease),
+        width 500ms var(--ease),
+        opacity 200ms var(--ease);
+    }
+  }
+  .desktop :global(a:hover .roll > span),
+  .desktop :global(a:focus-visible .roll > span) {
+    transform: translateY(-50%);
   }
   @media (max-width: 900px) {
     .desktop {

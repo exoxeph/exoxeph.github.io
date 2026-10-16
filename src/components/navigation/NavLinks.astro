@@ -17,14 +17,18 @@ const items = [
   {items.map((i) => (
     <li>
       <a href={i.href} aria-current={i.current ? 'page' : undefined}>
-        {i.label}
+        <span class="roll">
+          <span data-t={i.label}>{i.label}</span>
+        </span>
       </a>
     </li>
   ))}
   <li>
     {site.resume.available ? (
       <a href={site.resume.path} aria-current={path.startsWith('/resume/') ? 'page' : undefined}>
-        Résumé
+        <span class="roll">
+          <span data-t="Résumé">Résumé</span>
+        </span>
       </a>
     ) : (
       <span class="pending" title="The résumé is published after a privacy review">
@@ -34,7 +38,9 @@ const items = [
   </li>
   <li>
     <a href="/contact/" aria-current={path.startsWith('/contact/') ? 'page' : undefined}>
-      Contact
+      <span class="roll">
+        <span data-t="Contact">Contact</span>
+      </span>
     </a>
   </li>
   <li>
