@@ -22,7 +22,8 @@ const BUDGET = {
   // projects. Home brotli transfer is 107.4 KB in total; the per-route brotli budgets are unchanged.
   // Phase 19R-B: 44 to 46 KB for the story strips (home measures 44.3 KB).
   // Isometric retrieval stage: 46 to 48 KB, each prism is three polygons (home measures 47.0 KB).
-  htmlGz: 48 * 1024,
+  // The homepage guide's markup and its small loader script bring the home page to 48.5 KB: 48 to 50 KB.
+  htmlGz: 50 * 1024,
   // Résumé dev room: the scene is inline so its parts can animate with the page; with its soft shapes (curved
   // furniture, plants, curtains), the cozier Level 2 and the separate layer of words it measures 76.6 KB.
   resumeHtmlGz: 85 * 1024,

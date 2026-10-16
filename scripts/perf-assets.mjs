@@ -159,7 +159,8 @@ if (process.argv.includes('--check')) {
   const KB = 1024;
   const BUDGET = {
     homeInitialJsGz: 9 * KB,
-    homeFullBenchJsGz: 31 * KB,
+    // 31 to 33 KB: the homepage guide's code (walking, poses, typed speech) loads lazily on the first scroll, 2.6 KB.
+    homeFullBenchJsGz: 33 * KB,
     // Résumé dev room: its scene, mascot poses, readouts and cozy details bring /resume/ to 26.1 KB of CSS: 28 KB.
     routeCssGz: 28 * KB, // Phase 20: case-study pages also carry the playable-flow styles (19.8 KB); home is 18.5 KB. Phase 21: 21 KB for the big-screen layout rules. Shimmering system headlines: 21.5 KB
     preloadedFontsRaw: 72 * KB,

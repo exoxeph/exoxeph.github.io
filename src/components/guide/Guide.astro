@@ -1,0 +1,454 @@
+---
+// The résumé page's mascot, as a guide on the homepage. He stands in the left margin beside the pinned diagram,
+// walks to a new spot as each project beat changes, makes a small gesture, and says a line in a typed speech bubble.
+// At the foot of the page he walks over to the résumé card and points at it. He is decoration: hidden from assistive
+// technology, never catches the pointer, and the page reads the same without him. Narrow screens have no margin for
+// him, so he does not appear there. The script is below the markup, the styles after it.
+---
+
+<div class="guide" data-guide aria-hidden="true" hidden>
+  <div class="g-actor" data-actor>
+    <div class="g-bubble" data-bubble>
+      <p class="g-line">
+        <span data-on></span>
+        <span class="g-off" data-off></span>
+      </p>
+    </div>
+    <div class="g-fx">
+      <svg class="g-pad" width="150" height="70" viewBox="0 0 120 56">
+        <ellipse class="pd-side" cx="60" cy="33" rx="40" ry="19"></ellipse>
+        <ellipse class="pd-top" cx="60" cy="28" rx="40" ry="19"></ellipse>
+        <ellipse class="pd-glow" cx="60" cy="28" rx="37" ry="17.5"></ellipse>
+        <ellipse class="pd-rune" cx="60" cy="28" rx="29" ry="14"></ellipse>
+        <ellipse class="pd-core" cx="60" cy="28" rx="14" ry="6.8"></ellipse>
+      </svg>
+      <span class="g-beam"></span>
+      <i class="g-mote" style="--x: 18px; --d: 0s"></i>
+      <i class="g-mote" style="--x: 34px; --d: 0.12s"></i>
+      <i class="g-mote" style="--x: 50px; --d: 0.05s"></i>
+      <i class="g-mote" style="--x: 66px; --d: 0.2s"></i>
+      <i class="g-mote" style="--x: 80px; --d: 0.09s"></i>
+    </div>
+    <div class="g-body">
+      <svg class="g-hero" width="96" height="100" viewBox="0 0 96 100">
+        <image class="g-img" data-img width="2112" height="100" />
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  // The guide's code loads on the first scroll, so the home page's first paint does not pay for it.
+  const guide = document.querySelector<HTMLElement>('[data-guide]');
+  if (guide) {
+    // A fixed overlay, not part of the page's content, so it sits at the end of <body> rather than inside <main>.
+    document.body.append(guide);
+    const load = () => {
+      removeEventListener('scroll', load);
+      void import('../../lib/guide/guide').then((m) => m.start(guide));
+    };
+    addEventListener('scroll', load, { passive: true, once: true });
+    if (scrollY > 0) load();
+  }
+</script>
+
+<style is:global>
+  @font-face {
+    font-family: 'Pixelify Sans';
+    src: url('/fonts/pixelify-sans-500.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+  }
+  /* On the home page the card at the foot gets room above it, so he can stand on its top edge. */
+  @media (min-width: 1000px) {
+    #site-footer {
+      padding-top: 132px;
+    }
+  }
+</style>
+
+<style>
+  .guide {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    --s: 0.95;
+    --f: 1;
+  }
+  .guide[hidden] {
+    display: none;
+  }
+  .g-actor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 96px;
+    height: 100px;
+    will-change: transform;
+  }
+  .g-body {
+    width: 96px;
+    height: 100px;
+    transform-origin: 50% 100%;
+    transform: scale(calc(var(--s) * var(--f)), var(--s));
+  }
+  .g-hero {
+    display: block;
+    overflow: hidden;
+  }
+  .g-img {
+    transform: translateX(-768px);
+  }
+
+  /* The sheet slides inside the one-frame window: idle, hand out, hand raised, arms crossed, talking, thinking, both
+     arms up, a hop. Each gesture alternates between two frames. */
+  .guide[data-pose='point'] .g-img {
+    transform: translateX(-864px);
+  }
+  .guide[data-pose='hold'] .g-img {
+    transform: translateX(-1344px);
+  }
+  .guide[data-pose='talk'] .g-img {
+    transform: translateX(-1440px);
+  }
+  .guide[data-pose='think'] .g-img {
+    transform: translateX(-1536px);
+  }
+  .guide[data-pose='cheer'] .g-img {
+    transform: translateX(-1632px);
+  }
+  .guide[data-pose='wow'] .g-img {
+    transform: translateX(-1824px);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .guide[data-pose='point'] .g-img {
+      animation: g-point 1.3s steps(1) infinite;
+    }
+    .guide[data-pose='talk'] .g-img {
+      animation: g-talk 0.9s steps(1) infinite;
+    }
+    .guide[data-pose='think'] .g-img {
+      animation: g-think 2.4s steps(1) infinite;
+    }
+    .guide[data-pose='cheer'] .g-img {
+      animation: g-cheer 0.7s steps(1) infinite;
+    }
+    .guide[data-pose='wow'] .g-img {
+      animation: g-wow 0.8s steps(1) infinite;
+    }
+    .guide[data-pose='wow'] .g-body {
+      animation: g-hop 0.8s ease-in-out infinite;
+    }
+  }
+  @keyframes g-point {
+    0%,
+    100% {
+      transform: translateX(-864px);
+    }
+    50% {
+      transform: translateX(-1056px);
+    }
+  }
+  @keyframes g-talk {
+    0%,
+    100% {
+      transform: translateX(-1440px);
+    }
+    50% {
+      transform: translateX(-864px);
+    }
+  }
+  @keyframes g-think {
+    0%,
+    100% {
+      transform: translateX(-1536px);
+    }
+    60% {
+      transform: translateX(-768px);
+    }
+  }
+  @keyframes g-cheer {
+    0%,
+    100% {
+      transform: translateX(-1632px);
+    }
+    50% {
+      transform: translateX(-1728px);
+    }
+  }
+  @keyframes g-wow {
+    0%,
+    100% {
+      transform: translateX(-1824px);
+    }
+    50% {
+      transform: translateX(-1728px);
+    }
+  }
+  @keyframes g-hop {
+    0%,
+    100% {
+      transform: scale(calc(var(--s) * var(--f)), var(--s)) translateY(0);
+    }
+    50% {
+      transform: scale(calc(var(--s) * var(--f)), var(--s)) translateY(-8px);
+    }
+  }
+
+  /* The teleporter: a dark disc with three glowing rings, as in the résumé room, and a beam of light. It opens under
+     his feet, he materialises from the bottom up, and when it is time to go he dissolves back into it. */
+  .g-fx {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 96px;
+    height: 0;
+    transform-origin: 50% 100%;
+    transform: scale(var(--s));
+  }
+  /* The pad is wider than his frame, so the page's rule that caps every svg at its parent's width must not apply. */
+  .g-pad {
+    position: absolute;
+    left: -27px;
+    top: -35px;
+    max-width: none;
+    overflow: visible;
+  }
+  .pd-side {
+    fill: color-mix(in srgb, var(--surface) 70%, #000);
+    stroke: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .pd-top {
+    fill: color-mix(in srgb, var(--surface) 88%, var(--accent));
+  }
+  .pd-glow {
+    fill: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .pd-rune {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    stroke-dasharray: 4 3.4;
+  }
+  .pd-core {
+    fill: color-mix(in srgb, var(--accent) 70%, #fff);
+    opacity: 0.55;
+  }
+  .g-beam {
+    position: absolute;
+    left: 16px;
+    bottom: 2px;
+    width: 64px;
+    height: 124px;
+    border-radius: 50% 50% 0 0 / 14% 14% 0 0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--accent) 60%, transparent),
+      color-mix(in srgb, var(--accent) 14%, transparent) 70%,
+      transparent
+    );
+    transform-origin: 50% 100%;
+    opacity: 0;
+  }
+  .g-mote {
+    position: absolute;
+    left: var(--x);
+    bottom: 6px;
+    width: 3px;
+    height: 3px;
+    background: color-mix(in srgb, var(--accent) 60%, #fff);
+    opacity: 0;
+  }
+  .guide[data-phase='hidden'] .g-fx,
+  .guide[data-phase='hidden'] .g-body {
+    visibility: hidden;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .guide[data-phase='in'] .g-pad {
+      animation: pad-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+    }
+    .guide[data-phase='in'] .g-beam {
+      animation: beam 0.72s ease-out forwards;
+    }
+    .guide[data-phase='in'] .g-mote {
+      animation: mote 0.7s ease-out var(--d) forwards;
+    }
+    .guide[data-phase='in'] .g-hero {
+      animation: hero-in 0.5s cubic-bezier(0.3, 0.7, 0.3, 1) 0.2s backwards;
+    }
+    .guide[data-phase='on'] .pd-rune {
+      animation: rune 6s linear infinite;
+    }
+    .guide[data-phase='on'] .pd-glow {
+      animation: glow 2.6s ease-in-out infinite;
+    }
+    .guide[data-phase='out'] .g-beam {
+      animation: beam 0.56s ease-in forwards;
+    }
+    .guide[data-phase='out'] .g-mote {
+      animation: mote 0.5s ease-out var(--d) forwards;
+    }
+    .guide[data-phase='out'] .g-hero {
+      animation: hero-out 0.42s cubic-bezier(0.6, 0, 0.8, 0.4) forwards;
+    }
+    .guide[data-phase='out'] .g-pad {
+      animation: pad-out 0.3s ease-in 0.26s forwards;
+    }
+  }
+  @keyframes pad-in {
+    from {
+      transform: scale(0.15, 0.15);
+      opacity: 0;
+    }
+    60% {
+      opacity: 1;
+    }
+  }
+  @keyframes pad-out {
+    to {
+      transform: scale(0.1, 0.1);
+      opacity: 0;
+    }
+  }
+  @keyframes beam {
+    0% {
+      transform: scaleY(0.05);
+      opacity: 0;
+    }
+    35% {
+      transform: scaleY(1);
+      opacity: 0.95;
+    }
+    100% {
+      transform: scaleY(1);
+      opacity: 0;
+    }
+  }
+  @keyframes mote {
+    0% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-96px);
+      opacity: 0;
+    }
+  }
+  /* He appears from the feet up, bright and narrow, and settles; leaving runs the same in reverse. */
+  @keyframes hero-in {
+    0% {
+      clip-path: inset(100% 0 0 0);
+      filter: brightness(3.2) saturate(0.2);
+      transform: translateY(6px) scaleX(0.55);
+    }
+    55% {
+      filter: brightness(2) saturate(0.6);
+      transform: translateY(0) scaleX(0.9);
+    }
+    100% {
+      clip-path: inset(0 0 0 0);
+      filter: none;
+      transform: none;
+    }
+  }
+  @keyframes hero-out {
+    0% {
+      clip-path: inset(0 0 0 0);
+      filter: none;
+      transform: none;
+    }
+    45% {
+      filter: brightness(2.4) saturate(0.4);
+      transform: scaleX(0.85);
+    }
+    100% {
+      clip-path: inset(100% 0 0 0);
+      filter: brightness(3.4) saturate(0.1);
+      transform: translateY(6px) scaleX(0.5);
+    }
+  }
+  @keyframes rune {
+    to {
+      stroke-dashoffset: -37;
+    }
+  }
+  @keyframes glow {
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  /* The speech bubble: a small dialogue box above his head, with a stepped (pixel) corner and a blinking caret. */
+  .g-bubble {
+    position: absolute;
+    left: var(--bl, calc(50% - 14px));
+    bottom: calc(100px * var(--s) + 8px);
+    width: var(--bw, max-content);
+    max-width: 250px;
+    padding: 9px 12px 10px;
+    border: 2px solid var(--accent);
+    background: color-mix(in srgb, var(--bg) 92%, var(--accent));
+    color: var(--text);
+    clip-path: polygon(
+      0 4px,
+      4px 4px,
+      4px 0,
+      calc(100% - 4px) 0,
+      calc(100% - 4px) 4px,
+      100% 4px,
+      100% calc(100% - 4px),
+      calc(100% - 4px) calc(100% - 4px),
+      calc(100% - 4px) 100%,
+      4px 100%,
+      4px calc(100% - 4px),
+      0 calc(100% - 4px)
+    );
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease;
+  }
+  .g-bubble.is-on {
+    opacity: 1;
+    transform: none;
+  }
+  .g-line {
+    margin: 0;
+    font:
+      500 14px / 1.35 'Pixelify Sans',
+      var(--mono);
+    letter-spacing: 0.01em;
+  }
+  .g-off {
+    color: transparent;
+  }
+  .g-line::after {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 12px;
+    margin-left: 2px;
+    vertical-align: -1px;
+    background: var(--accent);
+    opacity: 0;
+  }
+  .guide[data-talk] .g-line::after {
+    opacity: 1;
+    animation: g-caret 0.6s steps(1) infinite;
+  }
+  @keyframes g-caret {
+    50% {
+      opacity: 0;
+    }
+  }
+  @media print {
+    .guide {
+      display: none;
+    }
+  }
+</style>
