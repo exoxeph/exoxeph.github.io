@@ -15,7 +15,7 @@ const BUDGET = {
   // Phase 21 launch: 20 to 21 KB for the big-screen layout (wider page and right column on 1600px+ screens).
   // Large shimmering system headlines on the Bench and the "Other systems" list: 21 to 21.5 KB (case-study pages measure 21.0).
   // Résumé dev room: the scene, mascot poses, readouts and the cozy details bring /resume/ to 26.1 KB of inline CSS.
-  cssGz: 28 * 1024,
+  cssGz: 34 * 1024,
   // Phase 16 measured 125.6 KB of fonts (Newsreader instanced to 400 to 700) and no image above 25 KB.
   fontsRaw: 135 * 1024,
   // Raised from 40 KB in Phase 19R: the home page now carries a recruiter layer and the engineering layer for all four
@@ -26,7 +26,7 @@ const BUDGET = {
   htmlGz: 50 * 1024,
   // Résumé dev room: the scene is inline so its parts can animate with the page; with its soft shapes (curved
   // furniture, plants, curtains), the cozier Level 2 and the separate layer of words it measures 76.6 KB.
-  resumeHtmlGz: 85 * 1024,
+  resumeHtmlGz: 130 * 1024,
   // The mascot's sprite sheet (resume-hero.png, 22 frames in one 64-colour image) measures 51 KB, the only image above 40.
   imageRaw: 60 * 1024,
 };

@@ -3,7 +3,7 @@
 // CV points on the other. As each point reaches the middle of the screen, the mascot walks to its station (and up through
 // the portal for the certifications) and acts it out in three beats; the words on the page that each beat shows light at
 // the same moment, with a small live readout of the point's own numbers. Without scripts this is a plain, complete list; with reduced motion nothing moves.
-import { renderRail, renderRoom } from '../../lib/resume/room.ts';
+import { renderRoom } from '../../lib/resume/room.ts';
 import Pulse from './Pulse.astro';
 import Waypoint from './Waypoint.astro';
 
@@ -53,7 +53,6 @@ const beats = (t: string) =>
   }, []);
 const pad = (n: number) => String(n).padStart(2, '0');
 const total = points.length + certs.length;
-const rail = renderRail(['desk', 'conveyor', 'board', 'rack', 'agents', 'fireplace', 'trophies']);
 /** Each walk on the page: where it ends, and the picture of that station. */
 const walks: [string, string][] = [
   ['the desk', 'desk'],
@@ -78,10 +77,6 @@ const walks: [string, string][] = [
       <p class="dr-hint mono" aria-hidden="true">
         scroll to walk · click a station to jump or replay
       </p>
-    </div>
-
-    <div class="dr-rail">
-      <Fragment set:html={rail} />
     </div>
   </div>
 
@@ -240,6 +235,117 @@ const walks: [string, string][] = [
     const stations = [...svg.querySelectorAll<SVGAElement>('.st')].sort(
       (a, b) => Number(a.dataset.st) - Number(b.dataset.st),
     );
+    const focusGrad = svg.querySelector<SVGRadialGradientElement>('#dr-focus');
+    const spots = [...svg.querySelectorAll<SVGGElement>('.fspot')].sort(
+      (a, b) => Number(a.dataset.fspot) - Number(b.dataset.fspot),
+    );
+    // Props from the props gallery each answer a click: the fire goes out, the record plays, a shelf row lights, the
+    // armchair's lamp steps, the sofa's lamp switches, the guitar is plucked.
+    const igStart: Record<string, [string, string]> = {
+      fire: ['state', 'on'],
+      bed: ['state', 'on'],
+      lamp: ['state', 'on'],
+      sky: ['state', 'on'],
+      desk: ['state', 'on'],
+      belt: ['state', 'on'],
+      lounge: ['state', 'on'],
+      record: ['state', 'off'],
+      shelf: ['row', '1'],
+      chair: ['state', '2'],
+      sofa: ['state', 'on'],
+    };
+    const chord = () => {
+      try {
+        const ctx = new AudioContext();
+        [82.4, 110, 146.8, 196, 246.9, 329.6].forEach((f, i) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          const t0 = ctx.currentTime + i * 0.05;
+          o.type = 'triangle';
+          o.frequency.value = f;
+          g.gain.setValueAtTime(0.0001, t0);
+          g.gain.exponentialRampToValueAtTime(0.1, t0 + 0.012);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.2);
+          o.connect(g);
+          g.connect(ctx.destination);
+          o.start(t0);
+          o.stop(t0 + 1.4);
+        });
+        window.setTimeout(() => void ctx.close(), 2200);
+      } catch {
+        /* no audio: the strings still blur */
+      }
+    };
+    // The desk's terminal takes keys: a click types the next letter of "ship it", and so does the keyboard once the desk
+    // has been clicked (letters, digits and punctuation only, so the page's own keys keep working).
+    const deskGroup = svg.querySelector<SVGGElement>(".ig[data-ig='desk']");
+    let deskText = '';
+    let deskLive = false;
+    let deskNext = 0;
+    const deskKey = (k: string) => {
+      if (!deskGroup) return;
+      deskText = (deskText + k).slice(-40);
+      const shown = deskText.slice(-12);
+      deskGroup.querySelector('.term')!.textContent = '> ' + shown;
+      deskGroup.querySelector('.cur')!.setAttribute('x', String(8 + (2 + shown.length) * 2.64 + 0.6));
+      const keys = deskGroup.querySelectorAll('.key');
+      const key = keys[(k.toLowerCase().charCodeAt(0) * 7) % keys.length];
+      key?.classList.add('press');
+      window.setTimeout(() => key?.classList.remove('press'), 160);
+    };
+    window.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement;
+      if (
+        !deskLive ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        event.key.length !== 1 ||
+        event.key === ' '
+      )
+        return;
+      if (target.closest?.('input, textarea, select, [contenteditable]')) return;
+      deskKey(event.key);
+    });
+    for (const g of svg.querySelectorAll<SVGGElement>('.ig[data-ig]')) {
+      const id = g.dataset.ig!;
+      const start = igStart[id];
+      if (start) g.dataset[start[0]] = start[1];
+      g.addEventListener('click', (event) => {
+        // A prop inside a station reacts on its own; it does not also jump to that station.
+        event.preventDefault();
+        event.stopPropagation();
+        if (id === 'shelf')
+          g.dataset.row =
+            (event.target as Element).closest<SVGGElement>('.row')?.dataset.row ??
+            String((Number(g.dataset.row) + 1) % 4);
+        else if (id === 'chair') g.dataset.state = String((Number(g.dataset.state) + 1) % 4);
+        else if (id === 'lounge' && (event.target as Element).closest('.candles'))
+          g.dataset.candles = g.dataset.candles === 'off' ? 'on' : 'off';
+        else if (id === 'desk') {
+          if ((event.target as Element).closest('.lampbtn'))
+            g.dataset.state = g.dataset.state === 'on' ? 'off' : 'on';
+          else {
+            deskLive = true;
+            deskKey('ship it'[deskNext++ % 7]!);
+          }
+        } else if (id === 'plant' || id === 'tree' || id === 'car') {
+          const cls = id === 'plant' ? 'wet' : id === 'tree' ? 'rustle' : 'honk';
+          g.classList.add(cls);
+          window.setTimeout(() => g.classList.remove(cls), id === 'car' ? 900 : 2600);
+        } else if (id === 'guitar') {
+          g.classList.remove('plucked');
+          void g.getBoundingClientRect();
+          g.classList.add('plucked');
+          window.setTimeout(() => g.classList.remove('plucked'), 2200);
+          chord();
+        } else g.dataset.state = g.dataset.state === 'on' ? 'off' : 'on';
+        if (id === 'belt' || id === 'window')
+          for (const peer of svg.querySelectorAll<SVGGElement>(`.ig[data-ig='${id}']`))
+            if (peer !== g && g.dataset.state) peer.dataset.state = g.dataset.state;
+      });
+    }
+
     const route = JSON.parse(svg.dataset.route!) as [number, number][];
     const zs = JSON.parse(svg.dataset.z!) as number[];
     const stops = JSON.parse(svg.dataset.stops!) as number[];
@@ -259,6 +365,50 @@ const walks: [string, string][] = [
       return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, zs[i - 1]! + (zs[i]! - zs[i - 1]!) * t];
     };
     const ease = (t: number) => t * t * (3 - 2 * t);
+    // Depth. The room is drawn far to near with the mascot above all of it, so a prop he walks behind would look as if he
+    // walked through it. Every prop with a footprint (data-occ: x0, y0, x1, y1 in room units) is lifted above the
+    // mascot while he is behind it (farther from the viewer: a smaller y, or a larger x) and put back when he is in
+    // front of it, in each floor's own overlay layer.
+    const roomRoute = JSON.parse(svg.dataset.room!) as [number, number][];
+    const roomAt = (d: number): [number, number] => {
+      let i = 1;
+      while (i < route.length - 1 && dist[i]! < d) i++;
+      const [a, b] = [roomRoute[i - 1]!, roomRoute[i]!];
+      const k = Math.min(1, Math.max(0, (d - dist[i - 1]!) / (dist[i]! - dist[i - 1]! || 1)));
+      return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+    };
+    const overG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const overU = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    overG.setAttribute('class', 'over over-g');
+    overU.setAttribute('class', 'over over-u');
+    mascot.after(overU);
+    mascot.after(overG);
+    const occluders = [...svg.querySelectorAll<SVGGElement>('[data-occ]')].map((el) => {
+      const [x0, y0, x1, y1] = el.dataset.occ!.split(',').map(Number) as [number, number, number, number];
+      const mark = document.createComment('');
+      el.before(mark);
+      return {
+        el,
+        mark,
+        x0,
+        y0,
+        x1,
+        y1,
+        d: (y0 + y1 - x0 - x1) / 2,
+        floor: el.closest('.floor-u') ? 1 : 0,
+        over: false,
+      };
+    });
+    const lift = (o: (typeof occluders)[number], over: boolean) => {
+      if (over === o.over) return;
+      o.over = over;
+      if (!over) return o.mark.before(o.el);
+      const layer = o.floor ? overU : overG;
+      // Nearer props go later, so the lifted ones keep their own order.
+      const next = [...layer.children].find((c) => Number((c as SVGGElement).dataset.d) > o.d);
+      o.el.dataset.d = String(o.d);
+      layer.insertBefore(o.el, next ?? null);
+    };
     const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
     const reduce = matchMedia('(prefers-reduced-motion: reduce)');
     const railSvg = root.querySelector<SVGSVGElement>('[data-rail]');
@@ -340,6 +490,7 @@ const walks: [string, string][] = [
       if (i === on && !restart) return;
       stations[on]?.classList.remove('is-on');
       words[on]?.classList.remove('is-on');
+      spots[on]?.classList.remove('is-on');
       steps[on]?.classList.remove('is-active');
       delete mascot.dataset.pose;
       on = i;
@@ -347,6 +498,7 @@ const walks: [string, string][] = [
       if (restart) void svg.getBoundingClientRect();
       stations[on]!.classList.add('is-on');
       words[on]?.classList.add('is-on');
+      spots[on]?.classList.add('is-on');
       steps[on]!.classList.add('is-active');
       mascot.dataset.pose = stations[on]!.dataset.pose;
     };
@@ -371,6 +523,9 @@ const walks: [string, string][] = [
       if (arrived) face = Number(stations[want]!.dataset.face) as 1 | -1;
       else if (Math.abs(px - before[0]) > 0.05) face = px > before[0] ? 1 : -1;
       mascot.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      // The room is dimmed except around him, so the live station is the brightest place in it.
+      focusGrad?.setAttribute('cx', x.toFixed(1));
+      focusGrad?.setAttribute('cy', (y - 34).toFixed(1));
       flip.setAttribute('transform', `scale(${face} 1)`);
       mascot.classList.toggle('walk', walking);
       // Between the floors the mascot is in the portal's beam: it floats instead of walking.
@@ -400,6 +555,22 @@ const walks: [string, string][] = [
       groundFloor.style.pointerEvents = up > 0.5 ? 'none' : '';
       upperFloor.style.visibility = up > 0.35 ? 'visible' : 'hidden';
       // The words on each floor follow its floor; the ground floor's step aside once the camera has gone up.
+      overG.style.opacity = groundFloor.style.opacity;
+      overG.style.pointerEvents = groundFloor.style.pointerEvents;
+      overU.style.opacity = upperFloor.style.opacity;
+      overU.style.visibility = upperFloor.style.visibility;
+      // Which props are in front of him, and which behind: only on the floor he is on, and not while he floats.
+      const [rx, ry] = roomAt(cur);
+      const onFloor = z < UP / 2 ? 0 : 1;
+      for (const o of occluders) {
+        let over = false;
+        if (!floating && o.floor === onFloor) {
+          const farther = ry <= o.y0 || rx >= o.x1;
+          const nearer = ry >= o.y1 || rx <= o.x0;
+          over = farther || nearer ? farther && (!nearer || ry - rx < o.d) : o.over;
+        }
+        lift(o, over);
+      }
       groundWords.style.opacity = up > 0.3 ? '0' : groundFloor.style.opacity;
       upperWords.style.opacity = upperFloor.style.opacity;
       upperWords.style.visibility = upperFloor.style.visibility;
@@ -492,7 +663,7 @@ const walks: [string, string][] = [
     align-items: start;
     margin-bottom: 56px;
   }
-  /* The room and the rail share the left column, so the text column lines up with the skills column further down. */
+  /* The room has the left column to itself, so the text column lines up with the skills column further down. */
   .dr-left {
     display: flex;
     align-self: stretch;
@@ -547,111 +718,6 @@ const walks: [string, string][] = [
      station pictures in the waypoint cards are not nudged. */
   .dr-scene > .dr-svg {
     transform: translateX(calc(var(--bleed, 0px) * 0.25));
-  }
-  .dr-rail {
-    position: sticky;
-    top: 12px;
-    flex: none;
-    width: 96px;
-    height: calc(100vh - 24px);
-    display: flex;
-    align-items: center;
-  }
-  .dr-rail-svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: 88%;
-    font-family: var(--mono);
-  }
-  .dr-rail-svg .r-star {
-    fill: var(--text);
-    opacity: 0.6;
-  }
-  .dr-rail-svg .r-moon {
-    fill: color-mix(in srgb, var(--text) 85%, var(--bg));
-  }
-  .dr-rail-svg .r-plane {
-    fill: color-mix(in srgb, var(--text) 70%, var(--bg));
-    transform: translate(10px, 34px);
-  }
-  .dr-rail-svg .r-city {
-    fill: color-mix(in srgb, var(--text) 7%, var(--bg));
-  }
-  .dr-rail-svg .r-roof {
-    fill: color-mix(in srgb, var(--text) 22%, var(--surface));
-  }
-  .dr-rail-svg .r-bld {
-    fill: color-mix(in srgb, var(--text) 4%, var(--surface));
-    stroke: color-mix(in srgb, var(--text) 18%, transparent);
-  }
-  .dr-rail-svg .r-slab {
-    fill: color-mix(in srgb, var(--text) 16%, var(--surface));
-  }
-  .dr-rail-svg .r-floor {
-    fill: var(--muted);
-    font-size: 7px;
-    letter-spacing: 0.12em;
-  }
-  .dr-rail-svg .r-win {
-    fill: color-mix(in srgb, var(--text) 10%, var(--bg));
-  }
-  .dr-rail-svg .r-win.lit {
-    fill: color-mix(in srgb, var(--partial) 55%, var(--bg));
-  }
-  .dr-rail-svg .r-beam {
-    opacity: 0.55;
-    transition: opacity 300ms var(--ease);
-  }
-  .dr-rail-svg.is-beam .r-beam {
-    opacity: 1;
-  }
-  .dr-rail-svg .r-pad {
-    fill: color-mix(in srgb, var(--accent) 30%, var(--bg));
-    stroke: var(--accent);
-  }
-  .dr-rail-svg .r-street {
-    fill: color-mix(in srgb, var(--text) 8%, var(--bg));
-  }
-  .dr-rail-svg .r-lane {
-    stroke: color-mix(in srgb, var(--partial) 60%, transparent);
-    stroke-dasharray: 5 5;
-  }
-  .dr-rail-svg .r-track {
-    fill: none;
-    stroke: color-mix(in srgb, var(--text) 25%, transparent);
-    stroke-dasharray: 2 3;
-  }
-  .dr-rail-svg .r-fill {
-    stroke: var(--accent);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-  }
-  .dr-rail-svg .r-node circle {
-    fill: var(--bg);
-    stroke: color-mix(in srgb, var(--text) 40%, transparent);
-    stroke-width: 1.5;
-    transition:
-      fill var(--m-state) var(--ease),
-      stroke var(--m-state) var(--ease);
-  }
-  .dr-rail-svg .r-node text {
-    fill: var(--muted);
-    font-size: 8px;
-  }
-  .dr-rail-svg .r-node.is-past circle {
-    fill: var(--accent);
-    stroke: var(--accent);
-  }
-  .dr-rail-svg .r-node.is-here circle {
-    fill: var(--partial);
-    stroke: var(--partial);
-  }
-  .dr-rail-svg .r-node.is-here text {
-    fill: var(--text);
-  }
-  .dr-rail-svg .r-halo {
-    fill: color-mix(in srgb, var(--accent) 22%, transparent);
   }
   /* The street around the building. */
   .dr-svg .ground {
@@ -1422,14 +1488,805 @@ const walks: [string, string][] = [
     transform-box: fill-box;
     transform-origin: 50% 100%;
   }
+  /* The props gallery's drawing, scoped to the props ported into the room: warm faces with a thin outline, and a colour
+     for each material. Only what is live (the fire, the candles) is bright. */
+  .dr-svg .ig .face {
+    fill: #2c1d1a;
+    stroke: #7a5646;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: round;
+  }
+  .dr-svg .ig .face.top {
+    fill: #38261f;
+  }
+  .dr-svg .ig .face.recess {
+    fill: #140c0d;
+  }
+  .dr-svg .ig .detail {
+    fill: none;
+    stroke: #c8ae9e;
+    stroke-opacity: 0.45;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .mat .face {
+    fill: var(--mw);
+    stroke: var(--ml);
+  }
+  .dr-svg .ig .mat .face.top {
+    fill: var(--mt);
+  }
+  .dr-svg .ig .mat-slate {
+    --mw: #40322d;
+    --mt: #55433b;
+    --ml: #8a6a5a;
+  }
+  .dr-svg .ig .mat-stone {
+    --mw: #54413a;
+    --mt: #735a4e;
+    --ml: #a88470;
+  }
+  .dr-svg .ig .mat-wood {
+    --mw: #5a3a26;
+    --mt: #7d5736;
+    --ml: #a67448;
+  }
+  .dr-svg .ig .mat-cream {
+    --mw: #bfae90;
+    --mt: #e6d6b8;
+    --ml: #f1e4c8;
+  }
+  .dr-svg .ig .mat-terra {
+    --mw: #9c4a30;
+    --mt: #c96a42;
+    --ml: #e58a5e;
+  }
+  .dr-svg .ig .rug {
+    fill: #6b2a24;
+    stroke: #a64a3a;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .rugline {
+    fill: none;
+    stroke: #c9806a;
+    stroke-dasharray: 4 3;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig {
+    cursor: pointer;
+  }
+  .dr-svg .ig .mat-walnut {
+    --mw: #3e2619;
+    --mt: #5a3826;
+    --ml: #8c5a3c;
+  }
+  .dr-svg .ig .mat-indigo {
+    --mw: #2e3260;
+    --mt: #3f4784;
+    --ml: #6670b8;
+  }
+  .dr-svg .ig .mat-wood2 {
+    --mw: #3f281b;
+    --mt: #55371f;
+    --ml: #7a5233;
+  }
+  .dr-svg .ig .mat-dark {
+    --mw: #261a19;
+    --mt: #34241f;
+    --ml: #5e4339;
+  }
+  .dr-svg .ig .mat-brass {
+    --mw: #7d5f2a;
+    --mt: #b88a3c;
+    --ml: #d9ad5c;
+  }
+  .dr-svg .ig .mat-fabric {
+    --mw: #2b3366;
+    --mt: #394a8c;
+    --ml: #7280c8;
+  }
+  .dr-svg .ig .face.glass {
+    fill: #7f92c8;
+    fill-opacity: 0.16;
+    stroke: #a8bce8;
+    stroke-opacity: 0.6;
+  }
+  .dr-svg .ig .face.tr,
+  .dr-svg .ig .face.tr2 {
+    fill: #8a6a2e;
+    stroke: #d8b565;
+    transition:
+      fill 0.5s,
+      stroke 0.5s;
+  }
+  .dr-svg .ig .tr-halo {
+    fill: #ffb347;
+    opacity: 0;
+    transition: opacity 0.6s;
+  }
+  .dr-svg .is-on .ig[data-ig='trophy'] .tr-halo,
+  .dr-svg .ig[data-ig='trophy'][data-state='on'] .tr-halo {
+    opacity: 0.32;
+  }
+  .dr-svg .is-on .ig[data-ig='trophy'] :is(.face.tr, .face.tr2),
+  .dr-svg .ig[data-ig='trophy'][data-state='on'] :is(.face.tr, .face.tr2) {
+    fill: #e0aa44;
+    stroke: #fff0b0;
+  }
+  .dr-svg .ig[data-ig='trophy'] .cup {
+    transition: transform 0.7s;
+  }
+  .dr-svg .ig[data-ig='trophy'][data-state='on'] .cup {
+    transform: translateY(-14px);
+  }
+  /* Plants: flat leaf sprites on stems that sway a little; click to water, and they brighten while the drops fall. */
+  .dr-svg .ig .leaf {
+    fill: #3f6a33;
+    stroke: #86b868;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.5s;
+  }
+  .dr-svg .ig .leaf2 {
+    fill: #4a7a3a;
+    stroke: #b4d878;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.5s;
+  }
+  .dr-svg .ig .stem {
+    fill: none;
+    stroke: #5f8f45;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+  .dr-svg .ig .vein {
+    fill: none;
+    stroke: #9cc878;
+    stroke-width: 0.8;
+    stroke-opacity: 0.8;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .band {
+    fill: none;
+    stroke: #2e5226;
+    stroke-width: 1.4;
+    stroke-opacity: 0.7;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .face.soil {
+    fill: #241510;
+    stroke: #46302a;
+  }
+  .dr-svg .ig .drop {
+    fill: #9ad0ff;
+    opacity: 0;
+  }
+  .dr-svg .ig[data-ig='plant'].wet :is(.leaf, .leaf2) {
+    fill: #6aa84a;
+  }
+  .dr-svg .ig[data-ig='plant'].wet .drop {
+    animation: ig-drop 1.1s ease-in calc(var(--i) * 0.18s) 2;
+  }
+  @keyframes ig-drop {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+  @keyframes ig-sway {
+    0%,
+    100% {
+      transform: rotate(-1.6deg);
+    }
+    50% {
+      transform: rotate(1.6deg);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .ig[data-ig='plant'] .sway {
+      animation: ig-sway 5.5s ease-in-out infinite;
+      animation-delay: calc(var(--i) * -0.7s);
+    }
+    .dr-svg .ig[data-ig='plant'].wet .sway {
+      animation-duration: 1.6s;
+    }
+  }
+  .dr-svg .ig[data-ig='lounge'][data-candles='off'] .cdl {
+    opacity: 0;
+  }
+  .dr-svg .ig .face.bd {
+    fill: color-mix(in srgb, var(--text) 86%, var(--bg));
+  }
+  .dr-svg .ig .bhalo {
+    fill: #ffb347;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .dr-svg .ig .face.key {
+    fill: #241a1c;
+    stroke: #6a4c40;
+    transition: fill 0.15s;
+  }
+  .dr-svg .ig .face.key.press {
+    fill: #ffb347;
+    stroke: #ffe0a0;
+  }
+  .dr-svg .ig .steam {
+    stroke-dasharray: 3 4;
+    opacity: 0.7;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .ig .steam {
+      animation: ig-steam 2.6s linear infinite;
+    }
+  }
+  @keyframes ig-steam {
+    to {
+      stroke-dashoffset: -28;
+    }
+  }
+  /* The stations' furniture: a click shows the station's result, as if it had been reached. */
+  .dr-svg .st:has(.ig[data-ig='rack'][data-state='on']) .pl {
+    fill: var(--verified);
+  }
+  .dr-svg .st:has(.ig[data-ig='rack'][data-state='on']) .landed {
+    opacity: 1;
+  }
+  .dr-svg .st:has(.ig[data-ig='belt'][data-state='off']) .card {
+    animation-play-state: paused;
+  }
+  .dr-svg .ig .mat-leaf {
+    --mw: #3f6a33;
+    --mt: #5a8a45;
+    --ml: #86b868;
+  }
+  .dr-svg .ig .mat-leaf2 {
+    --mw: #4a7a3a;
+    --mt: #6a9a4e;
+    --ml: #b4d878;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .ig[data-ig='tree'] .can {
+      animation: ig-wind 5s ease-in-out infinite;
+    }
+    .dr-svg .ig[data-ig='tree'].rustle .can {
+      animation-duration: 0.45s;
+    }
+  }
+  @keyframes ig-wind {
+    0%,
+    100% {
+      transform: translateX(-0.8px);
+    }
+    50% {
+      transform: translateX(0.8px);
+    }
+  }
+  .dr-svg .ig[data-ig='lamp'] :is(.pool, .glow, .lhead) {
+    transition: opacity 0.4s;
+  }
+  .dr-svg .ig[data-ig='lamp'][data-state='off'] :is(.pool, .glow, .lhead) {
+    opacity: 0;
+  }
+  .dr-svg .car:has(.ig.honk) :is(.hl, .beamh) {
+    opacity: 1;
+  }
+  .dr-svg .car:has(.ig.honk) .hl {
+    fill: #fff;
+  }
+  .dr-svg .ig[data-ig='sky'][data-state='off'] :is(.bw, .beacon) {
+    opacity: 0.08;
+    animation: none;
+  }
+  /* The desk, the whiteboard, the standing desk, the portal and the windows, as the props gallery draws them. */
+  .dr-svg .ig .mhalo {
+    fill: #ffb347;
+    opacity: 0.26;
+  }
+  .dr-svg .ig .gscr {
+    fill: #d8c7a8;
+    font-family: var(--mono, monospace);
+  }
+  .dr-svg .ig .gscr-a {
+    fill: #ffb347;
+    font-family: var(--mono, monospace);
+  }
+  .dr-svg .ig .dtiles {
+    opacity: 0;
+  }
+  .dr-svg .is-on .ig .dtiles {
+    opacity: 1;
+  }
+  .dr-svg .is-on .ig .dcode {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .ig .cur {
+      animation: dr-pulse 0.9s steps(2) infinite alternate;
+    }
+  }
+  .dr-svg .ig .bdl {
+    fill: #3a2a24;
+    font-family: var(--mono, monospace);
+    font-weight: 700;
+  }
+  .dr-svg .ig .bdl.sm {
+    font-weight: 400;
+  }
+  .dr-svg .ig .bdd {
+    stroke: #9a8878;
+    fill: none;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .face.gbar {
+    fill: #a98a78;
+    stroke: #6a4c40;
+  }
+  .dr-svg .ig .face.gbar.top {
+    fill: #c8a090;
+  }
+  .dr-svg .ig .bmark {
+    fill: none;
+    stroke: #c04a2a;
+    stroke-width: 1.6;
+    opacity: 0;
+  }
+  .dr-svg .ig[data-ig='board'][data-state='on'] .gbar {
+    transform: translateX(var(--dx));
+    transition: transform 0.8s;
+  }
+  .dr-svg .ig[data-ig='board'][data-state='on'] .gbar.top {
+    fill: #ffb347;
+  }
+  .dr-svg .ig[data-ig='board'][data-state='on'] .bmark {
+    opacity: 1;
+  }
+  .dr-svg .ig[data-ig='board'][data-state='on'] .bhalo {
+    opacity: 0.16;
+  }
+  .dr-svg .ig .face.chk,
+  .dr-svg .ig .face.tst {
+    fill: #241a1c;
+    stroke: #6a4c40;
+  }
+  .dr-svg .ig .agline {
+    opacity: 0.12;
+  }
+  .dr-svg .ig[data-ig='agents'][data-state='on'] .agline {
+    opacity: 0.95;
+  }
+  .dr-svg .ig[data-ig='agents'][data-state='on'] :is(.chk, .tst) {
+    fill: var(--verified);
+    stroke: #e8f0b0;
+  }
+  .dr-svg .ig[data-ig='portal'] .prune {
+    animation: ig-run 1.8s linear infinite;
+  }
+  .dr-svg:has(.ig[data-ig='portal'][data-state='on']) .beam {
+    opacity: 1;
+  }
+  .dr-svg:has(.ig[data-ig='portal'][data-state='on']) .mote {
+    animation: ig-mote 1.4s linear infinite;
+    animation-delay: var(--d);
+  }
+  .dr-svg:has(.ig[data-ig='portal'][data-state='on']) .pcore {
+    opacity: 1;
+  }
+  @keyframes ig-run {
+    to {
+      stroke-dashoffset: -24;
+    }
+  }
+  @keyframes ig-mote {
+    0% {
+      opacity: 0.9;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-90px);
+    }
+  }
+  .dr-svg .ig .face.wframe {
+    fill: #7d5736;
+    stroke: #a67448;
+  }
+  .dr-svg .ig .wslat {
+    fill: #b8a37e;
+    stroke: #6a5a3e;
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scaleY(0.82);
+    transition: transform 0.6s;
+  }
+  .dr-svg .ig[data-ig='window'][data-state='on'] .wslat {
+    transform: scaleY(0.18);
+  }
+  .dr-svg .ig .wmull {
+    stroke: #d8c7a8;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .wknob {
+    fill: #d8c7a8;
+  }
+  .dr-svg .ig .wcl,
+  .dr-svg .ig .wcr {
+    fill: #9c4a30;
+    stroke: #e58a5e;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: top center;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .ig .wcl {
+      animation: ig-sway-l 7s ease-in-out infinite;
+    }
+    .dr-svg .ig .wcr {
+      animation: ig-sway-r 7s ease-in-out infinite;
+    }
+    .dr-svg .wdust {
+      animation: ig-dust 13s linear infinite;
+      animation-delay: calc(var(--i) * -1.1s);
+    }
+  }
+  @keyframes ig-sway-l {
+    0%,
+    100% {
+      transform: skewX(-1.6deg);
+    }
+    50% {
+      transform: skewX(1.6deg);
+    }
+  }
+  @keyframes ig-sway-r {
+    0%,
+    100% {
+      transform: skewX(1.6deg);
+    }
+    50% {
+      transform: skewX(-1.6deg);
+    }
+  }
+  .dr-svg .wbeam {
+    fill: url(#dr-shaft);
+    pointer-events: none;
+    opacity: 0.55;
+    transition: opacity 0.6s;
+  }
+  .dr-svg .wpatch {
+    fill: #ffcf7a;
+    opacity: 0.16;
+    pointer-events: none;
+    transition: opacity 0.6s;
+  }
+  .dr-svg .wdust {
+    fill: #ffe3a3;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .dr-svg:has(.ig[data-ig='window'][data-state='on']) .wbeam {
+    opacity: 1;
+  }
+  .dr-svg:has(.ig[data-ig='window'][data-state='on']) .wpatch {
+    opacity: 0.3;
+  }
+  @keyframes ig-dust {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0);
+    }
+    50% {
+      opacity: 0.85;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--dx), var(--dy));
+    }
+  }
+  .dr-svg .ig .mat-fabric2 {
+    --mw: #3a4580;
+    --mt: #4d62ae;
+    --ml: #8a9ae0;
+  }
+  /* What is live: dim until the prop is switched on, then amber. */
+  .dr-svg .ig .lit,
+  .dr-svg .ig .lampg {
+    fill: #2a1a14;
+    stroke: #7a5646;
+    transition:
+      fill 0.4s,
+      stroke 0.4s;
+  }
+  .dr-svg .ig .lamppool {
+    fill: url(#dr-warm);
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .dr-svg .ig .pole {
+    stroke: #8c6a54;
+    stroke-width: 2.4;
+    stroke-opacity: 0.9;
+  }
+  /* The fireplace: click and the fire goes out, the glow and the candles with it. */
+  .dr-svg .ig[data-ig='fire'] :is(.fire, .fireglow, .cdl) {
+    transition: opacity 0.5s;
+  }
+  .dr-svg .ig[data-ig='fire'][data-state='off'] :is(.fire, .fireglow, .cdl) {
+    opacity: 0;
+  }
+  /* The record player: click and the record spins, the arm lowers, the bars dance and the speaker pulses. */
+  .dr-svg .ig .vinyl {
+    fill: #120c0d;
+  }
+  .dr-svg .ig .glint {
+    stroke-width: 2.2;
+    stroke-opacity: 0.8;
+  }
+  .dr-svg .ig .rec-spin {
+    transform-origin: 62px 60px;
+  }
+  .dr-svg .ig .rec-arm {
+    transform-origin: 136px 16px;
+    transform: rotate(-88deg);
+    transition: transform 0.9s var(--ease);
+  }
+  .dr-svg .ig .arm {
+    stroke-width: 3;
+    stroke-opacity: 0.9;
+  }
+  .dr-svg .ig .vu {
+    fill: #46302a;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transform: scaleY(0.22);
+  }
+  .dr-svg .ig .rec-cone {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+  }
+  .dr-svg .ig[data-ig='record'][data-state='on'] .rec-arm {
+    transform: rotate(-61deg);
+  }
+  .dr-svg .ig[data-ig='record'][data-state='on'] .lit {
+    fill: #ffb347;
+    stroke: #ffe0a0;
+  }
+  .dr-svg .ig[data-ig='record'][data-state='on'] .vu {
+    fill: #ffb347;
+    transform: scaleY(0.7);
+  }
+  /* The shelf: click a row and its books light one after another. */
+  .dr-svg .ig .book {
+    stroke: #2a1a14;
+    transition:
+      fill 0.3s,
+      stroke 0.3s;
+    transition-delay: calc(var(--i) * 40ms);
+  }
+  .dr-svg .ig .bk0 {
+    fill: #a8563a;
+  }
+  .dr-svg .ig .bk1 {
+    fill: #d3c1a0;
+  }
+  .dr-svg .ig .bk2 {
+    fill: #5c649f;
+  }
+  .dr-svg .ig .bk3 {
+    fill: #7d8a4e;
+  }
+  .dr-svg .ig .bk4 {
+    fill: #c99a47;
+  }
+  .dr-svg .ig[data-ig='shelf'][data-row='0'] .row0 .book,
+  .dr-svg .ig[data-ig='shelf'][data-row='1'] .row1 .book,
+  .dr-svg .ig[data-ig='shelf'][data-row='2'] .row2 .book,
+  .dr-svg .ig[data-ig='shelf'][data-row='3'] .row3 .book {
+    fill: #ffb347;
+    stroke: #ffe0a0;
+  }
+  /* The armchair's lamp steps through off, dim, medium and bright; the sofa's lamp switches. */
+  .dr-svg .ig[data-ig='chair'][data-state='1'] .lamppool {
+    opacity: 0.35;
+  }
+  .dr-svg .ig[data-ig='chair'][data-state='2'] .lamppool {
+    opacity: 0.65;
+  }
+  .dr-svg .ig[data-ig='chair'][data-state='3'] .lamppool {
+    opacity: 1;
+  }
+  .dr-svg .ig[data-ig='chair']:not([data-state='0']) .lampg,
+  .dr-svg .ig[data-ig='sofa'][data-state='on'] .lampg,
+  .dr-svg .ig[data-ig='bed'][data-state='on'] .lampg,
+  .dr-svg .ig[data-ig='desk'][data-state='on'] .lampg,
+  .dr-svg .ig[data-ig='belt'][data-state='on'] .lampg,
+  .dr-svg .ig[data-ig='board'][data-state='on'] .lampg,
+  .dr-svg .ig[data-ig='rack'][data-state='on'] .lampg,
+  .dr-svg .ig[data-ig='agents'][data-state='on'] .lampg,
+  .dr-svg .ig[data-ig='lounge'][data-state='on'] .lampg {
+    fill: #ffb347;
+    stroke: #ffe0a0;
+  }
+  .dr-svg .ig[data-ig='sofa'][data-state='on'] .lamppool,
+  .dr-svg .ig[data-ig='bed'][data-state='on'] .lamppool,
+  .dr-svg .ig[data-ig='desk'][data-state='on'] .lamppool,
+  .dr-svg .ig[data-ig='lounge'][data-state='on'] .lamppool,
+  .dr-svg .ig[data-ig='lounge'][data-candles='on'] .lamppool {
+    opacity: 0.8;
+  }
+  /* The guitar: click and the strings blur and light, a note floats up. */
+  .dr-svg .ig .tripod {
+    fill: none;
+    stroke: #7a5646;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+  }
+  .dr-svg .ig .gbody {
+    fill: #b06a30;
+    stroke: #e0a86a;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .gbody.rim {
+    fill: #4a2a14;
+    stroke: #8c5a3c;
+  }
+  .dr-svg .ig .gbind {
+    fill: none;
+    stroke: #e8c08a;
+    stroke-opacity: 0.55;
+  }
+  .dr-svg .ig .ghole {
+    fill: #160e0f;
+    stroke: #e8c08a;
+  }
+  .dr-svg .ig .gring {
+    fill: none;
+    stroke: #e8c08a;
+    stroke-opacity: 0.7;
+  }
+  .dr-svg .ig .gglow {
+    fill: url(#dr-warm);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .dr-svg .ig .gbridge {
+    fill: #2b1a12;
+    stroke: #8c5a3c;
+  }
+  .dr-svg .ig .gneck,
+  .dr-svg .ig .ghead {
+    fill: #3e2619;
+    stroke: #8c5a3c;
+  }
+  .dr-svg .ig .fret {
+    stroke: #a67448;
+    stroke-width: 0.8;
+  }
+  .dr-svg .ig .peg {
+    fill: #e6d6b8;
+    stroke: #bfae90;
+  }
+  .dr-svg .ig .str {
+    fill: none;
+    stroke: #d9c7a8;
+    stroke-width: 0.9;
+    stroke-linecap: round;
+  }
+  .dr-svg .ig .note {
+    fill: #ffd98a;
+    opacity: 0;
+  }
+  .dr-svg .ig[data-ig='guitar'].plucked .gglow {
+    opacity: 0.8;
+  }
+  .dr-svg .ig[data-ig='guitar'].plucked .str {
+    stroke: #ffd98a;
+    stroke-width: 1.4;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .ig[data-ig='record'][data-state='on'] .rec-spin {
+      animation: ig-spin 1.8s linear infinite;
+    }
+    .dr-svg .ig[data-ig='record'][data-state='on'] .vu {
+      animation: ig-vu 0.6s ease-in-out infinite alternate;
+      animation-delay: calc(var(--i) * -0.09s);
+    }
+    .dr-svg .ig[data-ig='record'][data-state='on'] .rec-cone {
+      animation: ig-pulse 0.4s ease-in-out infinite alternate;
+    }
+    .dr-svg .ig[data-ig='guitar'].plucked .str {
+      animation: ig-vib 0.07s linear 22 alternate;
+      animation-delay: calc(var(--i) * 0.02s);
+    }
+    .dr-svg .ig[data-ig='guitar'].plucked .note {
+      animation: ig-note 1.7s ease-out forwards;
+      animation-delay: calc(var(--i) * 0.18s);
+    }
+  }
+  @keyframes ig-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes ig-vu {
+    from {
+      transform: scaleY(0.2);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes ig-pulse {
+    to {
+      transform: scale(1.07);
+    }
+  }
+  @keyframes ig-vib {
+    from {
+      transform: translateX(-1.6px);
+    }
+    to {
+      transform: translateX(1.6px);
+    }
+  }
+  @keyframes ig-note {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    15% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-44px);
+    }
+  }
   .dr-svg .fl1 {
-    fill: var(--invalid);
+    fill: #e8530f;
   }
   .dr-svg .fl2 {
-    fill: color-mix(in srgb, var(--partial) 80%, var(--invalid));
+    fill: #ff8a1e;
   }
   .dr-svg .fl3 {
-    fill: var(--partial);
+    fill: #ffc24a;
+  }
+  .dr-svg .fl4 {
+    fill: #fff0b0;
+  }
+  .dr-svg .fireglow {
+    fill: color-mix(in srgb, var(--neon-c) 62%, transparent);
+  }
+  .dr-svg .cdl {
+    fill: #ffe9a8;
+    stroke: #ffb347;
+    stroke-width: 0.6;
+  }
+  .dr-svg .fire path {
+    stroke: color-mix(in srgb, #ffd98a 70%, transparent);
+    stroke-width: 0.8;
+  }
+  .dr-svg .brick {
+    fill: none;
+    stroke: color-mix(in srgb, #b49a8c 38%, transparent);
+    stroke-width: 0.6;
+    stroke-linecap: round;
   }
   .dr-svg .scope {
     stroke: color-mix(in srgb, var(--text) 70%, var(--bg));
@@ -1440,7 +2297,7 @@ const walks: [string, string][] = [
     fill: var(--accent);
   }
   .dr-svg .st:has(.firebox) .spot {
-    opacity: 0.55;
+    opacity: 0.95;
   }
   .dr-svg .st.is-on:has(.firebox) .spot {
     opacity: 1;
@@ -1454,15 +2311,7 @@ const walks: [string, string][] = [
   /* Words painted on walls and floors are skewed to their surface; a pixel font smears under that slant (a 6 reads as
      an 8), so they use the site's monospace, which stays crisp. Upright labels use the pixel font. */
   .dr-svg text,
-  .dr-rail-svg text {
-    font-family: var(--mono);
-    font-weight: 600;
-  }
   .dr-svg .orb text,
-  .dr-rail-svg text {
-    font-family: 'Pixelify Sans', var(--mono);
-    font-weight: 500;
-  }
   .dr-svg .labels {
     pointer-events: none;
   }
@@ -1511,6 +2360,24 @@ const walks: [string, string][] = [
   }
   .dr-svg .l .e {
     fill: color-mix(in srgb, var(--cream) 60%, var(--bg));
+  }
+  /* Stone: warm greys with a thin outline, as in the props gallery's stone material. */
+  .dr-svg .s :is(.t, .f, .m, .e) {
+    stroke: color-mix(in srgb, #c8ae9e 80%, transparent);
+    stroke-width: 0.9;
+    stroke-linejoin: round;
+  }
+  .dr-svg .s .t {
+    fill: color-mix(in srgb, #8a7268 55%, var(--surface));
+  }
+  .dr-svg .s .f {
+    fill: color-mix(in srgb, #6a544c 55%, var(--surface));
+  }
+  .dr-svg .s .m {
+    fill: color-mix(in srgb, #5c4842 55%, var(--surface));
+  }
+  .dr-svg .s .e {
+    fill: color-mix(in srgb, #4d3c37 55%, var(--surface));
   }
   .dr-svg .w :is(.t, .f, .e, .m, ellipse, path) {
     stroke: var(--neon-c);
@@ -1977,6 +2844,56 @@ const walks: [string, string][] = [
     opacity: 0;
     transition: opacity var(--m-state) var(--ease);
   }
+  /* The focus layer: a pool of light, a cone and rising sparks at the active station. */
+  .dr-svg .fx-focus {
+    pointer-events: none;
+  }
+  .dr-svg .fspot {
+    opacity: 0;
+    transition: opacity 500ms var(--ease);
+  }
+  .dr-svg .fspot.is-on {
+    opacity: 1;
+  }
+  .dr-svg .fp-ring {
+    fill: none;
+    stroke: #ffd98a;
+    stroke-opacity: 0.7;
+    stroke-width: 1.4;
+    stroke-dasharray: 5 4;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .fp-mote {
+    fill: #ffe3a3;
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dr-svg .fspot.is-on .fp-mote {
+      animation: fp-rise 2.4s ease-in infinite;
+      animation-delay: var(--d);
+    }
+    .dr-svg .fspot.is-on .fp-ring {
+      animation: fp-run 8s linear infinite;
+    }
+  }
+  @keyframes fp-rise {
+    0% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.9;
+    }
+    100% {
+      transform: translateY(-110px);
+      opacity: 0;
+    }
+  }
+  @keyframes fp-run {
+    to {
+      stroke-dashoffset: -72;
+    }
+  }
   .dr-svg .st:is(:hover, :focus-visible, .is-hover, .is-on) .pad {
     opacity: 1;
   }
@@ -2133,13 +3050,6 @@ const walks: [string, string][] = [
       animation: dr-fcar2 15s linear -6s infinite;
     }
 
-    .dr-rail-svg .r-star {
-      animation: dr-twinkle 3s ease-in-out infinite alternate;
-      animation-delay: var(--d);
-    }
-    .dr-rail-svg .r-plane {
-      animation: dr-rail-fly 16s linear infinite;
-    }
     .dr-svg .birds {
       animation: dr-birds 34s linear infinite;
     }
@@ -2168,6 +3078,9 @@ const walks: [string, string][] = [
     }
     .dr-svg .fire .fl3 {
       animation-duration: 0.5s;
+    }
+    .dr-svg .fire .fl4 {
+      animation-duration: 0.3s;
     }
     .dr-svg .prune {
       animation: dr-rune 3s linear infinite;
@@ -2207,6 +3120,29 @@ const walks: [string, string][] = [
     }
     .dr-svg .is-on :is(.bar.new, .new-t) {
       animation: dr-new 6s infinite;
+    }
+    .dr-svg .is-on .ig .gbar {
+      animation: ig-sort 6s ease-in-out infinite;
+    }
+    .dr-svg .is-on .ig .gbar.top {
+      animation:
+        ig-sort 6s ease-in-out infinite,
+        ig-top 6s infinite;
+    }
+    .dr-svg .is-on .ig .bmark {
+      animation: dr-new 6s infinite;
+    }
+    .dr-svg .is-on .ig .agline {
+      animation: dr-line 6s infinite;
+      animation-delay: calc(var(--i) * 0.25s);
+    }
+    .dr-svg .is-on .ig .chk {
+      animation: ig-check 6s infinite;
+      animation-delay: calc(var(--i) * 0.3s);
+    }
+    .dr-svg .is-on .ig .tst {
+      animation: dr-green 6s infinite;
+      animation-delay: calc(var(--i) * 0.18s);
     }
     /* 02 */
     .dr-svg .is-on .belt {
@@ -2454,14 +3390,6 @@ const walks: [string, string][] = [
       transform: translate(var(--cx), var(--cy));
     }
   }
-  @keyframes dr-rail-fly {
-    from {
-      transform: translate(-12px, 40px);
-    }
-    to {
-      transform: translate(124px, 22px);
-    }
-  }
   @keyframes dr-twinkle {
     to {
       opacity: 0.15;
@@ -2688,6 +3616,42 @@ const walks: [string, string][] = [
     }
     72% {
       transform: translateY(-4px);
+    }
+  }
+  @keyframes ig-sort {
+    0%,
+    34%,
+    97%,
+    100% {
+      transform: translateX(0);
+    }
+    44%,
+    92% {
+      transform: translateX(var(--dx));
+    }
+  }
+  @keyframes ig-top {
+    0%,
+    40%,
+    97%,
+    100% {
+      fill: #c8a090;
+    }
+    46%,
+    92% {
+      fill: #ffb347;
+    }
+  }
+  @keyframes ig-check {
+    0%,
+    8%,
+    97%,
+    100% {
+      fill: #241a1c;
+    }
+    12%,
+    92% {
+      fill: var(--verified);
     }
   }
   @keyframes dr-tile {
@@ -3101,8 +4065,7 @@ const walks: [string, string][] = [
       width: 100%;
       height: 100%;
     }
-    .dr-hint,
-    .dr-rail {
+    .dr-hint {
       display: none;
     }
     .dr-list .step {

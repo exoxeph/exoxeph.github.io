@@ -6,6 +6,28 @@
 // Every station plays the same three-act clock (6 s: acts at 8%, 36% and 64%), and the matching words on the page light
 // on the same beats, so the text and the room tell one story at one time.
 import { camera, type Tone } from '../bench/iso';
+import {
+  agentsIg,
+  armchairIg,
+  bedIg,
+  beltIg,
+  boardIg,
+  carBodyIg,
+  deskIg,
+  fireplaceIg,
+  guitarIg,
+  loungeIg,
+  plantIg,
+  portalPadIg,
+  rackIg,
+  recordPlayerIg,
+  shelfIg,
+  sofaIg,
+  streetLampIg,
+  treeIg,
+  trophyIg,
+  windowIg,
+} from './ig.ts';
 
 const S = 5.6;
 export const VIEW = { w: 960, h: 800 };
@@ -217,38 +239,6 @@ const leaf = (x: number, y: number, deg: number, len: number, w: number, cls = '
   const [mx, my] = [x + (dx * len) / 2, y + (dy * len) / 2];
   return `<path class="${cls}" d="M${r1(x)} ${r1(y)}Q${r1(mx - dy * w)} ${r1(my + dx * w)} ${r1(x + dx * len)} ${r1(y + dy * len)}Q${r1(mx + dy * w)} ${r1(my - dx * w)} ${r1(x)} ${r1(y)}Z"/>`;
 };
-/** A potted plant: a round pot and a spray of leaves. */
-const plant = (x: number, y: number, z: number, k = 1) => {
-  const [px, py] = pt(x, y, z + 4.5 * k);
-  const angles = [-160, -135, -112, -90, -68, -45, -20];
-  return `${cyl(x, y, z, 2.3 * k, 4.5 * k, 'n')}<g class="plant">${angles
-    .map((d, i) => leaf(px, py, d + (i % 2 ? 6 : -4), (14 + (i % 3) * 5) * k, 3.6 * k, i % 2 ? 'lf' : 'lf2'))
-    .join('')}</g>`;
-};
-/** A curtain on the left wall: a panel that drapes forward, with its folds. */
-const curtain = (xa: number, xb: number, top: number, bottom: number) => {
-  const mid = (top + bottom) / 2;
-  const edge: P3[] = [
-    [xa, 0.4, top],
-    [xb, 0.4, top],
-    [xb + 0.5, 1.4, mid],
-    [xb, 0.8, bottom + 1],
-    [(xa + xb) / 2 + 0.4, 2.2, bottom],
-    [xa, 1.2, bottom + 0.8],
-    [xa - 0.4, 1.6, mid],
-  ];
-  const folds = [0.3, 0.6]
-    .map((f) =>
-      curve(
-        'fold',
-        [xa + (xb - xa) * f, 0.6, top - 1],
-        [xa + (xb - xa) * f + 0.3, 1.8, mid],
-        [xa + (xb - xa) * f, 1.4, bottom + 1.5],
-      ),
-    )
-    .join('');
-  return `${blob('drape', edge)}${folds}`;
-};
 /** A mug with steam curling off it. */
 const mug = (x: number, y: number, z: number) => {
   const [mx, my] = pt(x, y, z + 2.2);
@@ -266,7 +256,8 @@ const planks = (z: number) => {
 };
 /** Readable things (text, and groups marked data-label) are lifted out of a drawing onto a layer the pixel filter does
  * not touch, so the lettering stays sharp. */
-const LABEL = /<text[\s\S]*?<\/text>|<g data-label[^>]*>[\s\S]*?<\/g>/g;
+// Text drawn on a prop's own plane (it carries data-keep) stays where it is; every other label is lifted above the art.
+const LABEL = /<text(?![^>]*data-keep)[\s\S]*?<\/text>|<g data-label[^>]*>[\s\S]*?<\/g>/g;
 const split = (svg: string) => ({ art: svg.replace(LABEL, ''), text: (svg.match(LABEL) ?? []).join('') });
 
 /** A neon tube: a soft halo under a bright core. */
@@ -301,26 +292,6 @@ function neonShell(z: number, top: number) {
     neon('m', [W - 0.6, 0.6, z + top - 1], [W - 0.6, D - 0.5, z + top - 1]),
   ].join('');
 }
-/** City light through window blinds: slats on the glass and striped shafts across the floor. */
-function blinds(x0: number, x1: number, z0: number, z1: number, floor: number) {
-  const slats: string[] = [];
-  for (let z = z0 + 1.6; z < z1; z += 2.2) slats.push(line('slat', [x0, 0.32, z], [x1, 0.32, z]));
-  const w = (x1 - x0) / 4;
-  const shafts = [0, 1, 2, 3]
-    .map((i) => {
-      const a = x0 + i * w + 0.4;
-      const b = a + w * 0.55;
-      const corners: P3[] = [
-        [a, 0.4, z0 + 4],
-        [b, 0.4, z0 + 4],
-        [b + 12, 34, floor + 0.13],
-        [a + 12, 34, floor + 0.13],
-      ];
-      return `<polygon class="shaft" points="${corners.map((q) => pt(...q).join(',')).join(' ')}" fill="url(#dr-shaft)"/>`;
-    })
-    .join('');
-  return { slats: slats.join(''), shafts };
-}
 /** A hologram: a translucent panel floating in the room, with scan lines and something drawn on it. */
 function holo(alongY: boolean, plane: number, a0: number, a1: number, z0: number, z1: number, draw: P3[]) {
   const q = (u: number, z: number): P3 => (alongY ? [plane, u, z] : [u, plane, z]);
@@ -328,10 +299,6 @@ function holo(alongY: boolean, plane: number, a0: number, a1: number, z0: number
   for (let z = z0 + 1.5; z < z1; z += 1.8) scan.push(line('scan', q(a0 + 0.5, z), q(a1 - 0.5, z)));
   return `<g class="holo-g">${quad('holo-p', [q(a0, z0), q(a1, z0), q(a1, z1), q(a0, z1)])}${scan.join('')}${line('holo-l', ...draw)}</g>`;
 }
-
-/** A flame, drawn upright from its base. */
-const flame = (x: number, y: number, h: number, cls: string) =>
-  `<path class="${cls}" d="M${r1(x - 3.4)} ${y}Q${r1(x - 4.4)} ${r1(y - h * 0.55)} ${x} ${r1(y - h)}Q${r1(x + 4.4)} ${r1(y - h * 0.55)} ${r1(x + 3.4)} ${y}Z"/>`;
 
 /* ---------------------------------------------------------------- outside --------------------------------------- */
 
@@ -416,7 +383,7 @@ function outside() {
       )
       .join(''),
     `<g class="birds"><path d="M0 0q4 -4 8 0q4 -4 8 0"/><path d="M22 -10q3 -3 6 0q3 -3 6 0"/></g>`,
-    `<g class="city">${towers}</g>`,
+    `<g class="city ig" data-ig="sky">${towers}</g>`,
     flies,
   ].join('');
 }
@@ -430,19 +397,16 @@ function street() {
   const lamp = (x: number, y: number) => {
     const [hx, hy] = pt(x, y, g + 17);
     const [bx, by] = pt(x, y, g);
-    return `${line('lpole', [x, y, g], [x, y, g + 17])}<ellipse class="pool" cx="${bx}" cy="${by}" rx="30" ry="15" fill="url(#dr-warm)"/><circle class="glow" cx="${hx}" cy="${hy}" r="18" fill="url(#dr-warm)"/><circle class="lhead" cx="${hx}" cy="${hy}" r="2.4"/>`;
+    return streetLampIg(
+      pt,
+      vec,
+      x,
+      y,
+      g,
+      `<ellipse class="pool" cx="${bx}" cy="${by}" rx="30" ry="15" fill="url(#dr-warm)"/><circle class="glow" cx="${hx}" cy="${hy}" r="18" fill="url(#dr-warm)"/><circle class="lhead" cx="${hx}" cy="${hy}" r="2.4"/>`,
+    );
   };
-  const tree = (x: number, y: number, k = 1) => {
-    const [tx, ty] = pt(x, y, g);
-    const crown = Array.from({ length: 9 }, (_, i) => {
-      const a = (i / 9) * Math.PI * 2;
-      const r = (12 + ((i * 7) % 3) * 2.2) * k;
-      return [r1(tx + Math.cos(a) * r), r1(ty - 30 * k + Math.sin(a) * r * 0.9)] as P2;
-    });
-    return `${line('trunk', [x, y, g], [x, y, g + 6 * k])}<path class="canopy" d="${smoothD(crown, true)}"/><path class="canopy-hi" d="${smoothD(
-      crown.slice(5).map(([a, b]) => [r1(a + 2 * k), r1(b + 3 * k)] as P2),
-    )}"/>`;
-  };
+  const tree = (x: number, y: number, k = 1) => treeIg(pt, vec, x, y, g, k);
   // A car: a body, a cabin, head and tail lights; it drives the length of its road and comes round again.
   const car = (
     alongX: boolean,
@@ -454,14 +418,12 @@ function street() {
   ) => {
     const L = 6;
     const [a0, a1] = dir > 0 ? [from, from + L] : [from - L, from];
-    const box = (u0: number, u1: number, v0: number, v1: number, z0: number, z1: number) =>
-      alongX ? soft(u0, v0, z0, u1, v1, z1, 0.8, tone) : soft(v0, u0, z0, v1, u1, z1, 0.8, tone);
     const head = dir > 0 ? a1 + 0.3 : a0 - 0.3;
     const tail = dir > 0 ? a0 - 0.2 : a1 + 0.2;
     const at3 = (u: number, v: number, z: number): [number, number, number] =>
       alongX ? [u, v, z] : [v, u, z];
     const span = 300 * dir;
-    return `<g class="car" style="${alongX ? move('c', span, 0, 0) : move('c', 0, span, 0)};animation-delay:${delay}s">${box(a0, a1, lane - 1.6, lane + 1.6, g, g + 2.2)}${box(a0 + 1.4, a1 - 1.6, lane - 1.3, lane + 1.3, g + 2.2, g + 3.7)}${dot('hl', ...at3(head, lane, g + 1.2), 1.6)}<ellipse class="beamh" cx="${pt(...at3(head + 4 * dir, lane, g))[0]}" cy="${pt(...at3(head + 4 * dir, lane, g))[1]}" rx="14" ry="5"/>${dot('tl', ...at3(tail, lane, g + 1.2), 1.3)}</g>`;
+    return `<g class="car" style="${alongX ? move('c', span, 0, 0) : move('c', 0, span, 0)};animation-delay:${delay}s">${carBodyIg(pt, vec, alongX, lane, a0, a1, g, tone)}${dot('hl', ...at3(head, lane, g + 1.2), 1.6)}<ellipse class="beamh" cx="${pt(...at3(head + 4 * dir, lane, g))[0]}" cy="${pt(...at3(head + 4 * dir, lane, g))[1]}" rx="14" ry="5"/>${dot('tl', ...at3(tail, lane, g + 1.2), 1.3)}</g>`;
   };
   const dashes = (alongX: boolean, c: number, from: number, to: number) => {
     const d: string[] = [];
@@ -508,21 +470,8 @@ function street() {
 // 01 At the desk: the mascot sits down. Act 1, fifteen tiles light at once; act 2, the Redis cube holds them while its
 // TTL ring runs down; act 3, the latency bar drops.
 function s1() {
-  const tiles: string[] = [];
-  for (let row = 0; row < 3; row++)
-    for (let col = 0; col < 5; col++) {
-      const x0 = 11 + col * 3.05;
-      const z1 = 27.6 - row * 2.9;
-      tiles.push(
-        `<g class="tile" style="--d:${r2(((row * 5 + col) * 7) % 11) / 100}s">${quad('q', [
-          [x0, 5.05, z1 - 2.4],
-          [x0 + 2.6, 5.05, z1 - 2.4],
-          [x0 + 2.6, 5.05, z1],
-          [x0, 5.05, z1],
-        ])}</g>`,
-      );
-    }
-  const [rx, ry] = pt(28.75, 7.75, 20.2);
+  // The Redis cube stands at the desk's far end, clear of the screens, with its TTL ring on top of it.
+  const [rx, ry] = pt(29.75, 8.75, 17.9);
   return [
     floorRect(4, 0.2, 34, 30, 0.15, 'pad'),
     floorText(6, 33, 0.2, '01', false),
@@ -530,21 +479,13 @@ function s1() {
     yRect(6, 13, 33, 34.6, 'bar new'),
     yText(6, 40.4, 'was 10 to 15 s', 'wn'),
     yText(14, 33.2, 'now 2 to 5 s', 'wn new-t'),
-    yText(27.6, 21.2, 'redis · TTL', 'wn sm'),
-    legs(6.5, 2.5, 31.5, 15.5, 0, 15),
-    soft(6, 2, 15, 32, 16, 16.5, 1.2, 'n'),
-    box(17.5, 3.8, 16.5, 19.5, 4.8, 18.5, 'n'),
-    box(10, 3.4, 18.5, 27, 5, 31, 'k'),
-    yText(11, 29.2, 'linx360', 'scr', 5.05),
-    tiles.join(''),
-    box(12, 8.5, 16.5, 22, 12, 17, 'l'),
-    box(23.5, 9.5, 16.5, 25, 11.5, 17.2, 'l'),
-    `<g class="redis">${box(27, 6, 16.5, 30.5, 9.5, 20, 'a')}</g>`,
-    `<ellipse class="ttl" cx="${rx}" cy="${ry}" rx="15" ry="7.5"/>`,
-    cyl(20, 23, 0, 2.4, 0.7, 'n'),
-    cyl(20, 23, 0.7, 0.5, 3.6, 'n'),
-    cyl(20, 23, 4.3, 3.6, 1.5, 'a'),
-    mug(29, 13, 16.5),
+    yText(26, 22, 'redis · TTL', 'wn sm'),
+    deskIg(pt, vec),
+    `<g class="redis">${box(28, 7, 14.3, 31.5, 10.5, 17.8, 'a')}</g>`,
+    `<ellipse class="ttl" cx="${rx}" cy="${ry}" rx="12" ry="6"/>`,
+    cyl(20, 20, 0, 2.4, 0.7, 'n'),
+    cyl(20, 20, 0.7, 0.5, 3.6, 'n'),
+    cyl(20, 20, 4.3, 3.6, 1.5, 'a'),
   ].join('');
 }
 
@@ -552,30 +493,26 @@ function s1() {
 // lever sends it back; act 3, it comes round again and the counter reads 15 / 15.
 function s2() {
   const card = (cls: string) =>
-    `<g class="card ${cls}" style="${move('e', 26, 0, 0)};${move('h', 13, 0, 0)};${move('u', 13, 0, 10)};${move('v', 0, 0, 10)}">${box(39, 7.5, 7, 42.6, 10.5, 7.6, 'l')}</g>`;
-  const [lx, ly] = pt(52, 9, 22.6);
+    `<g class="card ${cls}" style="${move('e', 26, 0, 0)};${move('h', 13, 0, 0)};${move('u', 13, 0, 10)};${move('v', 0, 0, 10)}">${box(39, 7.5, 8, 42.6, 10.5, 8.6, 'l')}</g>`;
+  const [lx, ly] = pt(52.6, 9, 21.6);
+  const [beltBack, beltFront] = beltIg(pt, vec);
   const [bx, by] = pt(59.7, 20, 9.8);
   return [
     floorRect(36, 0.2, 70, 30, 0.15, 'pad'),
     floorText(38, 33, 0.2, '02', false),
-    yRect(54, 68, 26, 46, 'win'),
-    blinds(54, 68, 26, 46, 0).slats,
     skyline(54, 68, 26),
+    windowIg(pt, vec, 54, 68, 26, 46, 0).frame,
     yRect(40, 52, 25, 33, 'disp'),
     yText(41, 30.6, 'critic', 'dt'),
     yText(41, 26.6, '14/15', 'dn n14'),
     yText(41, 26.6, '15/15 ✓', 'dn n15'),
     legs(38.5, 5.5, 67.5, 12.5, 0, 4),
     soft(38, 5, 4, 68, 13, 7, 2.6, 'n'),
-    curtain(51, 54.5, 47, 24),
-    curtain(67.5, 71, 47, 24),
-    line('belt', [38.5, 9, 7.05], [67.5, 9, 7.05]),
-    box(51, 3.5, 7, 53, 5, 20, 'w'),
+    beltBack,
     card('c1'),
     card('c2'),
     card('c3'),
-    box(51, 13, 7, 53, 14.5, 20, 'w'),
-    box(51, 3.5, 20, 53, 14.5, 22, 'w'),
+    beltFront,
     `<circle class="lamp" cx="${lx}" cy="${ly}" r="2.6"/>`,
     box(56, 17, 0, 63, 22, 9, 'n'),
     box(57, 17.6, 9, 62, 19, 9.8, 'k'),
@@ -586,37 +523,10 @@ function s2() {
 // 03 At the whiteboard: the mascot steps on the stool and points. Act 1, the records pile up; act 2, the bars reorder
 // into a ranking; act 3, the top of the ranking is marked, Precision@50.
 function s3() {
-  const raw = [5, 11, 3, 9, 13, 6, 8];
-  const sorted = [...raw].sort((a, b) => b - a);
-  const bars = (hs: number[], cls: string) =>
-    `<g class="${cls}">${hs
-      .map((h, i) => ({ h, i, x: 77 + i * 2.85 }))
-      .reverse()
-      .map(
-        ({ h, i, x }) =>
-          `<g style="--d:${r2(i * 0.08)}s">${box(x, 6, 9, x + 2, 8.6, 9 + h, cls === 'sorted' && i < 2 ? 'a' : 'l')}</g>`,
-      )
-      .join('')}</g>`;
-  const stacks = [0, 1, 2]
-    .map(
-      (i) =>
-        `<g class="stack" style="--d:${r2(i * 0.18)}s">${[0, 1, 2, 3].map((k) => box(99 - i * 0.2, 4 + i * 2.6, k * 1.4, 102.2 - i * 0.2, 6.2 + i * 2.6, k * 1.4 + 1.2, 'l')).join('')}</g>`,
-    )
-    .reverse()
-    .join('');
   return [
     floorRect(72, 0.2, 103, 30, 0.15, 'pad'),
     floorText(74, 33, 0.2, '03', false),
-    yRect(75, 101, 20, 50, 'board'),
-    yText(77, 46, 'PRECISION@50', 'bt'),
-    yText(77, 42.2, 'held-out · 30K', 'bt sm'),
-    line('chalk', [77, 0.3, 24], [83, 0.3, 28], [89, 0.3, 26.5], [96, 0.3, 33]),
-    yText(87.5, 36, 'top 50 ✓', 'bt hit sm'),
-    stacks,
-    soft(76, 3, 0, 98, 11, 9, 1.4, 'n'),
-    bars(raw, 'raw'),
-    bars(sorted, 'sorted'),
-    box(84, 18, 0, 89, 23, 4, 'n'),
+    boardIg(pt, vec),
   ].join('');
 }
 
@@ -627,10 +537,10 @@ function s4() {
     const y = 25 + (i % 5) * 1.25;
     const z = 30 - Math.floor(i / 5) * 6;
     return `<g class="led" style="--d:${r2((i * 0.37) % 1.4)}s">${quad('ld', [
-      [117.9, y, z],
-      [117.9, y + 0.8, z],
-      [117.9, y + 0.8, z + 0.8],
-      [117.9, y, z + 0.8],
+      [124.5, y, z],
+      [124.5, y + 0.8, z],
+      [124.5, y + 0.8, z + 0.8],
+      [124.5, y, z + 0.8],
     ])}</g>`;
   }).join('');
   const steps = ['build', 'GHCR', 'deploy']
@@ -645,12 +555,10 @@ function s4() {
     line('pipe', [W - 0.3, 26, 46], [W - 0.3, 44, 46]),
     steps,
     xText(24.5, 37, 'linux host', 'wn sm'),
-    box(118, 24, 0, 129, 31, 34, 'n'),
+    rackIg(pt, vec),
     leds,
     box(110, 24, 0, 115, 29, 4, 'n'),
     `<g class="pick">${box(110.6, 24.6, 4, 114.4, 28.4, 7.8, 'a')}</g>`,
-    box(128.6, 39, 18, 129.8, 40, 22, 'n'),
-    box(117, 36, 22, 129.6, 46, 23.5, 'w'),
     `<g class="landed">${box(120, 40, 23.5, 123.6, 43.6, 27.1, 'a')}</g>`,
     (() => {
       const [dx, dy] = pt(123, 41, 28.5);
@@ -662,53 +570,10 @@ function s4() {
 // 05 At the standing desk: the mascot directs two agents. Act 1, the plan is ticked off; act 2, Claude Code and Codex
 // circle while the code is typed; act 3, the tests go from red to green.
 function s5() {
-  const lines = [6, 8.5, 4.5, 7.5, 5.5]
-    .map((len, i) => {
-      const z = 31 - i * 1.25;
-      return `<g class="ln" style="--d:${r2(i * 0.25)}s">${quad('lnp', [
-        [125.9, 54, z - 0.5],
-        [125.9, 54 + len, z - 0.5],
-        [125.9, 54 + len, z],
-        [125.9, 54, z],
-      ])}</g>`;
-    })
-    .join('');
-  const tests = [0, 1, 2, 3]
-    .map(
-      (i) =>
-        `<g class="ts" style="--d:${r2(i * 0.18)}s">${quad('tsp', [
-          [125.9, 54 + i * 2.2, 24.6],
-          [125.9, 55.5 + i * 2.2, 24.6],
-          [125.9, 55.5 + i * 2.2, 25.9],
-          [125.9, 54 + i * 2.2, 25.9],
-        ])}</g>`,
-    )
-    .join('');
-  const notes = ['plan', 'build', 'test']
-    .map((s, i) => {
-      const y0 = 50 + i * 6.2;
-      return `${xRect(y0, y0 + 5.4, 36, 43, 'note')}${xText(y0 + 0.5, 37, s, 'nt')}${dot('tick', W - 0.3, y0 + 4.3, 41.6, 1.9, `--d:${r2(i * 0.3)}s`)}`;
-    })
-    .join('');
-  const orb = (cls: string, label: string, y: number, z: number) => {
-    const [x0, y0] = pt(106, y, z);
-    return `<g class="orb ${cls}"><circle cx="${x0}" cy="${y0}" r="8.5"/></g><g data-label class="orb ${cls}"><text x="${x0}" y="${r1(y0 - 13)}" text-anchor="middle">${label}</text></g>`;
-  };
   return [
     floorRect(100, 48, W - 0.2, 72, 0.15, 'pad'),
     floorText(101, 50, 0.2, '05', true),
-    notes,
-    xText(50.5, 46.5, 'pytest · TDD', 'wn sm'),
-    legs(116.5, 50.5, 128.5, 65.5, 0, 22),
-    soft(116, 50, 22, 129, 66, 23.4, 1.4, 'n'),
-    box(119, 53, 23.4, 125.8, 64, 24, 'l'),
-    box(125.8, 53, 24, 126.6, 64, 33, 'k'),
-    lines,
-    tests,
-    box(118.5, 64.6, 23.4, 120.5, 66, 25.4, 'a'),
-    xText(64, 27.4, 'MCP', 'wn sm', 117.2),
-    orb('o1', 'claude code', 62, 30),
-    orb('o2', 'codex', 72, 26),
+    agentsIg(pt, vec),
   ].join('');
 }
 
@@ -768,34 +633,13 @@ function ground() {
       books,
       box(106, 3, 0, 112, 9, 13, 'l'),
       puck(...pt(109, 6, 13), 6, 9, 'w'),
-      plant(108.5, 16.5, 0, 1.15),
+      plantIg(pt, vec, 'snake', [108.5, 16.5, 0], 1.15, 7),
     ].join(''),
     lounge: [
-      (() => {
-        const [bx, by] = pt(42, 66, 0);
-        return `<g class="bean"><path class="bean-b" d="M${r1(bx - 17)} ${by}C${r1(bx - 18)} ${r1(by - 22)} ${r1(bx + 16)} ${r1(by - 26)} ${r1(bx + 17)} ${by}A17 8.5 0 0 1 ${r1(bx - 17)} ${by}Z"/><path class="bean-c" d="M${r1(bx - 9)} ${r1(by - 12)}q8 5 15 -2"/></g>`;
-      })(),
-      cyl(59, 60, 0, 5.5, 4.6, 'n'),
-      mug(58, 59, 4.6),
-      cyl(61.5, 61.5, 4.6, 1.6, 0.5, 'l'),
-      soft(54, 72, 0, 60, 78, 1.8, 2.4, 'a'),
-      soft(64, 66, 0, 70, 72, 1.8, 2.4, 'l'),
-      // An arc lamp leaning over the lounge.
-      cyl(34, 76, 0, 2.6, 0.6, 'n'),
-      curve('arc', [34, 76, 0.6], [34, 76, 18], [37, 72, 27], [43, 66, 29]),
-      (() => {
-        const [sx, sy] = pt(43, 66, 28);
-        return `<path class="shade" d="M${r1(sx - 7)} ${r1(sy + 3)}Q${sx} ${r1(sy - 9)} ${r1(sx + 7)} ${r1(sy + 3)}Z"/><circle class="glow" cx="${sx}" cy="${r1(sy + 5)}" r="30" fill="url(#dr-warm)"/>`;
-      })(),
+      loungeIg(pt, vec, 0),
       soft(28, 80, 0, 33, 84, 1.2, 0.6, 'a'),
       soft(28.4, 80.3, 1.2, 32.6, 83.7, 2.2, 0.6, 'l'),
       soft(28.2, 80.6, 2.2, 32.2, 83.4, 3.1, 0.6, 'n'),
-      cyl(61.5, 58.2, 4.6, 0.6, 1.8, 'l'),
-      cyl(62.8, 60.6, 4.6, 0.6, 1.2, 'l'),
-      (() => {
-        const [fx, fy] = pt(61.5, 58.2, 6.4);
-        return `<path class="fl3 candle" d="M${fx} ${r1(fy - 6)}q2 3 0 5q-2 -2 0 -5z"/><circle class="glow" cx="${fx}" cy="${r1(fy - 3)}" r="16" fill="url(#dr-warm)"/>`;
-      })(),
       // A plant hung on the wall, its vines trailing down.
       cyl(35.5, 2, 44, 1.8, 2.6, 'n'),
       (() => {
@@ -824,37 +668,21 @@ function ground() {
       })(),
     ].join(''),
     bedroom: (() => {
-      const [cx, cy] = pt(9, 64, 7.8);
-      const [lx, ly] = pt(23, 47, 15.5);
+      const [cx, cy] = pt(9, 64, 5.9);
       return [
         `<ellipse class="under" cx="${pt(13, 65, 0)[0]}" cy="${pt(13, 65, 0)[1]}" rx="92" ry="46" fill="url(#dr-um)"/>`,
-        soft(20, 44, 0, 26, 50, 9, 1.2, 'n'),
-        mug(25, 49, 9),
-        line('pole', [23, 47, 9.6], [23, 47, 13.5]),
-        puck(lx, ly + 3, 4.5, 4, 'l'),
-        `<circle class="glow" cx="${lx}" cy="${r1(ly - 1)}" r="26" fill="url(#dr-warm)"/>`,
-        soft(24, 53, 0, 26.4, 77, 15, 1, 'n'),
-        soft(2, 54, 0, 24, 76, 4, 1.6, 'n'),
-        neon('m', [2.2, 76.3, 0.8], [24, 76.3, 0.8]),
-        soft(2.4, 54.4, 4, 24, 75.6, 7, 2.2, 'l'),
-        soft(18.4, 56, 7, 23.2, 64.4, 9.2, 2.2, 'l'),
-        soft(18.4, 65.6, 7, 23.2, 74, 9.2, 2.2, 'l'),
-        soft(1.8, 53.8, 6.2, 16, 76.2, 7.9, 2, 'a'),
-        curve('fold', [4, 56, 7.95], [8, 62, 8.1], [6, 70, 7.95], [9, 75, 7.95]),
-        curve('fold', [11, 55, 7.95], [13, 63, 8.1], [12, 72, 7.95]),
+        bedIg(pt, vec, 0),
         `<g class="cat" style="transform-origin:${cx}px ${cy}px"><ellipse cx="${cx}" cy="${r1(cy - 3.5)}" rx="9.5" ry="5"/><circle cx="${r1(cx - 8.5)}" cy="${r1(cy - 6.5)}" r="4.2"/><path d="M${r1(cx - 12.2)} ${r1(cy - 8.4)}l1.2 -4.6 2.6 3.2zM${r1(cx - 8.2)} ${r1(cy - 9.6)}l1.6 -4.4 2.2 3.4z"/><path class="tail" d="M${r1(cx + 8.5)} ${r1(cy - 2.5)}q7 1 3.5 6.5"/></g>`,
-        plant(4.5, 82.5, 0, 1.2),
+        plantIg(pt, vec, 'monstera', [30, 44, 0], 1, 0),
       ].join('');
     })(),
     front: [
-      box(102, 87, 0, 110, 95, 17, 'n'),
-      xRect(88, 94, 5, 15, 'vend', 101.95),
-      xRect(88.5, 93.5, 2, 3.6, 'vend-slot', 101.95),
+      `<g data-occ="95,87,103,95">${box(95, 87, 0, 103, 95, 17, 'n')}${xRect(88, 94, 5, 15, 'vend', 94.95)}${xRect(88.5, 93.5, 2, 3.6, 'vend-slot', 94.95)}</g>`,
       portal(0, true),
       floorText(104, 97.5, 0.15, 'PORTAL · LEVEL 2', false, 'ft sm'),
     ].join(''),
     light: [
-      blinds(54, 68, 26, 46, 0).shafts,
+      windowIg(pt, vec, 54, 68, 26, 46, 0).beams,
       holo(false, 12, 9, 25, 33, 43, [
         [10.5, 12, 35],
         [14, 12, 39],
@@ -889,10 +717,7 @@ function portal(z: number, beam: boolean) {
     beam
       ? `<rect class="beam" x="${r1(cx - 34)}" y="${r1(top - PAN)}" width="68" height="${PAN}" fill="url(#dr-beam)"/>`
       : '',
-    puck(cx, cy, 46, 4, 'n'),
-    `<ellipse class="pglow" cx="${cx}" cy="${top}" rx="38" ry="19"/>`,
-    `<ellipse class="prune" cx="${cx}" cy="${top}" rx="30" ry="15"/>`,
-    `<ellipse class="pcore" cx="${cx}" cy="${top}" rx="15" ry="7.5"/>`,
+    portalPadIg(pt, vec, PORTAL[0], PORTAL[1], z),
     beam ? motes : '',
   ].join('');
 }
@@ -904,7 +729,6 @@ function portal(z: number, beam: boolean) {
 function c1(stand: [number, number]) {
   const z = UP;
   const [gx, gy] = pt(40, 14, z);
-  const [fx, fy] = pt(40, 5.1, z + 2.8);
   const confetti = Array.from({ length: 12 }, (_, i) => {
     const [x, y] = pt(28 + i * 2.2, 10 + (i % 3) * 4, z + 30 + (i % 4) * 3);
     return `<rect class="conf" style="--d:${r2((i % 6) * 0.12)}s" x="${x}" y="${y}" width="3" height="4.5" rx="0.8"/>`;
@@ -914,14 +738,7 @@ function c1(stand: [number, number]) {
     `<ellipse class="spot warm" cx="${gx}" cy="${gy}" rx="72" ry="36" fill="url(#dr-warm)"/>`,
     `<ellipse class="rugr" cx="${pt(40, 18, z + 0.1)[0]}" cy="${pt(40, 18, z + 0.1)[1]}" rx="52" ry="26"/>`,
     floorText(31, 35, z + 0.2, '06', false),
-    box(29, 0.2, z, 51, 8, z + 2, 'n'),
-    box(31, 0.2, z + 2, 49, 5, z + 16, 'n'),
-    yRect(35, 45, z + 2.6, z + 11, 'firebox', 5.05),
-    `<g class="fire">${flame(fx - 5, fy, 9, 'fl1')}${flame(fx + 4, fy, 11, 'fl2')}${flame(fx, fy, 14, 'fl3')}</g>`,
-    box(29.5, 0.2, z + 16, 50.5, 6.6, z + 17.2, 'n'),
-    puck(...pt(31.5, 4, z + 17.2), 1.6, 4, 'l'),
-    puck(...pt(48, 4, z + 17.2), 1.6, 3, 'l'),
-    box(33, 0.2, z + 17.2, 47, 4, z + H2, 'n'),
+    fireplaceIg(pt, vec, z, H2),
     yRect(34.4, 45.6, z + 20, z + 33, 'frame cframe', 4.05),
     yImage('/certs/aws-ai-practitioner.webp', 35.3, z + 32.2, 10.2, 4.1),
     yText(34.4, z + 38, 'AWS', 'wt sm', 4.15),
@@ -935,11 +752,6 @@ function c1(stand: [number, number]) {
 // certificate on the wall shines.
 function c2(stand: [number, number]) {
   const z = UP;
-  const [tx, ty] = pt(112, 36, z + 7);
-  const lift = `--lx:${r1(stand[0] - tx)}px;--ly:${r1(stand[1] - 112 - ty)}px`;
-  const minis = [20, 25, 30]
-    .map((y, i) => puck(...pt(125, y, z + 10 + i * 0), 1.6, 3.4, i === 1 ? 'a' : 'l'))
-    .join('');
   const sparks = Array.from({ length: 6 }, (_, i) =>
     dot('spark', W - 0.6, 40 + i * 2.6, z + 18 + (i % 2) * 8, 1.4, `--d:${r2(i * 0.25)}s`),
   ).join('');
@@ -949,12 +761,7 @@ function c2(stand: [number, number]) {
     xRect(38.5, 56.5, z + 12, z + 31, 'frame cframe'),
     xImage('/certs/udacity.webp', 39.5, z + 30, 16),
     xText(38.5, z + 34, 'NANODEGREE', 'wt'),
-    box(120, 16, z, 129.6, 34, z + 30, 'w'),
-    box(120.4, 16.4, z + 9.4, 129.6, 33.6, z + 10, 'n'),
-    box(120.4, 16.4, z + 20, 129.6, 33.6, z + 20.6, 'n'),
-    minis,
-    box(110, 34, z, 114, 38, z + 7, 'n'),
-    `<g class="trophy" style="${lift}">${puck(tx, ty, 3.6, 2.4, 'a')}${puck(tx, ty - 2.4, 1.2, 4, 'a')}${puck(tx, ty - 6.4, 5, 6, 'a')}</g>`,
+    trophyIg(pt, vec, z, stand),
     sparks,
   ].join('');
 }
@@ -990,8 +797,7 @@ function upper() {
       xRect(0, D, z, z + 2, 'skirt', W - 0.25),
       yText(62, z + 38, 'LEVEL 2 · CERTIFICATIONS', 'neon'),
       neonShell(z, H2),
-      yRect(5, 26, z + 14, z + 34, 'win'),
-      blinds(5, 26, z + 14, z + 34, z).slats,
+      windowIg(pt, vec, 5, 26, z + 14, z + 34, z).frame,
       [
         [8, 28],
         [13, 22],
@@ -1017,63 +823,18 @@ function upper() {
       line('tl', [W - 0.3, 58, z + 30], [W - 0.3, 92, z + 30]),
     ].join(''),
     study: [
-      // An open shelf, drawn far to near: back, far side, a row of books on each plank, near side.
-      box(58, 1, z, 96, 2.2, z + 21.5, 'n'),
-      box(95, 1, z, 96.2, 8, z + 21.5, 'n'),
-      ...[0, 10.5].map(
-        (lift) =>
-          box(58, 1, z + lift, 96.2, 8, z + lift + 0.6, 'n') +
-          Array.from({ length: 22 }, (_, i) => 21 - i)
-            .filter((i) => (i + (lift ? 1 : 0)) % 5 !== 0)
-            .map((i) => {
-              const x = 59.2 + i * 1.65;
-              const tall = 6 + ((i * 5) % 4);
-              return box(
-                x,
-                2.4,
-                z + lift + 0.6,
-                x + 1.3,
-                7,
-                z + lift + 0.6 + tall,
-                (i + lift) % 6 === 1 ? 'a' : 'l',
-              );
-            })
-            .join(''),
-      ),
-      box(58, 1, z + 21, 96.2, 8, z + 21.6, 'n'),
-      box(57.4, 1, z, 58.6, 8, z + 21.5, 'n'),
+      shelfIg(pt, vec, z),
       yText(60, z + 23.6, 'study shelf', 'wn sm'),
       line('pole', [16, 15, z + 11], [12, 11, z]),
       line('pole', [16, 15, z + 11], [20, 12, z]),
       line('pole', [16, 15, z + 11], [16, 20, z]),
       line('scope', [12, 18, z + 10.5], [19.5, 10, z + 15.5]),
       dot('lens', 19.5, 10, z + 15.5, 2.6),
-      box(88, 18, z, 91, 21, z + 0.8, 'n'),
-      line('pole', [89.5, 19.5, z + 0.8], [89.5, 19.5, z + 22]),
-      puck(...pt(89.5, 19.5, z + 22), 6, 5, 'l'),
-      // The footstool sits behind the armchair, so it is drawn first.
-      soft(87, 23, z, 92, 27, z + 1.2, 0.6, 'a'),
-      soft(87.4, 23.3, z + 1.2, 91.6, 26.7, z + 2.3, 0.6, 'l'),
-      soft(73.5, 13.5, z, 84.5, 24.5, z + 4.5, 2, 'a'),
-      soft(73.5, 13.5, z + 4.5, 84.5, 16.5, z + 13, 1.4, 'a'),
-      soft(81.5, 16, z + 4.5, 84.5, 24.5, z + 8, 1.4, 'a'),
-      soft(76.5, 16.5, z + 4.5, 81.5, 23.5, z + 6, 1.6, 'l'),
-      soft(73.5, 16, z + 4.5, 76.5, 24.5, z + 8, 1.4, 'a'),
-      // A throw draped over the near arm, on the side that faces the room.
-      blob('throw', [
-        [73.4, 17, z + 8.2],
-        [73.3, 21.5, z + 8.4],
-        [73.1, 24.4, z + 6],
-        [72.9, 24.6, z + 1.8],
-        [73.1, 20.5, z + 2.6],
-        [73.3, 16.6, z + 4.2],
-      ]),
-      plant(7, 7, z, 1.2),
-      curtain(2.5, 6, z + 36, z + 12),
-      curtain(25, 28.5, z + 36, z + 12),
+      armchairIg(pt, vec, z),
+      plantIg(pt, vec, 'monstera', [7, 7, z], 1.2, 3),
     ].join(''),
     light: [
-      blinds(5, 26, z + 14, z + 34, z).shafts,
+      windowIg(pt, vec, 5, 26, z + 14, z + 34, z).beams,
       holo(true, 118.5, 18, 32, z + 33, z + 43, [
         [118.5, 21, z + 36],
         [118.5, 25, z + 41],
@@ -1089,40 +850,17 @@ function upper() {
       mug(67.6, 62.2, z + 4),
       puck(...pt(67.8, 62.4, z + 4), 1.6, 1.6, 'l'),
       puck(...pt(72.4, 57.8, z + 4), 1.6, 1.6, 'l'),
-      plant(100, 56, z, 1.3),
+      plantIg(pt, vec, 'snake', [100, 56, z], 1.3, 5),
       // A sofa corner at the front, on its own rug, with a lamp on a side table.
       oval('rugw', 21, 82, 17, 10, z + 0.1),
-      cyl(38, 70, z, 2.6, 6, 'n'),
-      cyl(38, 70, z + 6, 0.5, 5, 'n'),
-      (() => {
-        const [sx, sy] = pt(38, 70, z + 11);
-        return `<path class="shade" d="M${r1(sx - 6)} ${r1(sy + 2)}L${r1(sx - 3.5)} ${r1(sy - 7)}H${r1(sx + 3.5)}L${r1(sx + 6)} ${r1(sy + 2)}Z"/><circle class="glow" cx="${sx}" cy="${r1(sy + 2)}" r="34" fill="url(#dr-warm)"/>`;
-      })(),
-      // The sofa, far to near: base, back, the far arm, the seat cushions, two pillows against the back, the near arm.
-      soft(8, 64, z, 34, 80, z + 4.5, 2, 'a'),
-      soft(8, 64, z + 4.5, 34, 67.5, z + 12, 1.6, 'a'),
-      soft(30.5, 66, z + 4.5, 34, 80, z + 8, 1.4, 'a'),
-      soft(11.5, 67.5, z + 4.5, 21, 79, z + 6.2, 1.8, 'l'),
-      soft(21, 67.5, z + 4.5, 30.5, 79, z + 6.2, 1.8, 'l'),
-      soft(24.5, 67.8, z + 6.2, 29, 70.6, z + 10.2, 1.2, 'l'),
-      soft(12.5, 67.8, z + 6.2, 17, 70.6, z + 10.2, 1.2, 'n'),
-      soft(8, 66, z + 4.5, 11.5, 80, z + 8, 1.4, 'a'),
-      // A record player and a stack of vinyl.
-      box(56, 84, z, 74, 92, z + 8, 'n'),
-      cyl(62, 88, z + 8, 3.4, 0.5, 'k'),
-      cyl(62, 88, z + 8.5, 0.9, 0.1, 'a'),
-      line('arm', [68, 85.5, z + 9.2], [64.5, 88.2, z + 9]),
-      cyl(70.5, 88.5, z + 8, 2.4, 1.6, 'a'),
-      // A guitar on its stand.
-      (() => {
-        const [gx, gy] = pt(46, 90, z);
-        return `<g class="guitar"><path class="gstand" d="M${r1(gx - 5)} ${gy}L${gx} ${r1(gy - 10)}L${r1(gx + 5)} ${gy}"/><ellipse class="gbody" cx="${gx}" cy="${r1(gy - 12)}" rx="7.5" ry="8.5"/><ellipse class="gbody" cx="${r1(gx + 0.6)}" cy="${r1(gy - 24)}" rx="5.5" ry="6"/><circle class="ghole" cx="${r1(gx + 0.4)}" cy="${r1(gy - 19)}" r="2.2"/><path class="gneck" d="M${r1(gx + 1)} ${r1(gy - 29)}L${r1(gx + 4)} ${r1(gy - 52)}"/><rect class="ghead" x="${r1(gx + 2.4)}" y="${r1(gy - 58)}" width="4" height="7" rx="1.2"/></g>`;
-      })(),
-      plant(90, 90, z, 1.8),
+      sofaIg(pt, vec, z),
+      recordPlayerIg(pt, vec, z),
+      guitarIg(pt, vec, z, [46, 90]),
+      plantIg(pt, vec, 'monstera', [90, 90, z], 1.7, 9),
       // Pictures on the wall.
       ...[
-        [100, 108, 16, 25],
-        [111, 123, 13, 27],
+        [106, 114, 16, 25],
+        [117, 126, 13, 27],
       ].map(
         ([a, b, lo, hi]) =>
           `${yRect(a!, b!, z + lo!, z + hi!, 'frame')}${yRect(a! + 0.9, b! - 0.9, z + lo! + 0.9, z + hi! - 0.9, 'pic')}${quad(
@@ -1139,41 +877,6 @@ function upper() {
 }
 
 /* ---------------------------------------------------------------- the rail beside the text ---------------------- */
-
-/** The rail: the building in section, every stop on the way up, and where the mascot is now. Stops run from the street
- * door at the bottom, through the ground floor and the portal, to Level 2; the sky is above the roof. */
-const RAIL = { w: 108, h: 664, x: 22, y: [628, 562, 514, 466, 418, 370, 200, 126] };
-export function renderRail(names: string[]) {
-  const { w, h, x, y } = RAIL;
-  let seed = 3;
-  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-  const stars = Array.from(
-    { length: 11 },
-    (_, i) =>
-      `<circle class="r-star" style="--d:${r2(i * 0.5)}s" cx="${r1(4 + rnd() * 100)}" cy="${r1(4 + rnd() * 60)}" r="${i % 4 ? 0.9 : 1.4}"/>`,
-  ).join('');
-  const city = [
-    [0, 58, 15, 42],
-    [17, 48, 11, 52],
-    [80, 42, 13, 58],
-    [95, 64, 13, 36],
-  ]
-    .map(([a, b, c, d]) => `<rect class="r-city" x="${a}" y="${b}" width="${c}" height="${d}"/>`)
-    .join('');
-  const wins = Array.from({ length: 20 }, (_, i) => {
-    const col = i % 2;
-    const row = Math.floor(i / 2);
-    const yy = 136 + row * 44 + (row > 2 ? 34 : 0);
-    return `<rect class="r-win${(i * 5) % 3 === 0 ? ' lit' : ''}" x="${84 + col * 8}" y="${yy}" width="4" height="6"/>`;
-  }).join('');
-  const nodes = y
-    .map(
-      (yy, k) =>
-        `<g class="r-node" data-node="${k}"><circle cx="${x}" cy="${yy}" r="4.6"/><text x="${x + 11}" y="${yy + 3}">${k === 0 ? 'start' : `${String(k).padStart(2, '0')} ${names[k - 1]}`}</text></g>`,
-    )
-    .join('');
-  return `<svg class="dr-rail-svg" data-rail viewBox="0 0 ${w} ${h}" data-y="${JSON.stringify(y)}" data-x="${x}" aria-hidden="true"><defs><linearGradient id="dr-rbeam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" style="stop-color:var(--accent);stop-opacity:.55"/><stop offset="1" style="stop-color:var(--accent);stop-opacity:.12"/></linearGradient></defs>${stars}<circle class="r-moon" cx="92" cy="18" r="6"/><g class="r-plane"><path d="M-6 0L5 -0.7L7 0L5 0.7ZM-1 0L-4 -4H-2.4L2 0L-2.4 4H-4Z"/></g>${city}<rect class="r-roof" x="2" y="92" width="${w - 4}" height="6" rx="1"/><rect class="r-bld" x="6" y="98" width="${w - 12}" height="${h - 130}"/><text class="r-floor" x="${w - 10}" y="114" text-anchor="end">LEVEL 2</text><rect class="r-slab" x="6" y="268" width="${w - 12}" height="7"/><text class="r-floor" x="${w - 10}" y="292" text-anchor="end">GROUND</text>${wins}<rect class="r-beam" x="${x - 6}" y="${y[6]}" width="12" height="${y[5]! - y[6]!}" fill="url(#dr-rbeam)"/><ellipse class="r-pad" cx="${x}" cy="${y[5]! - 9}" rx="10" ry="3"/><ellipse class="r-pad" cx="${x}" cy="${y[6]! + 9}" rx="10" ry="3"/><rect class="r-street" x="0" y="${h - 28}" width="${w}" height="20"/><path class="r-lane" d="M2 ${h - 18}H${w - 2}"/><path class="r-track" d="M${x} ${y[0]}V${y[7]}"/><line class="r-fill" data-rail-fill x1="${x}" x2="${x}" y1="${y[0]}" y2="${y[0]}"/>${nodes}<g class="r-icon" data-rail-icon transform="translate(${x} ${y[0]})"><circle class="r-halo" r="13"/><svg x="-13" y="-27" width="26" height="27" viewBox="768 0 96 100"><image href="/resume-hero.png" width="2112" height="100"/></svg></g></svg>`;
-}
 
 /* ---------------------------------------------------------------- waypoint icons --------------------------------- */
 
@@ -1276,14 +979,16 @@ type Stop = { at: P3; pose: string; face: 1 | -1; via?: P3[] };
 // Where the mascot stands at each station, how it approaches it, and what it does there.
 const STOPS: Stop[] = [
   {
-    at: [20, 23, 5.6],
+    at: [20, 20, 5.6],
     pose: 'sit',
     face: -1,
-    // From the door, up the clear lane between the beanbag and the coffee table, then across to the desk: never over
-    // the bed (the mascot is drawn in front of everything, so its path must not pass behind furniture).
+    // From the door, up the lane on the beanbag's left (x 36: the bed ends at x 26.4, the beanbag begins at 39.8, the
+    // monstera by the headboard spreads to about 33), then across to the desk: never over a prop (the mascot is drawn in
+    // front of everything, so its path must not pass behind furniture).
     via: [
-      [50, 86, 0],
-      [50, 44, 0],
+      [46, 88, 0],
+      [36, 84, 0],
+      [36, 34, 0],
       [20, 31, 0],
     ],
   },
@@ -1296,13 +1001,21 @@ const STOPS: Stop[] = [
       [60, 30, 0],
     ],
   },
-  { at: [86.5, 20.5, 4], pose: 'point', face: -1, via: [[86.5, 28, 0]] },
+  {
+    at: [87.5, 9.5, 4.1],
+    pose: 'point',
+    face: -1,
+    via: [
+      [87.5, 28, 0],
+      [87.5, 16, 0],
+    ],
+  },
   {
     at: [106, 31, 0],
     pose: 'carry',
     face: 1,
     via: [
-      [86.5, 28, 0],
+      [87.5, 28, 0],
       [106, 28, 0],
     ],
   },
@@ -1360,5 +1073,19 @@ export function renderRoom(stations: RoomStation[]) {
   const us = split(`${u.shell}${u.study}`);
   const uf = split(`${u.front}${u.light}`);
   const [mx, my] = screen[0]!;
-  return `<svg class="dr-svg" viewBox="0 0 ${VIEW.w} ${VIEW.h}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="My dev room: two floors, one station for each point of my résumé" data-route="${JSON.stringify(screen)}" data-z="${JSON.stringify(route.map((p) => p[2]))}" data-stops="${JSON.stringify(stops)}" data-pan="${PAN}" data-up="${UP}"><defs><linearGradient id="dr-beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".45"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><radialGradient id="dr-warm"><stop offset="0" style="stop-color:var(--partial);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--partial);stop-opacity:0"/></radialGradient><linearGradient id="dr-rm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".3"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></linearGradient><linearGradient id="dr-rc" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".26"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><linearGradient id="dr-shaft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb057" stop-opacity=".3"/><stop offset="1" stop-color="#ffb057" stop-opacity="0"/></linearGradient><radialGradient id="dr-um"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".42"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient><pattern id="dr-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#fff" fill-opacity=".07"/><rect x="2" y="2" width="1" height="1" fill="#fff" fill-opacity=".07"/></pattern><radialGradient id="dr-haze"><stop offset="0" stop-color="#ff9a55" stop-opacity=".09"/><stop offset="1" stop-color="#ff9a55" stop-opacity="0"/></radialGradient></defs><g data-cam><g data-art><g class="outside" data-outside>${outside()}</g>${st.back}<g class="mass">${prism(-3, -3, -6, W + 3, D, H, 'n')}</g><g class="floor-g">${gs.art}${group(2)}${group(1)}${group(0)}${gl.art}${group(3)}${group(4)}${gf.art}</g><g class="floor-u">${us.art}${group(5)}${group(6)}${uf.art}</g>${st.front}</g><g class="labels"><g class="lbl-g">${gs.text}${gl.text}${gf.text}${[0, 1, 2, 3, 4].map(words).join('')}</g><g class="lbl-u">${us.text}${uf.text}${words(5)}${words(6)}</g></g><g class="mascot" data-mascot transform="translate(${mx} ${my})" style="${shuttle}">${MASCOT}</g></g></svg>`;
+  // The focus layer sits above the room and below the words: a soft dimming with a bright hole that follows the
+  // mascot, like a stage spotlight (the script moves the hole), and at the active station a pool of light on the
+  // floor, a cone of light and a few rising sparks. Light drawn as shapes with gradient fills, not blur.
+  const spotAt = (i: number) => {
+    const [x, y] = stand(i);
+    const motes = [-18, -6, 8, 18, -12, 12]
+      .map(
+        (dx, k) =>
+          `<rect class="fp-mote" style="--d:${r2(k * 0.4)}s" x="${r1(x + dx)}" y="${r1(y - 8 - k * 7)}" width="2.6" height="2.6"/>`,
+      )
+      .join('');
+    return `<g class="fspot" data-fspot="${i}"><ellipse cx="${r1(x)}" cy="${r1(y)}" rx="50" ry="25" fill="url(#dr-fpool)"/><ellipse class="fp-ring" cx="${r1(x)}" cy="${r1(y)}" rx="34" ry="17"/><path d="M${r1(x - 24)} ${r1(y - 2)}L${r1(x - 46)} ${r1(y - 150)}H${r1(x + 46)}L${r1(x + 24)} ${r1(y - 2)}Z" fill="url(#dr-fcone)"/>${motes}</g>`;
+  };
+  const focus = `<g class="fx-focus" aria-hidden="true" pointer-events="none"><defs><radialGradient id="dr-focus" gradientUnits="userSpaceOnUse" cx="${mx}" cy="${r1(my - 34)}" r="470"><stop offset=".18" stop-color="#08050c" stop-opacity="0"/><stop offset=".55" stop-color="#08050c" stop-opacity=".18"/><stop offset="1" stop-color="#08050c" stop-opacity=".28"/></radialGradient><radialGradient id="dr-fpool"><stop offset="0" stop-color="#ffc867" stop-opacity=".55"/><stop offset=".6" stop-color="#ffc867" stop-opacity=".2"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></radialGradient><linearGradient id="dr-fcone" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffd98a" stop-opacity=".34"/><stop offset=".7" stop-color="#ffd98a" stop-opacity=".08"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></linearGradient></defs><rect x="-600" y="-600" width="${VIEW.w + 1200}" height="${VIEW.h + PAN + 1200}" fill="url(#dr-focus)"/>${STOPS.map((_, i) => spotAt(i)).join('')}</g>`;
+  return `<svg class="dr-svg" viewBox="0 0 ${VIEW.w} ${VIEW.h}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="My dev room: two floors, one station for each point of my résumé" data-route="${JSON.stringify(screen)}" data-room="${JSON.stringify(route.map(([x, y]) => [x, y]))}" data-z="${JSON.stringify(route.map((p) => p[2]))}" data-stops="${JSON.stringify(stops)}" data-pan="${PAN}" data-up="${UP}"><defs><linearGradient id="dr-beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".45"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><radialGradient id="dr-warm"><stop offset="0" style="stop-color:var(--partial);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--partial);stop-opacity:0"/></radialGradient><linearGradient id="dr-rm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".3"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></linearGradient><linearGradient id="dr-rc" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".26"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><linearGradient id="dr-shaft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb057" stop-opacity=".3"/><stop offset="1" stop-color="#ffb057" stop-opacity="0"/></linearGradient><radialGradient id="dr-um"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".42"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient><pattern id="dr-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#fff" fill-opacity=".07"/><rect x="2" y="2" width="1" height="1" fill="#fff" fill-opacity=".07"/></pattern><radialGradient id="dr-haze"><stop offset="0" stop-color="#ff9a55" stop-opacity=".09"/><stop offset="1" stop-color="#ff9a55" stop-opacity="0"/></radialGradient></defs><g data-cam><g data-art><g class="outside" data-outside>${outside()}</g>${st.back}<g class="mass">${prism(-3, -3, -6, W + 3, D, H, 'n')}</g><g class="floor-g">${gs.art}${group(2)}${group(1)}${group(0)}${gl.art}${group(3)}${group(4)}${gf.art}</g><g class="floor-u">${us.art}${group(5)}${group(6)}${uf.art}</g>${st.front}</g>${focus}<g class="labels"><g class="lbl-g">${gs.text}${gl.text}${gf.text}${[0, 1, 2, 3, 4].map(words).join('')}</g><g class="lbl-u">${us.text}${uf.text}${words(5)}${words(6)}</g></g><g class="mascot" data-mascot transform="translate(${mx} ${my})" style="${shuttle}">${MASCOT}</g></g></svg>`;
 }
