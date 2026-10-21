@@ -266,12 +266,39 @@ const certs = [
     ],
     pulse: 'done',
   },
+  {
+    id: 'rs-redis',
+    name: 'Redis Certified: Associate Developer',
+    by: 'Redis',
+    when: 'Issued Oct 2026, expires Oct 2028',
+    href: 'https://credentials.redis.io/9db642ab-2b59-46db-8a85-e6ec3a36a18a',
+    link: 'View credential',
+    logo: '/certs/redis.webp',
+    logoAlt: 'Redis Certified Associate Developer badge',
+    place: 'Upstairs, at the Redis stack',
+    lede: 'Redis certification for developers who build on it: choosing the right data structure, caching with expiry, persistence and key management, client connections, and safe concurrent updates.',
+    // The exam's five domains and their weights, from the Redis Associate Developer exam guide.
+    covers: [
+      ['Data modeling with Redis data structures', 46],
+      ['Caching strategies and expiration', 20],
+      ['Persistence, key lifecycle and operational commands', 15],
+      ['Client library usage and connection management', 11],
+      ['Concurrency, transactions and atomicity', 8],
+    ],
+    format: '65 questions · 90 minutes · pass mark 70% · valid for 2 years',
+    facts: [
+      ['Issuer', 'Redis', 1],
+      ['Issued', 'Oct 2026', 2],
+      ['Valid until', 'Oct 2028', 3],
+    ],
+    pulse: 'redis',
+  },
 ];
 ---
 
 <Base
   title={`Résumé | ${site.name}`}
-  description="Résumé: AI engineer. Work experience, projects, skills, education and AWS certifications."
+  description="Résumé: AI engineer. Work experience, projects, skills, education, and AWS and Redis certifications."
 >
   <div class="wrap rpage">
     <header class="rh">
@@ -377,7 +404,6 @@ const certs = [
         </section>
       </aside>
     </div>
-
   </div>
 </Base>
 

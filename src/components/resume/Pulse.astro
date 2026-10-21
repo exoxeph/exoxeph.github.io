@@ -117,6 +117,15 @@ const delay = (s: number) => `animation-delay:${s}s`;
       <span class="b3 chip ok">valid until Sep 2029</span>
     </div>
   )}
+  {kind === 'redis' && (
+    <div class="ptime">
+      <span class="b2 chip">issued Oct 2026</span>
+      <span class="ptrack b3">
+        <i class="pbar grow" style="--w:100%" />
+      </span>
+      <span class="b3 chip ok">valid until Oct 2028</span>
+    </div>
+  )}
   {kind === 'done' && (
     <div class="ptime">
       <span class="b1 chip">Udacity</span>

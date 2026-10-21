@@ -33,13 +33,17 @@ test('the résumé page carries the CV sections, links and certifications', asyn
   await expect(
     page.getByRole('list', { name: 'Contact' }).getByRole('link', { name: 'LinkedIn' }),
   ).toHaveAttribute('href', 'https://www.linkedin.com/in/imtiazmashrafee');
-  await expect(page.getByRole('link', { name: /View credential/ })).toHaveAttribute('href', /credly\.com/);
+  const credentials = page.getByRole('link', { name: /View credential/ });
+  await expect(credentials).toHaveCount(2);
+  await expect(credentials.nth(0)).toHaveAttribute('href', /credly\.com/);
+  await expect(credentials.nth(1)).toHaveAttribute('href', /credentials\.redis\.io/);
   await expect(page.getByRole('link', { name: /Read the case study on this site/ })).toHaveAttribute(
     'href',
     '/work/retrieval-orchestration/',
   );
   // The certification is named as the CV lists it, and the phone number is not published.
   await expect(page.locator('.droom')).toContainText('AWS Certified AI Practitioner');
+  await expect(page.locator('.droom')).toContainText('Redis Certified: Associate Developer');
   const text = await page.locator('main').innerText();
   expect(text).not.toMatch(/\+?880\d{6,}/);
   expect(text).not.toMatch(/[–—]/);

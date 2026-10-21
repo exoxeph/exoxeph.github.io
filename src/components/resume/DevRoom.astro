@@ -62,6 +62,7 @@ const walks: [string, string][] = [
   ['the standing desk', 'agents'],
   ['the fireplace', 'portal'],
   ['the trophy case', 'trophy'],
+  ['the Redis stack', 'redis'],
 ];
 ---
 
@@ -187,7 +188,9 @@ const walks: [string, string][] = [
                         <span>{label}</span>
                         {w ? (
                           <>
-                            <i style={`--w:${w}`} />
+                            <i
+                              style={`--w:${w};--wmax:${Math.max(...(c.covers ?? []).map((x) => Number(x[1] ?? 0)))}`}
+                            />
                             <b class="mono">{w}%</b>
                           </>
                         ) : null}
@@ -949,7 +952,8 @@ const walks: [string, string][] = [
   .covers i {
     display: block;
     height: 8px;
-    width: calc(var(--w) / 28 * 100%);
+    /* Each certificate's bars are scaled to its own largest domain. */
+    width: calc(var(--w) / var(--wmax, 28) * 100%);
     background: var(--accent);
     transform-origin: left;
     transform: scaleX(0.15);
@@ -1998,6 +2002,62 @@ const walks: [string, string][] = [
       transform: translate(var(--dx), var(--dy));
     }
   }
+  /* The Redis stack: red slabs with the star, a glow under it, a TTL ring and three keys over it. */
+  .dr-svg .ig .mat-redis {
+    --mw: #a8281e;
+    --mt: #dc382c;
+    --ml: #ff7a66;
+  }
+  .dr-svg .ig .rstar {
+    fill: none;
+    stroke: #fff6f0;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .dr-svg .ig .rstar-c {
+    fill: #fff6f0;
+  }
+  .dr-svg .ig .rglow {
+    fill: #ff5a46;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  .dr-svg .ig .rttl {
+    fill: none;
+    stroke: #ff7a66;
+    stroke-width: 1.4;
+    stroke-dasharray: 6 5;
+    vector-effect: non-scaling-stroke;
+    opacity: 0;
+  }
+  .dr-svg .ig .face.rkt {
+    fill: #e8d7b8;
+    stroke: #b49a7a;
+    transition: fill 0.4s;
+  }
+  .dr-svg .ig .lay {
+    transition: transform 0.5s;
+  }
+  .dr-svg .ig[data-ig='redis'][data-state='on'] .lay {
+    transform: translateY(calc(var(--i) * -4px));
+  }
+  .dr-svg .ig[data-ig='redis'][data-state='on'] .rglow {
+    opacity: 0.3;
+  }
+  .dr-svg .ig[data-ig='redis'][data-state='on'] .face.rkt {
+    fill: #ffb347;
+  }
+  .dr-svg .ig[data-ig='redis'][data-state='on'] .lampg {
+    fill: #ff7a66;
+    stroke: #ffd0c0;
+  }
+  .dr-svg.wp-icon .ric :is(.t, .f, .m, .e) {
+    fill: #c8302a;
+  }
+  .dr-svg.wp-icon .ric .t {
+    fill: #e8453a;
+  }
   .dr-svg .ig .mat-fabric2 {
     --mw: #3a4580;
     --mt: #4d62ae;
@@ -2315,7 +2375,8 @@ const walks: [string, string][] = [
   .dr-svg .labels {
     pointer-events: none;
   }
-  .dr-svg .stl.is-on .wt {
+  .dr-svg .stl.is-on .wt,
+  .dr-svg .st.is-on .wt[data-keep] {
     fill: var(--neon-c);
   }
   /* Warm: wood, terracotta, cream and amber light; the neon is now warm too. */
@@ -3226,6 +3287,25 @@ const walks: [string, string][] = [
     .dr-svg .is-on .ts:nth-child(2) .tsp {
       animation-delay: 0.15s;
     }
+    /* 08 */
+    .dr-svg .is-on .ig .rkey {
+      animation: dr-tick 6s infinite;
+      animation-delay: calc(var(--i) * 0.3s);
+    }
+    .dr-svg .is-on .ig .rkey.k1 {
+      animation: ig-expire 6s infinite;
+    }
+    .dr-svg .is-on .ig .rttl {
+      animation:
+        ig-ttl 6s infinite,
+        ig-run 1.2s linear infinite;
+    }
+    .dr-svg .is-on .ig .rglow {
+      animation: dr-new 6s infinite;
+    }
+    .dr-svg .is-on .ig[data-ig='redis'] .lay {
+      animation: ig-lift 6s ease-in-out infinite;
+    }
     /* 06 and 07 */
     .dr-svg .is-on .spot {
       opacity: 1;
@@ -3616,6 +3696,42 @@ const walks: [string, string][] = [
     }
     72% {
       transform: translateY(-4px);
+    }
+  }
+  @keyframes ig-expire {
+    0%,
+    8%,
+    66%,
+    100% {
+      opacity: 0;
+    }
+    12%,
+    60% {
+      opacity: 1;
+    }
+  }
+  @keyframes ig-ttl {
+    0%,
+    30%,
+    66%,
+    100% {
+      opacity: 0;
+    }
+    36%,
+    60% {
+      opacity: 1;
+    }
+  }
+  @keyframes ig-lift {
+    0%,
+    60%,
+    97%,
+    100% {
+      transform: translateY(0);
+    }
+    68%,
+    90% {
+      transform: translateY(calc(var(--i) * -4px));
     }
   }
   @keyframes ig-sort {

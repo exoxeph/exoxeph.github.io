@@ -820,3 +820,36 @@ export function windowIg(
     beams: `<g class="wlight">${patches}${air}${dust}</g>`,
   };
 }
+
+/** Station 08, the Redis stack, drawn as the props gallery draws its props: a dark server plinth with a status strip,
+ * and on it the Redis mark as three red slabs with the star on top; three keys float over it inside a TTL ring. While
+ * the station plays the keys are written, their TTL ring runs down, one key expires and the stack glows. Click it
+ * (PING): the slabs lift apart, the strip lights and the keys light up (PONG). It stands against the right-hand wall. */
+export function redisIg(pt: Project, vec: Delta, z: number) {
+  const K = 0.12;
+  const { TOP, FRONT, box } = igKernel(pt, vec, 129.6, 58, z - 6 * K, K);
+  let s = `<g transform="${TOP(0, 0, 42)}"><ellipse class="rglow" cx="70" cy="50" rx="66" ry="44"/></g>`;
+  s +=
+    mat('dark', box(10, 10, 6, 120, 80, 36, 6)) +
+    `<g transform="${FRONT(10, 90, 42)}"><rect class="face recess" x="8" y="6" width="104" height="8" rx="3"/><rect class="face lampg" x="10" y="7.5" width="100" height="5" rx="2.5"/><text data-keep class="gscr" x="12" y="27" font-size="7">redis-server :6379</text></g>`;
+  for (let i = 0; i < 3; i++)
+    s += `<g class="lay" style="--i:${i}">${mat('redis', box(28, 22, 46 + i * 18, 84, 56, 12, 8))}</g>`;
+  // the star on the top slab
+  const star = Array.from({ length: 6 }, (_, i) => {
+    const a = (i * Math.PI) / 3;
+    return `M42 28L${+(42 + Math.cos(a) * 11).toFixed(1)} ${+(28 + Math.sin(a) * 11).toFixed(1)}`;
+  }).join('');
+  s += `<g class="lay" style="--i:2"><g transform="${TOP(28, 22, 94)}"><path class="rstar" d="${star}"/><circle class="rstar-c" cx="42" cy="28" r="3.2"/></g></g>`;
+  // the TTL ring and the keys over the stack
+  s += `<g transform="${TOP(0, 0, 100)}"><ellipse class="rttl" cx="70" cy="50" rx="58" ry="40"/></g>`;
+  (
+    [
+      [24, 20],
+      [62, 6],
+      [100, 26],
+    ] as [number, number][]
+  ).forEach(([x, y], i) => {
+    s += `<g class="rkey k${i}" style="--i:${i}">${mat('cream', box(x, y, 108, 16, 16, 6, 3))}<g transform="${TOP(x, y, 114)}"><rect class="face rkt" x="3" y="3" width="10" height="10" rx="2"/></g></g>`;
+  });
+  return prop('redis', s);
+}
