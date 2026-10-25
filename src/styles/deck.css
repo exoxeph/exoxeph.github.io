@@ -813,7 +813,7 @@
 
 /* A frame that has moved into a chapter beat would inherit the chapter's paragraph styling (the large serif, the decision
    pull-quote bar, the evidence callout). Put its paragraphs back to the frame's own small type. */
-.chapter > .df[data-inline][data-ch] p {
+:is(.chapter, .cdeep) > .df[data-inline][data-ch] p {
   margin: 0;
   padding: 0;
   border: 0;
@@ -823,7 +823,7 @@
   color: var(--muted);
   font: 400 13px / 1.45 var(--sans);
 }
-.chapter > .df[data-inline][data-ch] .df-label {
+:is(.chapter, .cdeep) > .df[data-inline][data-ch] .df-label {
   margin: 0 0 10px;
   font: 400 12px var(--mono);
 }
@@ -1487,4 +1487,28 @@
 .ld-r small {
   display: block;
   margin-top: 2px;
+}
+
+/* A story picture on a phone: the headline, the pictures and the results; the rest is tightened or left to the
+   disclosure below it. */
+@media (max-width: 999px) {
+  .chapter > .df-story[data-inline] .story {
+    gap: 4px;
+  }
+  .chapter > .df-story[data-inline] .story-head {
+    font-size: 16px;
+  }
+  .chapter > .df-story[data-inline] .st-meta {
+    display: none;
+  }
+  .chapter > .df-story[data-inline] .story-ledger {
+    gap: 3px;
+  }
+  .chapter > .df-story[data-inline] .story-ledger > li {
+    gap: 4px;
+    padding: 4px 8px;
+  }
+  .chapter > .df-story[data-inline] .story > .d-deep > summary {
+    min-height: 40px;
+  }
 }

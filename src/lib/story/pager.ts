@@ -27,30 +27,45 @@ const stops = (): Stop[] => {
   const pad = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0;
   const max = root.scrollHeight - innerHeight;
   const focus = focusLine();
-  // On a phone the stage and the test log are not pinned beside the text: each is a page of its own.
-  const narrow = innerWidth < 1000 ? ', .story .stagecol, .story .tape' : '';
-  return [
-    ...document.querySelectorAll<HTMLElement>(
-      '.story-page, [data-story-stop], #bench-heading, #site-footer' + narrow,
-    ),
-  ]
-    .filter((el) => el.getClientRects().length)
-    .map((el) => {
-      const r = el.getBoundingClientRect();
-      // The first page of a document: it rests at the very top (bar and all), not at its own top edge.
-      if (el.dataset.storyStop === 'top') {
-        return { top: 0, end: Math.max(0, Math.round(Math.min(max, r.bottom + scrollY - innerHeight))) };
-      }
-      if (el.dataset.storyStop === 'center') {
-        const top = Math.round(Math.min(max, Math.max(0, r.top + scrollY + r.height / 2 - focus)));
-        return { top, end: top };
-      }
-      const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
-      const top = Math.round(Math.min(max, Math.max(0, r.top + scrollY - pad - margin)));
-      // Where the page's last line reaches the bottom of the screen: past `top` only when it is taller than the screen.
-      return { top, end: Math.max(top, Math.round(Math.min(max, r.bottom + scrollY - innerHeight))) };
-    })
-    .sort((a, b) => a.top - b.top);
+  // On a phone the stage and the test log are not pinned beside the text: together they are one page of their own
+  // (the Bench's heading is only its anchor on a wide screen).
+  const narrow = innerWidth < 1000;
+  return (
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        '.story-page, [data-story-stop], #site-footer' + (narrow ? ', .story .stagecol' : ', #bench-heading'),
+      ),
+    ]
+      // On a phone a beat is its picture and its line together, one page (taller than the screen, it scrolls itself):
+      // the second picture and a line that follows a picture are parts of that page, not pages of their own.
+      .filter(
+        (el) =>
+          el.getClientRects().length &&
+          !el.matches('.df[data-b="2"]') &&
+          !(el.matches('.cblock') && el.previousElementSibling?.matches('.df')),
+      )
+      .map((el) => {
+        const r = el.getBoundingClientRect();
+        let tail: Element | null = el;
+        if (el.matches('.df')) while (tail && !tail.matches('.cblock')) tail = tail.nextElementSibling;
+        if (el.matches('.stagecol')) tail = document.querySelector('.story .tape');
+        const bottom = (tail ?? el).getBoundingClientRect().bottom;
+        // The first page of a document: it rests at the very top (bar and all), not at its own top edge.
+        if (el.dataset.storyStop === 'top') {
+          return { top: 0, end: Math.max(0, Math.round(Math.min(max, r.bottom + scrollY - innerHeight))) };
+        }
+        if (el.dataset.storyStop === 'center') {
+          const top = Math.round(Math.min(max, Math.max(0, r.top + scrollY + r.height / 2 - focus)));
+          return { top, end: top };
+        }
+        const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        const top = Math.round(Math.min(max, Math.max(0, r.top + scrollY - pad - margin)));
+        // Where the page's last line reaches the bottom of the screen: past `top` only when it is taller than the screen.
+        // The last 40px of a page are its own bottom padding and margin: not worth a swipe of their own.
+        return { top, end: Math.max(top, Math.round(Math.min(max, bottom + scrollY - innerHeight - 40))) };
+      })
+      .sort((a, b) => a.top - b.top)
+  );
 };
 
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -152,7 +167,7 @@ addEventListener(
     const now = performance.now();
     const abs = Math.abs(dy);
     // A new gesture: a pause in the stream, or a push that grows after the inertia of the last one has been fading.
-    const fresh = now - lastWheel > 90 || abs > lastAbs + 6;
+    const fresh = now - lastWheel > 160 || abs > lastAbs + 12;
     if (now - lastWheel > 160 || Math.sign(acc) !== Math.sign(dy)) acc = 0;
     lastWheel = now;
     lastAbs = abs;
@@ -190,6 +205,9 @@ addEventListener(
   { passive: false },
 );
 addEventListener('touchend', (e) => {
+  // A flick that scrolled a tall page itself carries on by the browser's momentum, possibly past the page's end:
+  // wherever it comes to rest between pages, it settles onto one.
+  if (touchMode === 'native') arm();
   if (touchMode !== 'page') return;
   touchMode = 'none';
   const dy = touchY - e.changedTouches[0]!.clientY;

@@ -1310,6 +1310,9 @@
   scroll-margin-top: 80px;
 }
 
+.cwho-in {
+  display: none;
+}
 /* Storybook: on the home page every scroll turns one page. The browser's own snapping does it, so wheel, touch, keys
    and the scrollbar all keep working; a page starts just under the sticky chapter identity. */
 :root {
@@ -1402,8 +1405,50 @@ html[data-pager] {
     scroll-snap-align: start;
     scroll-margin-top: var(--story-top);
   }
-  .df.story-page {
+  /* A beat is its picture and its line: as tall as that, not a screen each, so most beats are one turn. */
+  .df.story-page,
+  .story .cblock.story-page {
     min-height: 0;
+  }
+  /* Tighter type and spacing, so a beat that is a few dozen pixels over a screen is not a second swipe. */
+  .story .cblock.story-page {
+    padding-top: 12px;
+    margin-bottom: 0;
+  }
+  .story .cblock .beat-line {
+    font-size: 1.15rem;
+  }
+  .story .cblock h3.cq {
+    margin-bottom: 6px;
+    font-size: 1.55rem;
+    line-height: 1.12;
+  }
+  /* The beat's name is already in the sticky header above (and stays here for screen readers). */
+  .story .cblock > h4 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* "My part" sits in the beat's disclosure on a phone, so the first page is the question, the picture and the line. */
+  .story .cblock .cwho {
+    display: none;
+  }
+  .story .cblock .cwho-in {
+    display: block;
+  }
+  /* A picture on a phone: no caption line above the drawing (its meaning is in the line below), less air around it. */
+  :is(.chapter, .cdeep) > .df[data-inline] .df-label {
+    display: none;
+  }
+  :is(.chapter, .cdeep) > .df[data-inline] .df-art {
+    padding: 8px 8px 4px;
+  }
+  :is(.chapter, .cdeep) > .df[data-inline] {
+    margin-top: 10px;
   }
 }
 .chapter .csub {
@@ -2493,16 +2538,16 @@ html[data-pager] {
     scroll-margin-top: 64px;
   }
     /* Each beat shows its own picture: the inspection frames, moved into the chapter by script (see chapters.ts). */
-  .chapter > .df[data-inline] {
+  :is(.chapter, .cdeep) > .df[data-inline] {
     display: grid;
     margin: 16px 0 0;
     border: 1px solid var(--rule);
     background: var(--paper);
-    /* Twenty diagrams sit in the chapters on a phone; the ones off screen are not laid out or painted until near. */
-    content-visibility: auto;
-    contain-intrinsic-size: auto 280px;
+    /* Every picture keeps its real height: a placeholder height for pictures off screen made page tops drift by tens of
+       pixels as they came near, so a page turn landed beside its mark. */
+    content-visibility: visible;
   }
-  .chapter > .df[data-inline] .df-art {
+  :is(.chapter, .cdeep) > .df[data-inline] .df-art {
     padding: 12px 10px 8px;
   }
 }

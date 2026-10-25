@@ -25,9 +25,11 @@ if (bench) {
       const inline = !wide.matches && !!block;
       if (frame.hasAttribute('data-inline') === inline) continue;
       frame.toggleAttribute('data-inline', inline);
-      frame.classList.toggle('story-page', inline);
-      if (inline) block!.before(frame);
-      else deckFrames.append(frame);
+      const second = frame.dataset.b === '2';
+      frame.classList.toggle('story-page', inline && !second);
+      if (!inline) deckFrames.append(frame);
+      else if (second) block!.querySelector('details.cdeep')?.append(frame);
+      else block!.before(frame);
     }
   };
   placeFrames();
