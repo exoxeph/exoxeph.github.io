@@ -68,7 +68,7 @@ const walks: [string, string][] = [
 
 <div class="droom" data-droom>
   <div class="dr-left">
-    <div class="dr-stage">
+    <div class="dr-stage" data-story-pin>
       <p class="dr-floor mono" data-floor aria-hidden="true">
         Ground floor · the work
       </p>
@@ -86,7 +86,7 @@ const walks: [string, string][] = [
       <h2 id="exp-h">
         <span>01</span> Work experience
       </h2>
-      <div class="dr-intro" data-intro>
+      <div class="dr-intro" data-intro data-story-stop="center">
         <div class="etop">
           <h3>
             {work.role} <span class="at">at {work.org}</span>
@@ -107,7 +107,7 @@ const walks: [string, string][] = [
         {points.map((p, i) => (
           <>
             {i > 0 && <Waypoint k={i} to={walks[i]![0]} kind={walks[i]![1]} li />}
-            <li class="step" id={p.id} data-step={i}>
+            <li class="step" id={p.id} data-step={i} data-story-stop="center">
               <p class="snum mono">
                 {pad(i + 1)} / {pad(total)} · {p.place}
               </p>
@@ -153,7 +153,7 @@ const walks: [string, string][] = [
                 li
               />
             )}
-            <li class="step" id={c.id} data-step={points.length + i}>
+            <li class="step" id={c.id} data-step={points.length + i} data-story-stop="center">
               <p class="snum mono">
                 {pad(points.length + i + 1)} / {pad(total)} · {c.place}
               </p>
@@ -218,6 +218,8 @@ const walks: [string, string][] = [
 </div>
 
 <script>
+  // A short scroll turns to the next point and glides it onto the reading line.
+  void import('../../lib/story/pager');
   const root = document.querySelector<HTMLElement>('[data-droom]');
   const svg = root?.querySelector<SVGSVGElement>('.dr-svg');
   const mascot = svg?.querySelector<SVGGElement>('[data-mascot]');

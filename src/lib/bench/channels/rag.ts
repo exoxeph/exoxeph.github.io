@@ -45,7 +45,7 @@ function render(focus?: string) {
   provenance.querySelector<HTMLElement>('[data-provenance="executed"]')!.hidden = frame.mode !== 'live';
   provenance.querySelector<HTMLElement>('p:not([data-executed-explain])')!.hidden = frame.mode === 'live';
   provenance.querySelector<HTMLElement>('[data-executed-explain]')!.hidden = frame.mode !== 'live';
-  if (focus) visibleArt().querySelector<SVGElement>(`[data-rag-slider="${focus}"]`)?.focus();
+  if (focus) visibleArt().querySelector<SVGElement>(`[data-rag-slider="${focus}"]`)?.focus({ preventScroll: true });
 }
 
 function discover(source: 'replay' | 'executed') {
@@ -111,11 +111,11 @@ function openInspector(from: HTMLElement | SVGElement | null) {
   inspector.classList.remove('email-inspector');
   inspector.hidden = false;
   selectTab('accept-threshold');
-  inspector.focus();
+  inspector.focus({ preventScroll: true });
 }
 function closeInspector() {
   inspector.hidden = true;
-  returnFocus?.focus();
+  returnFocus?.focus({ preventScroll: true });
 }
 
 // Scroll beats set a canonical frame that matches the chapter text. They never write to the log.

@@ -5,7 +5,6 @@ import Deck from './Deck.astro';
 import Note from '../notes/Note.astro';
 import { stageNotes } from '../notes/stageNotes';
 import Chapters from './Chapters.astro';
-import BenchEnd from './BenchEnd.astro';
 import { initialState } from '../../lib/bench/tesla';
 import { renderTesla, staticControls } from '../../lib/bench/svg';
 import raw from '../../data/architecture/ride-pooling-lifecycle.json';
@@ -632,7 +631,6 @@ const traceArt: Record<string, string> = {
       <div class="sidecol">
         <BenchLog />
         <Chapters />
-        <BenchEnd />
       </div>
     </div>
   </div>

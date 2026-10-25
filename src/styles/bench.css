@@ -1305,10 +1305,106 @@
   margin-top: 8px;
 }
 .chapter {
-  min-height: calc(100vh - 160px);
   padding: 28px 0 40px;
   border-top: 1px solid var(--rule);
   scroll-margin-top: 80px;
+}
+
+/* Storybook: on the home page every scroll turns one page. The browser's own snapping does it, so wheel, touch, keys
+   and the scrollbar all keep working; a page starts just under the sticky chapter identity. */
+:root {
+  --story-top: 160px;
+}
+html:has(.story) {
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: 0;
+}
+/* A page's landing under the sticky identity is the page's own margin, not page-wide padding: padding would make every
+   scroll-into-view (focus, a click on a control near the top of the stage) treat the top 160px as off screen. */
+.story .story-page {
+  scroll-snap-align: start;
+  scroll-margin-top: var(--story-top);
+  min-height: calc(100svh - var(--story-top));
+}
+html:has(.story) #site-footer {
+  scroll-snap-align: start;
+}
+/* The Bench's own page: the stage and its controls at the top of the screen, before the first project page. The snap
+   point is the Bench's (hidden) heading, not the Bench itself: a snap area taller than the screen lets the browser stop
+   anywhere inside it. */
+html:has(.story) #bench-heading {
+  scroll-snap-align: start;
+  /* lands just under the bar, so the bar never covers the top of the log when it comes back */
+  scroll-margin-top: 72px;
+}
+/* Choosing a chip focuses its hidden radio. Fixed in the middle of the screen, the radio is always in view, so the
+   browser never scrolls (and re-snaps) the page to reach it. */
+.story .channel-radio {
+  position: fixed;
+  top: 50%;
+  left: 0;
+}
+/* A keyboard user moving focus is never pulled to another page while they read or operate. */
+html:has(.story :focus-visible) {
+  scroll-snap-type: none;
+}
+/* Once the page-turn script runs (src/lib/story/pager.ts), it turns the pages: a short scroll glides to the next one. */
+html[data-pager] {
+  scroll-snap-type: none;
+  overscroll-behavior-y: none;
+}
+/* A stage whose live code has not arrived yet shows its static first frame, and swapping that for the live drawing
+   changes its size and moves its notes. With scripts on, such a stage stays invisible until it has swapped, then fades
+   in (and shows itself regardless after four seconds, if the code never arrives). */
+.bench[data-live] .stagecol > .channel {
+  transition: opacity 520ms var(--ease-soft);
+}
+.bench[data-live]:not([data-ready-email]) .stagecol > .channel.email,
+.bench[data-live]:not([data-ready-rag]) .stagecol > .channel.rag,
+.bench[data-live]:not([data-ready-speech]) .stagecol > .channel.speech {
+  opacity: 0;
+  animation: stage-late 1ms 4s forwards;
+}
+@keyframes stage-late {
+  to {
+    opacity: 1;
+  }
+}
+/* The last disclosure on a page needs no space under it: the page ends there. */
+.story .cblock > .cdeep:last-child {
+  margin-bottom: 0;
+}
+/* A page's words rise into place as the page arrives, carried by the scroll itself, so they move with the glide's
+   own easing instead of on a timer of their own. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .story .cblock > *,
+    .story .story-full .wrap > * {
+      animation: page-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+  }
+}
+@keyframes page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+}
+@media (max-width: 999px) {
+  /* Phones: the chips and the compact identity stay on top, the stage is a page of its own (try it lands on it), and
+     a picture page keeps its own height. */
+  :root {
+    --story-top: 130px;
+  }
+  html:has(.story) :is(.stagecol, .tape) {
+    scroll-snap-align: start;
+    scroll-margin-top: var(--story-top);
+  }
+  .df.story-page {
+    min-height: 0;
+  }
 }
 .chapter .csub {
   margin: 6px 0 14px;
@@ -1437,64 +1533,6 @@
   border-top: 1px solid var(--rule);
 }
 
-/* What you tested */
-.bench-end {
-  padding: 28px 0 56px;
-  border-top: 1px solid var(--rule);
-}
-.bench-end h3 {
-  margin: 0 0 10px;
-  font: 400 28px/1.15 var(--serif);
-}
-.end-empty,
-.end-summary {
-  margin: 0 0 10px;
-  color: var(--muted);
-  font: 400 13px var(--mono);
-}
-.end-list {
-  margin: 0 0 10px;
-  padding: 0;
-  list-style: none;
-}
-.end-list li {
-  display: flex;
-  gap: 12px;
-  padding: 9px 0;
-  border-top: 1px solid var(--rule);
-  font: 400 12.5px/1.45 var(--mono);
-  color: var(--muted);
-}
-.end-list b {
-  display: block;
-  color: var(--text);
-  font-weight: 500;
-}
-.end-list .limit-flag {
-  display: block;
-  color: var(--accent);
-}
-.end-actions {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 0;
-}
-.end-copy {
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--text);
-  font: 400 12px var(--mono);
-  text-decoration: underline;
-  cursor: pointer;
-}
-.end-copied {
-  color: var(--muted);
-  font: 400 12px var(--mono);
-}
-
 /* The inspector is a drawer, so it is reachable at any scroll position. */
 .inspector {
   position: fixed;
@@ -1530,6 +1568,13 @@
     align-self: start;
     max-height: calc(100vh - 36px);
     overflow-y: auto;
+    /* The stage is about as tall as its cap, so an entrance animation that nudges a part a few pixels past the bottom
+       would draw a scrollbar, and that bar's width shrinks every diagram until the animation ends. The stage still
+       scrolls (wheel, touch, keys) on a window too short for it; it just never takes width for a bar. */
+    scrollbar-width: none;
+  }
+  .bench[data-live] .stagecol::-webkit-scrollbar {
+    display: none;
   }
 }
 @media (max-width: 999px) {
@@ -1877,28 +1922,6 @@
   color: var(--invalid);
 }
 
-/* What you tested */
-.end-group {
-  margin: 14px 0 4px;
-  color: var(--text);
-  font: 500 13px var(--sans);
-}
-.end-list > li > ol {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.end-controls {
-  margin: 0 0 10px;
-}
-.end-controls[hidden] {
-  display: none;
-}
-.end-controls p:not(.end-group) {
-  margin: 0 0 4px;
-  color: var(--muted);
-  font: 400 13px/1.45 var(--sans);
-}
 
 @media (prefers-reduced-motion: no-preference) {
   .visitor-entries li:first-child {
@@ -1995,17 +2018,22 @@
   font-size: 1.05rem;
   font-weight: 600;
 }
-.chapter:not([data-chapter='research']) .cblock[data-beat='2'] p {
-  padding-left: 16px;
-  border-left: 2px solid var(--accent);
+/* Each storybook page carries one line; the page's role shows in its edge: plain, mechanism, survived, limit. */
+.chapter .cblock .beat-line {
+  margin: 0 0 6px;
+  color: var(--text);
   font: 400 clamp(1.3rem, 1.9vw, 1.6rem) / 1.3 var(--serif);
 }
-.chapter:not([data-chapter='research']) .cblock[data-beat='3'] p {
+.chapter .cblock[data-beat='1'] .beat-line {
+  padding-left: 16px;
+  border-left: 2px solid var(--accent);
+}
+.chapter .cblock[data-beat='3'] .beat-line {
   padding: 14px 16px;
   border-left: 2px solid var(--verified);
   background: color-mix(in srgb, var(--verified) 8%, transparent);
 }
-.chapter:not([data-chapter='research']) .cblock[data-beat='4'] p:not(.clinks) {
+.chapter .cblock[data-beat='4'] .beat-line {
   padding: 12px 16px;
   border-left: 2px dashed var(--invalid);
   background: repeating-linear-gradient(135deg, rgba(242, 141, 123, 0.07) 0 2px, transparent 2px 8px);
@@ -2464,13 +2492,8 @@
   .stagecol .channel :where(button, summary) {
     scroll-margin-top: 64px;
   }
-  .bench-end {
-    position: relative;
-    z-index: 25;
-    background: var(--bg);
-  }
-  /* Each beat shows its own picture: the inspection frames, moved into the chapter by script (see chapters.ts). */
-  .cblock > .df[data-inline] {
+    /* Each beat shows its own picture: the inspection frames, moved into the chapter by script (see chapters.ts). */
+  .chapter > .df[data-inline] {
     display: grid;
     margin: 16px 0 0;
     border: 1px solid var(--rule);
@@ -2479,7 +2502,7 @@
     content-visibility: auto;
     contain-intrinsic-size: auto 280px;
   }
-  .cblock > .df[data-inline] .df-art {
+  .chapter > .df[data-inline] .df-art {
     padding: 12px 10px 8px;
   }
 }
@@ -2491,7 +2514,6 @@
   .reset,
   .inspector-head button,
   .tape button:not([hidden]),
-  .end-copy:not([hidden]),
   .provenance summary {
     display: inline-flex;
     align-items: center;
@@ -2524,18 +2546,7 @@
 /* Phone: the closing read-back stacks (system name above its tests) instead of a narrow two-column ledger, and the
    sliders keep their drags to themselves so a horizontal drag never turns into a page scroll. */
 @media (max-width: 999px) {
-  .end-list > li {
-    display: block;
-    padding: 6px 0 8px;
-  }
-  .end-list > li > ol li {
-    padding: 6px 0;
-    border-top: 0;
-  }
-  .end-group {
-    margin: 8px 0 2px;
-  }
-}
+      }
 .bench svg [data-rag-slider] {
   touch-action: none;
 }
@@ -2567,23 +2578,6 @@
   color: var(--text);
   font: 400 14px/1.5 var(--sans);
   opacity: 0.9;
-}
-.chapter .cstory {
-  display: grid;
-  gap: 2px;
-  margin: 0 0 12px;
-}
-.chapter .cstory dt {
-  margin-top: 8px;
-  color: var(--muted);
-  font: 400 10.5px/1.4 var(--mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.chapter .cstory dd {
-  margin: 0;
-  color: var(--text);
-  font: 400 1rem/1.5 var(--sans);
 }
 .chapter .cdeep {
   margin: 8px 0 14px;
@@ -2625,7 +2619,7 @@
 
 /* Phase 19R-B: the four story frames are taller than the placeholder used for the other inline frames, so they render
    normally (content-visibility would overlap the block below them while skipped). */
-.cblock > .df.df-story[data-inline] {
+.chapter > .df.df-story[data-inline] {
   content-visibility: visible;
 }
 

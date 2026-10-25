@@ -23,6 +23,11 @@ chapter:
   problem: "A single prompt writes a confident email even when the request is unclear, contradictory, padded with irrelevant facts or contains instruction-like text."
   decision: "Validate in code first, then let a model decide whether to ask a question before any email is written."
   limitation: "Ten scenarios and one run. The checker is a model: in one recorded scenario it did not ask when it should have."
+  beats:
+    fails: "A single prompt writes a confident email even when the request is vague or missing facts."
+    catches: "Ordinary code checks the request first, then a model judges whether there is enough to write from."
+    survives: "On 10 recorded scenarios: 4.7 of 5, against 4.2 for a single prompt. One run; scoring model unrecorded."
+    holds: "Ask before writing. Limit: for one unclear request it still wrote an email when it should have asked."
 technologies: [Python, Streamlit, LLM provider APIs, Pydantic]
 contribution:
   role: Sole contributor in the commit history.

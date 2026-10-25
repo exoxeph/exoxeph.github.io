@@ -120,6 +120,7 @@ function arrowPath(from: Pt, to: Pt, bend: number) {
 function place(layer: HTMLElement) {
   const box = layer.getBoundingClientRect();
   if (!box.width || !box.height) return;
+  if (layer.hasAttribute('data-away')) requestAnimationFrame(() => layer.removeAttribute('data-away'));
   const scope = layer.parentElement;
   if (!scope) return;
 
@@ -145,8 +146,8 @@ function place(layer: HTMLElement) {
     svg.setAttribute('aria-hidden', 'true');
     layer.prepend(svg);
   }
-  svg.replaceChildren();
-
+  // Arrows are kept between passes (one per note) so a re-placement glides them to their new shape instead of
+  // redrawing from nothing; a note with no target loses its arrow.
   const placedBoxes: Box[] = [];
   const placedPaths: Pt[] = [];
   let index = 0;
@@ -154,6 +155,7 @@ function place(layer: HTMLElement) {
     index += 1;
     if (!m.el) {
       m.note.style.visibility = 'hidden';
+      arrows.get(m.note)?.remove();
       continue;
     }
     const { note, el, r, w, h } = m;
@@ -253,16 +255,28 @@ function place(layer: HTMLElement) {
     const cy = top + box.top + h / 2;
     placedBoxes.push({ l: cx - w / 2 - 2, t: cy - h / 2 - 2, r: cx + w / 2 + 2, b: cy + h / 2 + 2 });
     const e = ends({ x: cx, y: cy }, w, h, tp);
-    if (!e) continue;
+    if (!e) {
+      arrows.get(note)?.remove();
+      continue;
+    }
     const local = (p: Pt): Pt => ({ x: p.x - box.left, y: p.y - box.top });
-    const path = document.createElementNS(ns, 'path');
-    path.setAttribute('class', 'note-arrow');
-    path.setAttribute('d', arrowPath(local(e.from), local(e.to), pick.bend));
-    svg.append(path);
+    let path = arrows.get(note);
+    if (!path) {
+      path = document.createElementNS(ns, 'path');
+      path.setAttribute('class', 'note-arrow');
+      arrows.set(note, path);
+    }
+    const d = arrowPath(local(e.from), local(e.to), pick.bend);
+    path.setAttribute('d', d);
+    // The CSS `d` property is what transitions (the attribute alone cannot).
+    path.style.cssText = `d:path('${d}')`;
+    if (path.parentNode !== svg) svg.append(path);
     const { c1, c2 } = curve(e.from, e.to, pick.bend);
     for (let i = 1; i < 14; i++) placedPaths.push(bezier(e.from, c1, c2, e.to, i / 14));
   }
 }
+
+const arrows = new WeakMap<HTMLElement, SVGPathElement>();
 
 const nearViewport = new Set<HTMLElement>();
 const narrow = matchMedia('(max-width: 1199px)');
@@ -288,7 +302,12 @@ function start() {
         if (entry.isIntersecting) {
           nearViewport.add(layer);
           placeAll();
-        } else nearViewport.delete(layer);
+        } else {
+          nearViewport.delete(layer);
+          // Away: CSS hides its notes and switches their transitions off until they are placed again, so nothing
+          // stale shows when the diagram comes back and nothing glides in from where it used to be.
+          layer.setAttribute('data-away', '');
+        }
       }
     },
     { rootMargin: '300px 0px' },

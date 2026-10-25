@@ -23,6 +23,11 @@ chapter:
   problem: "Turning messy audio and photographed documents into structured data without making values up."
   decision: "Reject a value that does not match a known form, omit that row, and keep the raw line on rows that parse."
   limitation: "A misread that is still a valid number parses as valid. There is no confidence measure."
+  beats:
+    fails: "Reading a photographed lab report can misread a value, and a misread can still look like a good number."
+    catches: "Only value shapes it knows are accepted; a row that does not match is left out, not guessed."
+    survives: "Two recorded misreads: one is caught and its row left out; the other looks valid and is kept."
+    holds: "Leave out what cannot be read. Limit: <8.5 read in place of <0.5 looks valid, so it is kept."
 technologies: [Python, FastAPI, faster-whisper, Tesseract]
 contribution:
   role: Sole contributor in the commit history.

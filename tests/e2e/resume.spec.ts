@@ -26,7 +26,7 @@ test('the résumé page carries the CV sections, links and certifications', asyn
     'Data Solution-360',
   );
   await expect(page.locator('.rgrid')).toContainText('Data-Free Backdoor Removal');
-  await expect(page.locator('.rgrid')).toContainText('CGPA 3.65');
+  await expect(page.locator('.rgrid')).toContainText('CGPA 3.64');
   await expect(
     page.getByRole('list', { name: 'Contact' }).getByRole('link', { name: 'imtiazmashrafee@gmail.com' }),
   ).toHaveAttribute('href', 'mailto:imtiazmashrafee@gmail.com');

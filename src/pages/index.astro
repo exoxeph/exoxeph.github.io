@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Bench from '../components/bench/Bench.astro';
-import Hero from '../components/hero/Hero.astro';
+import StoryOpen from '../components/story/StoryOpen.astro';
 import Guide from '../components/guide/Guide.astro';
 import { site } from '../data/site.ts';
 
@@ -21,8 +21,10 @@ const person = {
   <a slot="skip" class="skip" href="#site-footer">
     Skip the Bench, to résumé and contact
   </a>
-  <Hero />
-  <Bench />
+  <div class="story">
+    <StoryOpen />
+    <Bench />
+  </div>
   <Guide />
 
   {research.length > 0 && (

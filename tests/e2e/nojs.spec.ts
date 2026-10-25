@@ -2,6 +2,20 @@ import { expect, test } from '@playwright/test';
 
 test.use({ javaScriptEnabled: false });
 
+// The home page turns whole pages: go to the Bench's page, as a reader would, and let the page come to rest.
+const toBench = async (page: import('@playwright/test').Page) => {
+  await page.evaluate(() => document.getElementById('bench-heading')!.scrollIntoView());
+  let last = -1;
+  await expect
+    .poll(async () => {
+      const y = await page.evaluate(() => Math.round(window.scrollY));
+      const settled = y === last;
+      last = y;
+      return settled;
+    })
+    .toBe(true);
+};
+
 test.describe('without JavaScript', () => {
   test('home keeps navigation, hero, chapters and the résumé and contact footer', async ({ page }) => {
     await page.goto('/');
@@ -36,6 +50,8 @@ test.describe('without JavaScript', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
     await expect(page.locator('.tesla-svg.mobile .code')).toHaveText('409');
+    // The home page turns whole pages: go to the Bench's page first, as a reader would.
+    await toBench(page);
     for (const id of ['email', 'rag', 'speech', 'pool']) {
       await page.locator(`.chips label[for="ch-${id}"]`).click();
       await expect(page.locator(`#ch-${id}`)).toBeChecked();
@@ -45,6 +61,7 @@ test.describe('without JavaScript', () => {
 
   test('speech default frame is server rendered', async ({ page }) => {
     await page.goto('/');
+    await toBench(page);
     await page.locator('.tr-speech').click();
     await expect(page.locator('[data-speech-number]')).toHaveText('4 of 5');
     await expect(page.locator('.speech-tr.omitted')).toHaveCount(1);

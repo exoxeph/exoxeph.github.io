@@ -1,7 +1,8 @@
 // What the guide does at each stop of the homepage bench: where he stands (feet, as a fraction of the window's
 // height, in the left margin beside the pinned diagram), the gesture he makes, and what he says. The bench has four
-// projects and five beats each (what goes wrong, how it responds, decision, what happened, where it fails). The lines
-// repeat what the page already says about each project, including its limits, and nothing more.
+// projects and five beats each; the storybook reads four of them (0 it fails, 1 how it catches it, 3 it survives,
+// 4 the idea holds), so beat 2 is a silent gesture. The lines repeat what the page already says about each project,
+// including its limits, and nothing more.
 export type Pose = 'point' | 'talk' | 'think' | 'wow' | 'cheer' | 'hold';
 
 export interface Stop {
@@ -25,8 +26,8 @@ export const stops: Record<string, Stop[]> = {
       say: 'A car has 3 seats. Each request looks fine on its own.',
       aside: 'Drag the seats on the diagram. It is a live test.',
     },
-    { x: 'L', y: 0.64, pose: 'talk' },
     { x: 'R', y: 0.5, pose: 'think', say: 'My call: count seats for the car, not for each group.' },
+    { x: 'L', y: 0.64, pose: 'talk' },
     { x: 0.62, y: 0.56, pose: 'cheer' },
     {
       x: 'R',
@@ -61,8 +62,8 @@ export const stops: Record<string, Stop[]> = {
       say: 'A first draft can be short, drift off, or stop mid thought.',
       aside: 'Pick a prompt chip and watch the score move.',
     },
-    { x: 'L', y: 0.6, pose: 'talk' },
     { x: 0.58, y: 0.4, pose: 'think', say: 'My call: never return the first draft unchecked.' },
+    { x: 'L', y: 0.6, pose: 'talk' },
     {
       x: 'R',
       y: 0.75,

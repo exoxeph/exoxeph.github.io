@@ -23,6 +23,11 @@ chapter:
   problem: "Pooling riders into shared trips under constraints while several actors change state at once, with an auditable history."
   decision: "Guard the vehicle's total seats across pools, not each pool, inside the accept transaction."
   limitation: "Concurrent accepts across pools are not covered by the guard. Observed under an in-memory mock; PostgreSQL was not run."
+  beats:
+    fails: "Each request for seats looks fine on its own, so a car can end up with more riders than seats."
+    catches: "At the moment a driver accepts, it counts the seats taken across the whole car, not per group."
+    survives: "Without the check a 3-seat car held 5 riders; with it, 3 of 3. Recorded against a stand-in (mock) database."
+    holds: "Check before accepting, for the whole car. Limit: two accepts at the same moment can both pass."
 technologies: [TypeScript, Next.js, Express, PostgreSQL]
 contribution:
   role: Sole contributor in the commit history.

@@ -47,10 +47,30 @@
 .bench:not([data-beat]) .df[data-b='0'],
 .bench[data-beat='0'] .df[data-b='0'],
 .bench[data-beat='1'] .df[data-b='1'],
+.bench[data-beat='1'] .df[data-b='2'],
 .bench[data-beat='2'] .df[data-b='2'],
 .bench[data-beat='3'] .df[data-b='3'],
 .bench[data-beat='4'] .df[data-b='4'] {
   display: grid;
+}
+/* The "how it catches it" page shows both mechanism pictures, side by side. */
+.bench[data-beat='1'] .deck-frames {
+  flex-direction: row;
+  gap: 18px;
+}
+.bench[data-beat='1'] .deck-frames > .df {
+  flex: 1 1 0;
+}
+/* The "other systems" strip only repeats the channel chips, so it shows on a project's first page and gives its room to
+   the later pages (two pictures side by side, the taller recorded runs). The captions keep their evidence labels. */
+@media (min-width: 1000px) {
+  .bench[data-beat]:not([data-beat='0']) .stagecol > .traces {
+    display: none;
+  }
+  .bench[data-beat='1'] .deck-frames > .df figcaption {
+    font-size: 12px;
+    line-height: 1.35;
+  }
 }
 #ch-pool:checked ~ .bgrid .df:not([data-ch='pool']):not([data-inline]),
 #ch-email:checked ~ .bgrid .df:not([data-ch='email']):not([data-inline]),
@@ -61,9 +81,9 @@
 }
 .bench[data-beat='0'] .deck-ticks i:nth-child(-n + 1),
 .bench[data-beat='1'] .deck-ticks i:nth-child(-n + 2),
-.bench[data-beat='2'] .deck-ticks i:nth-child(-n + 3),
-.bench[data-beat='3'] .deck-ticks i:nth-child(-n + 4),
-.bench[data-beat='4'] .deck-ticks i:nth-child(-n + 5),
+.bench[data-beat='2'] .deck-ticks i:nth-child(-n + 2),
+.bench[data-beat='3'] .deck-ticks i:nth-child(-n + 3),
+.bench[data-beat='4'] .deck-ticks i:nth-child(-n + 4),
 .bench:not([data-beat]) .deck-ticks i:first-child {
   background: var(--accent);
 }
@@ -97,15 +117,44 @@
 .mono {
   font-family: var(--mono);
 }
+/* A picture arrives in parts: the frame settles in, then its label, its drawing and its caption follow one another,
+   so a page turn reads as the picture being laid down rather than switched on. On the "how it catches it" page the
+   second picture follows the first. */
 @media (prefers-reduced-motion: no-preference) {
   .df {
-    animation: df-in 180ms var(--ease);
+    --d: 0ms;
+    animation: df-in 640ms var(--ease-soft) var(--d) both;
+  }
+  .bench[data-beat='1'] .deck-frames > .df[data-b='2'] {
+    --d: 160ms;
+  }
+  .df .df-art > *,
+  .df figcaption {
+    animation: df-part 760ms var(--ease-soft) var(--d) both;
+  }
+  .df .df-art > :nth-child(2) {
+    animation-delay: calc(var(--d) + 90ms);
+  }
+  .df .df-art > :nth-child(3) {
+    animation-delay: calc(var(--d) + 170ms);
+  }
+  .df .df-art > :nth-child(n + 4) {
+    animation-delay: calc(var(--d) + 240ms);
+  }
+  .df figcaption {
+    animation-delay: calc(var(--d) + 300ms);
+  }
+}
+@keyframes df-part {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }
 @keyframes df-in {
   from {
-    opacity: 0.001;
-    transform: translateY(10px);
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
   }
 }
 
@@ -764,7 +813,7 @@
 
 /* A frame that has moved into a chapter beat would inherit the chapter's paragraph styling (the large serif, the decision
    pull-quote bar, the evidence callout). Put its paragraphs back to the frame's own small type. */
-.chapter .cblock > .df[data-inline][data-ch] p {
+.chapter > .df[data-inline][data-ch] p {
   margin: 0;
   padding: 0;
   border: 0;
@@ -774,7 +823,7 @@
   color: var(--muted);
   font: 400 13px / 1.45 var(--sans);
 }
-.chapter .cblock > .df[data-inline][data-ch] .df-label {
+.chapter > .df[data-inline][data-ch] .df-label {
   margin: 0 0 10px;
   font: 400 12px var(--mono);
 }

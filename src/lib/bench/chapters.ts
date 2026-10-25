@@ -1,37 +1,33 @@
-import { subscribe, type LogEntry } from './engine';
-
 const bench = document.querySelector<HTMLElement>('.bench');
 if (bench) {
   bench.dataset.live = '';
+  // Page turns load on their own, after the page: a short scroll glides to the next page.
+  void import('../story/pager');
   const wide = matchMedia('(min-width: 1000px)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const chapters = [...bench.querySelectorAll<HTMLElement>('.chapter')];
-  const beatNames = ['What goes wrong', 'How it responds', 'Decision', 'What happened', 'Where it fails'];
   let activeChapter = '';
   let activeBeat = -1;
   let navigating = false;
 
   // On a phone the stage is not pinned, so the inspection deck (one frame per beat and project) has nowhere to sit
-  // beside the text. Each frame moves into the chapter beat it illustrates, so reading goes text, picture, text,
-  // picture. Nothing is copied: wider screens put the same nodes back in the deck.
+  // beside the text. Each frame becomes its own story page just before the page it illustrates, so reading goes
+  // picture, line, picture, line. Nothing is copied: wider screens put the same nodes back in the deck.
   const deckFrames = bench.querySelector<HTMLElement>('.deck-frames');
   const frames = [...bench.querySelectorAll<HTMLElement>('.df[data-ch][data-b]')];
   const placeFrames = () => {
     if (!deckFrames) return;
     for (const frame of frames) {
-      if (wide.matches) {
-        if (frame.hasAttribute('data-inline')) {
-          frame.removeAttribute('data-inline');
-          deckFrames.append(frame);
-        }
-        continue;
-      }
+      // The beat 2 picture belongs to the "how it catches it" page, after the beat 1 picture.
       const block = bench.querySelector<HTMLElement>(
-        `.chapter[data-chapter="${frame.dataset.ch}"] [data-beat="${frame.dataset.b}"]`,
+        `.chapter[data-chapter="${frame.dataset.ch}"] [data-beat="${frame.dataset.b === '2' ? 1 : frame.dataset.b}"]`,
       );
-      if (!block || frame.parentElement === block) continue;
-      frame.setAttribute('data-inline', '');
-      block.insertBefore(frame, block.querySelector('.clinks'));
+      const inline = !wide.matches && !!block;
+      if (frame.hasAttribute('data-inline') === inline) continue;
+      frame.toggleAttribute('data-inline', inline);
+      frame.classList.toggle('story-page', inline);
+      if (inline) block!.before(frame);
+      else deckFrames.append(frame);
     }
   };
   placeFrames();
@@ -92,11 +88,13 @@ if (bench) {
   const showBeat = (section: HTMLElement, beat: number) => {
     bench.dataset.beat = String(Math.min(beat, 4));
     const name = section.querySelector<HTMLElement>('[data-beat-name]');
-    const count = section.querySelectorAll('[data-tick]').length;
-    if (name) name.textContent = beatNames[Math.min(beat, beatNames.length - 1)] ?? '';
+    // The page this beat belongs to: the last storybook page at or before it. Its heading names it.
+    const blocks = [...section.querySelectorAll<HTMLElement>('.cblock[data-beat]')];
+    const page = blocks.reduce((at, block, i) => (Number(block.dataset.beat) <= beat ? i : at), 0);
+    if (name) name.textContent = blocks[page]?.querySelector('h4')?.firstChild?.textContent?.trim() ?? '';
     section
       .querySelectorAll<HTMLElement>('[data-tick]')
-      .forEach((tick) => tick.classList.toggle('on', Number(tick.dataset.tick) <= Math.min(beat, count - 1)));
+      .forEach((tick) => tick.classList.toggle('on', Number(tick.dataset.tick) <= page));
   };
 
   // The stage hands over to the next project a little before that chapter reaches the top, so the diagram and the
@@ -133,7 +131,8 @@ if (bench) {
     }
     let beat = 0;
     for (const block of current.querySelectorAll<HTMLElement>('[data-beat]'))
-      if (block.getBoundingClientRect().top <= yb) beat = Number(block.dataset.beat);
+      // The band below fires as a page's top enters it (yb to yb + 4), so a page resting just inside it counts.
+      if (block.getBoundingClientRect().top <= yb + 4) beat = Number(block.dataset.beat);
     if (beat === activeBeat) return;
     activeBeat = beat;
     showBeat(current, beat);
@@ -186,7 +185,17 @@ if (bench) {
     shift();
     document.documentElement.dataset.stageMoved = '1';
     showBeat(section, 0);
-    section.scrollIntoView({ block: 'start', behavior: reduced.matches ? 'auto' : 'smooth' });
+    // The chapter's first page (on a phone, its first picture), landed under the sticky identity like any page turn.
+    const first = section.querySelector<HTMLElement>('.story-page') ?? section;
+    // Land exactly on it (the stage can change height, and stage code and fonts can still be arriving): a no-op when
+    // it is already there.
+    const land = () => {
+      if (activeChapter !== channel) return;
+      const pad = parseFloat(getComputedStyle(first).scrollMarginTop) || 0;
+      if (Math.abs(first.getBoundingClientRect().top - pad) > 6)
+        first.scrollIntoView({ block: 'start', behavior: 'auto' });
+    };
+    first.scrollIntoView({ block: 'start', behavior: reduced.matches ? 'auto' : 'smooth' });
     let timer: number | undefined;
     const hasScrollEnd = 'onscrollend' in (window as object);
     const cancel = () => {
@@ -196,12 +205,11 @@ if (bench) {
     };
     function done() {
       cancel();
-      // The stage can change height while the page scrolls; land exactly on the chapter.
-      if (Math.abs(section!.getBoundingClientRect().top - lines().chapter + 6) > 6)
-        section!.scrollIntoView({ block: 'start', behavior: 'auto' });
+      land();
       navigating = false;
       settledUntil = Math.max(settledUntil, performance.now() + 800);
       sync(true);
+      window.setTimeout(land, 700);
     }
     cancelNavigation = cancel;
     if (hasScrollEnd) {
@@ -254,120 +262,6 @@ if (bench) {
       window.setTimeout(() => inspectOnBench(show.dataset.showBench!), 120);
     }
   });
-
-  // What you tested: the visitor's own record, grouped by system.
-  const names: Record<string, string> = {
-    pool: 'Ride pooling',
-    email: 'Email',
-    rag: 'Retrieval',
-    speech: 'Extraction',
-    research: 'Research',
-  };
-  const list = bench.querySelector<HTMLElement>('[data-end-list]');
-  const empty = bench.querySelector<HTMLElement>('[data-end-empty]');
-  const summary = bench.querySelector<HTMLElement>('[data-end-summary]');
-  const controls = bench.querySelector<HTMLElement>('[data-end-controls]');
-  const copy = bench.querySelector<HTMLButtonElement>('[data-end-copy]');
-  const copied = bench.querySelector<HTMLElement>('[data-end-copied]');
-  const label = {
-    executed: 'Runs in browser',
-    replay: 'Recorded project run',
-    model: 'modelled from the code',
-  } as const;
-  let current: LogEntry[] = [];
-  const num = (entry: LogEntry) => String(entry.n + 3).padStart(2, '0');
-  const lineOf = (entry: LogEntry) =>
-    `${num(entry)}. ${entry.title}: ${entry.detail} [${label[entry.provenance]}]${entry.limit ? ' limit found' : ''}`;
-  const observed = (entries: LogEntry[]) => {
-    const found = new Set<string>();
-    for (const entry of entries) {
-      const text = `${entry.title} ${entry.detail}`;
-      if (entry.channel === 'pool' && /refused|5 of 3/.test(text))
-        found.add('The capacity guard refused a request.');
-      if (entry.channel === 'speech' && /did not parse|too few columns|omitted/.test(text))
-        found.add('The parser left out a row it could not read.');
-      if (entry.channel === 'speech' && entry.limit)
-        found.add('A misread that is still a valid number was accepted.');
-      if (entry.channel === 'rag' && /repair/.test(text)) found.add('One repair attempt ran, and only one.');
-      if (entry.channel === 'email' && /stopped|asks first/.test(text))
-        found.add('The request was stopped, or a question asked, before any email was written.');
-    }
-    return [...found];
-  };
-
-  subscribe((entries) => {
-    current = entries;
-    if (!list || !empty || !summary || !copy || !controls) return;
-    const has = entries.length > 0;
-    empty.hidden = has;
-    list.hidden = !has;
-    summary.hidden = !has;
-    copy.hidden = !has;
-    const groups = new Map<string, LogEntry[]>();
-    for (const entry of entries) {
-      const key = entry.channel ?? 'other';
-      groups.set(key, [...(groups.get(key) ?? []), entry]);
-    }
-    list.replaceChildren(
-      ...[...groups].map(([key, items]) => {
-        const group = document.createElement('li');
-        const head = document.createElement('p');
-        head.className = 'end-group';
-        head.textContent = names[key] ?? 'Other';
-        const inner = document.createElement('ol');
-        for (const entry of items) {
-          const item = document.createElement('li');
-          const index = document.createElement('span');
-          index.className = 'entry-index';
-          index.textContent = num(entry);
-          const body = document.createElement('div');
-          const title = document.createElement('b');
-          title.textContent = entry.title;
-          const detail = document.createElement('span');
-          detail.textContent = `${entry.detail} (${label[entry.provenance]})`;
-          body.append(title, detail);
-          if (entry.limit) {
-            const flag = document.createElement('span');
-            flag.className = 'limit-flag';
-            flag.textContent = 'limit found';
-            body.append(flag);
-          }
-          item.append(index, body);
-          inner.append(item);
-        }
-        group.append(head, inner);
-        return group;
-      }),
-    );
-    const touched = new Set(entries.map((entry) => entry.channel).filter((c) => c && c !== 'research')).size;
-    const limits = new Set(entries.filter((entry) => entry.limit).map((entry) => entry.title)).size;
-    summary.textContent = `${entries.length} ${entries.length === 1 ? 'test' : 'tests'} across ${touched} of 4 systems, ${limits} documented ${
-      limits === 1 ? 'limit' : 'limits'
-    } found`;
-    const seen = observed(entries);
-    controls.hidden = seen.length === 0;
-    controls.replaceChildren(
-      ...(seen.length
-        ? [
-            Object.assign(document.createElement('p'), {
-              className: 'end-group',
-              textContent: 'Controls you saw act',
-            }),
-            ...seen.map((text) => Object.assign(document.createElement('p'), { textContent: text })),
-          ]
-        : []),
-    );
-  });
-
-  copy?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(current.map(lineOf).join('\n'));
-      if (copied) {
-        copied.hidden = false;
-        window.setTimeout(() => (copied.hidden = true), 1800);
-      }
-    } catch {
-      /* clipboard unavailable: stay silent */
-    }
-  });
 }
+
+export {};

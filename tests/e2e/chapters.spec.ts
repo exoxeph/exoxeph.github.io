@@ -94,6 +94,7 @@ test('route map nodes expand one at a time and reveal level two', async ({ page 
   await page.goto('/');
   const chapter = page.locator('.chapter[data-chapter="pool"]');
   await chapter.scrollIntoViewIfNeeded();
+  await chapter.locator('.csteps > summary').click();
   const nodes = chapter.locator('.routemap > li > details');
   await expect(nodes).toHaveCount(6);
   await nodes.nth(1).locator('> summary').click();
@@ -111,6 +112,7 @@ test('show on the bench selects the channel and opens the drawer, which closes w
   await page.goto('/');
   const chapter = page.locator('.chapter[data-chapter="speech"]');
   await chapter.scrollIntoViewIfNeeded();
+  await chapter.locator('.csteps > summary').click();
   const nodes = chapter.locator('.routemap > li > details');
   await nodes.nth(3).locator('> summary').click();
   await nodes.nth(3).locator('.rm-show').click();
@@ -121,29 +123,6 @@ test('show on the bench selects the channel and opens the drawer, which closes w
   expect(box!.x + box!.width).toBeGreaterThan(1400);
   await page.keyboard.press('Escape');
   await expect(drawer).toBeHidden();
-});
-
-test('what you tested lists earlier tests and copies them as text', async ({ page, context }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await page.goto('/');
-  await expect(page.locator('[data-end-empty]')).toBeVisible();
-  const handle = page.getByRole('slider', { name: /request/i }).first();
-  await handle.focus();
-  await page.keyboard.press('Enter');
-  await page.locator('label[for="ch-speech"]:visible').first().click();
-  await page.locator('button', { hasText: '<8.5' }).first().click();
-  await expect(page.locator('[data-end-list] > li')).toHaveCount(2);
-  await expect(page.locator('[data-end-summary]')).toHaveText(
-    '2 tests across 2 of 4 systems, 1 documented limit found',
-  );
-  await expect(page.locator('[data-end-controls]')).toContainText(
-    'A misread that is still a valid number was accepted.',
-  );
-  await page.locator('[data-end-copy]').click();
-  const text = await page.evaluate(() => navigator.clipboard.readText());
-  expect(text.split('\n')).toHaveLength(2);
-  expect(text).toContain('[Runs in browser]');
-  expect(text).toContain('limit found');
 });
 
 test('axe passes with a chapter in view and with the drawer open', async ({ page }) => {
@@ -221,6 +200,8 @@ test('choosing a channel moves the reading to that chapter, and later scrolling 
   await page.evaluate(() => window.scrollBy(0, 200));
   await page.waitForTimeout(250);
   await invariant(page, 'rag');
+  // The other-systems strip shows on a project's first page; choose the next system from there.
+  await scrollTo(page, '.chapter[data-chapter="rag"]');
   await page.locator('label[for="ch-speech"]:visible').first().click();
   await expect.poll(() => topOf(page, 'speech')).toBeLessThan(110);
   await invariant(page, 'speech');
@@ -275,7 +256,7 @@ test('the inspection deck follows the project and the beat, and starts on the fi
     });
   expect(await frame()).toEqual(['pool:0']);
   for (const channel of ['pool', 'email', 'rag', 'speech']) {
-    for (const beat of [0, 1, 2, 3, 4]) {
+    for (const beat of [0, 1, 3, 4]) {
       await page.evaluate(
         ([c, b]) => {
           const el = document.querySelector('.chapter[data-chapter="' + c + '"] [data-beat="' + b + '"]')!;
@@ -284,7 +265,10 @@ test('the inspection deck follows the project and the beat, and starts on the fi
         [channel, beat],
       );
       await page.waitForTimeout(250);
-      await expect.poll(frame).toEqual([channel + ':' + beat]);
+      // The "how it catches it" page shows both mechanism pictures.
+      await expect
+        .poll(frame)
+        .toEqual(beat === 1 ? [channel + ':1', channel + ':2'] : [channel + ':' + beat]);
       await expect(page.locator('#ch-' + channel)).toBeChecked();
     }
   }
@@ -307,11 +291,23 @@ test('the pinned stage never overflows its height with the deck, at the common d
         radio.dispatchEvent(new Event('change', { bubbles: true }));
       }, channel);
       await page.waitForTimeout(150);
-      const fit = await page.evaluate(() => {
-        const stage = document.querySelector('.stagecol')!;
-        return stage.scrollHeight - stage.clientHeight;
-      });
-      expect(fit, channel + ' at ' + width + 'x' + height).toBeLessThanOrEqual(1);
+      // Every page, including the beat 1 page that shows two mechanism pictures side by side. The stage gets the same
+      // beat event scrolling sends, so its controller shows that page's state too.
+      for (const beat of ['0', '1', '3', '4']) {
+        const fit = await page.evaluate(
+          async ([b, c]) => {
+            (document.querySelector('.bench') as HTMLElement).dataset.beat = b;
+            document.dispatchEvent(
+              new CustomEvent('bench:beat', { detail: { channel: c, beat: Number(b) } }),
+            );
+            await new Promise((r) => setTimeout(r, 400));
+            const stage = document.querySelector('.stagecol')!;
+            return stage.scrollHeight - stage.clientHeight;
+          },
+          [beat, channel],
+        );
+        expect(fit, channel + ' beat ' + beat + ' at ' + width + 'x' + height).toBeLessThanOrEqual(1);
+      }
     }
   }
 });

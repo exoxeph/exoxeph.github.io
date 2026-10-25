@@ -9,7 +9,12 @@ const scan = async (page: import('@playwright/test').Page) => {
     Promise.all(
       document
         .getAnimations()
-        .filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime ?? Infinity))
+        // Scroll-linked animations (the page words rising with the scroll) follow the scroll and never finish.
+        .filter(
+          (a) =>
+            a.timeline instanceof DocumentTimeline &&
+            Number.isFinite(a.effect?.getComputedTiming().endTime ?? Infinity),
+        )
         .map((a) => a.finished.catch(() => null)),
     ),
   );

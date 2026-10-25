@@ -119,7 +119,7 @@ test.describe('Phase 17 heading structure', () => {
     const suffixes: string[] = [];
     for (const chapter of await chapters.all()) {
       const headings = chapter.locator('.cblock h4');
-      await expect(headings).toHaveCount(5);
+      await expect(headings).toHaveCount(4);
       const texts = await headings.allTextContents();
       const parts = texts.map((text) => text.replace(/\s+/g, ' ').trim().split(': ').slice(1).join(': '));
       expect(parts[0]).not.toBe('');
@@ -151,12 +151,10 @@ test.describe('Phase 17 accessible names', () => {
     await expect(page.locator('[data-reset]')).toHaveAttribute('aria-label', 'Reset the ride pooling test');
     await expect(page.locator('#bench-channel-hint')).toHaveCount(1);
     await expect(page.locator('#bench-channel-hint')).toHaveText(/\S/);
-    await expect(page.locator('input.flow-radio')).toHaveCount(5);
-    for (const radio of await page.locator('input.flow-radio').all()) {
-      await expect(radio).toHaveAttribute('aria-describedby', 'hero-case-hint');
-    }
-    await expect(page.locator('#hero-case-hint')).toHaveCount(1);
-    await expect(page.locator('#hero-case-hint')).toHaveText(/\S/);
+    // The opening's idea picture is an image with a full sentence for its name.
+    expect(
+      (await page.locator('#story-open svg[role="img"]').getAttribute('aria-label'))!.length,
+    ).toBeGreaterThan(40);
     const summary = page.locator('.routemap summary').first();
     expect(
       await summary.evaluate((el) => {
@@ -251,16 +249,6 @@ test.describe('Phase 17 inspector focus', () => {
 });
 
 test.describe('Phase 17 live regions', () => {
-  test('hero keyboard changes announce the case, input and outcome', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('#hc-unclear').focus();
-    await page.keyboard.press('ArrowRight');
-    const live = page.locator('[data-flow-live]');
-    await expect(live).toHaveText(/^Over capacity\./);
-    await expect(live).toContainText('Input:');
-    await expect(live).toContainText('Outcome:');
-  });
-
   test('retrieval limits are announced by the log alone', async ({ page }) => {
     await page.goto('/');
     await retrievalLimit(page);
@@ -390,9 +378,9 @@ test.describe('Phase 17 short and zoomed viewports', () => {
 test.describe('Phase 17 forced colors', () => {
   test.use({ forcedColors: 'active' });
 
-  test('keyboard-focused hero Résumé link has a 3px outline', async ({ page }) => {
+  test('keyboard-focused first-screen Résumé link has a 3px outline', async ({ page }) => {
     await page.goto('/');
-    const link = page.locator('.hero .actions').getByRole('link', { name: 'Résumé', exact: true });
+    const link = page.locator('header.top').getByRole('link', { name: 'Résumé', exact: true });
     await expect(link).toBeVisible();
     for (let i = 0; i < 60; i++) {
       await page.keyboard.press('Tab');
@@ -445,20 +433,20 @@ test.describe('Phase 17 keyboard-only channel switching', () => {
 });
 
 test.describe('Phase 17 screen-reader-only text does not disturb the hand notes', () => {
-  test('hero notes stay on screen, in order, after the hidden hint and status were added', async ({
-    page,
-  }) => {
+  test('opening notes stay on screen beside the idea picture', async ({ page }) => {
     await page.goto('/');
     await page.waitForTimeout(600);
-    const boxes = await page.locator('.flow .note').evaluateAll((notes) =>
+    const boxes = await page.locator('.idea .note').evaluateAll((notes) =>
       notes.map((n) => {
         const r = n.getBoundingClientRect();
-        return { text: n.textContent?.trim(), left: r.left, right: r.right, top: r.top };
+        return { text: n.textContent?.trim(), left: r.left, right: r.right, top: r.top, bottom: r.bottom };
       }),
     );
-    expect(boxes.length).toBe(5);
-    for (const b of boxes) expect(b.right, b.text).toBeLessThanOrEqual(1440);
-    const tops = boxes.map((b) => b.top);
-    expect(tops).toEqual([...tops].sort((a, b) => a - b));
+    expect(boxes.length).toBe(3);
+    for (const b of boxes) {
+      expect(b.left, b.text).toBeGreaterThanOrEqual(0);
+      expect(b.right, b.text).toBeLessThanOrEqual(1440);
+      expect(b.top, b.text).toBeGreaterThanOrEqual(0);
+    }
   });
 });

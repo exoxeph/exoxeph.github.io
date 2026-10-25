@@ -61,7 +61,7 @@ if (bench) {
           : focus === 'guard'
             ? '[data-guard]'
             : `[data-pool="${selected}"]`;
-      scope.querySelector<SVGElement>(selector)?.focus();
+      scope.querySelector<SVGElement>(selector)?.focus({ preventScroll: true });
     }
     bench!
       .querySelectorAll<HTMLElement>('.pool [data-provenance="replay"]')
@@ -256,7 +256,7 @@ if (bench) {
     }
     if (target.closest('[data-close]')) {
       inspector.hidden = true;
-      marker()?.focus();
+      marker()?.focus({ preventScroll: true });
       return;
     }
     if (target.closest('[data-guard], [data-inspect-channel="pool"]')) {
@@ -269,7 +269,7 @@ if (bench) {
       inspector.querySelector<HTMLElement>('[data-email-inspector]')!.hidden = true;
       inspector.classList.remove('email-inspector');
       inspector.hidden = false;
-      inspector.focus();
+      inspector.focus({ preventScroll: true });
       return;
     }
     if (target.closest('[data-send]')) {
@@ -323,7 +323,7 @@ if (bench) {
     if (event.key === 'Escape') {
       if (!inspector.hidden && !inspector.classList.contains('speech-inspector')) {
         inspector.hidden = true;
-        marker()?.focus();
+        marker()?.focus({ preventScroll: true });
       } else if (selected) {
         selected = null;
         render();

@@ -8,6 +8,7 @@ import rag from '../../data/architecture/data-aware-rag.json';
 import email from '../../data/architecture/email-assistant.json';
 import modelMerging from '../../data/architecture/model-merging.json';
 import { researchEntry } from '../../lib/bench/research-gate';
+import { BEATS, BEAT_NAMES } from '../../lib/bench/beats';
 
 const maps: Record<string, ArchitectureNode[]> = {
   email: architectureSchema.parse(email).nodes,
@@ -32,7 +33,6 @@ const mechanism: Record<string, string> = {
   speech: 'misread values',
   research: 'sealed',
 };
-const beatNames = ['What goes wrong', 'How it responds', 'Decision', 'What happened', 'Where it fails'];
 // What each step does, in plain words. The technical label stays visible beside it.
 const plainStep: Record<string, string> = {
   request: 'A rider asks for seats',
@@ -89,168 +89,168 @@ const hasMore = (n: ArchitectureNode) =>
           </p>
           <p class="cid-beat" aria-hidden="true">
             <span class="cid-beat-name" data-beat-name>
-              {beatNames[0]}
+              {BEAT_NAMES[0]}
             </span>
             <span class="cid-ticks">
-              {beatNames.map((_, i) => (
+              {BEATS.map((_, i) => (
                 <i class={i === 0 ? 'on' : ''} data-tick={i} />
               ))}
             </span>
           </p>
           <button type="button" class="operate" data-operate={c.channel} aria-label="Operate on the bench">
-            bench ↑
+            try it ↑
           </button>
         </header>
-        <div class="cblock" data-beat="0">
+        <div class="cblock story-page" data-beat="0">
           <span class="cidx" aria-hidden="true">
             0{index + 1} / 04
           </span>
           <h3 id={`chapter-h-${c.channel}`} class="cq">
             {c.question}
           </h3>
-          <p class="csub">{c.plain}</p>
           <p class="cwho">{c.myPart}</p>
           <h4>
-            What goes wrong<span class="visually-hidden">: {d.title}</span>
+            {BEAT_NAMES[0]}
+            <span class="visually-hidden">: {d.title}</span>
           </h4>
-          <dl class="cstory">
-            <dt>Goes wrong</dt>
-            <dd>{c.wrong}</dd>
-            <dt>Why it matters</dt>
-            <dd>{c.matters}</dd>
-            <dt>What it does</dt>
-            <dd>{c.does}</dd>
-          </dl>
+          <p class="beat-line">{c.beats.fails}</p>
           <details class="cdeep cterms">
             <summary>In engineering terms</summary>
+            <p class="csub">{c.plain}</p>
+            <p>{c.wrong}</p>
             <p>{d.capability}</p>
             <p>{c.problem}</p>
             <p class="cstack">{d.technologies.join(', ')}</p>
           </details>
         </div>
-        <div class="cblock" data-beat="1">
+        <div class="cblock story-page" data-beat="1">
           <h4>
-            How it responds<span class="visually-hidden">: {d.title}</span>
+            {BEAT_NAMES[1]}
+            <span class="visually-hidden">: {d.title}</span>
           </h4>
-          <p class="rm-hint">Select a step to see what it does and why it exists.</p>
-          <ol class="routemap" aria-label={`How ${d.title} works`}>
-            {nodes.map((node) => (
-              <li>
-                <details name={`route-${c.channel}`}>
-                  <summary>
-                    <i aria-hidden="true" />
-                    <span class="rm-label">{plainStep[node.id] ?? node.label}</span>{' '}
-                    <span class="rm-role">{plainStep[node.id] ? node.label : first(node.role)}</span>
-                  </summary>
-                  <div class="rm-body">
-                    <p>{node.role}</p>
-                    {node.decision && (
-                      <p>
-                        <b>Decision.</b> {node.decision}
-                      </p>
-                    )}
-                    {hasMore(node) && (
-                      <details class="rm-more">
-                        <summary>
-                          more<span class="visually-hidden"> about {node.label}</span>
-                        </summary>
-                        <dl>
-                          {node.why && (
-                            <>
-                              <dt>Why it exists</dt>
-                              <dd>{node.why}</dd>
-                            </>
-                          )}
-                          {node.io && (
-                            <>
-                              <dt>In and out</dt>
-                              <dd>
-                                {node.io.in} {node.io.out}
-                              </dd>
-                            </>
-                          )}
-                          {node.failure && (
-                            <>
-                              <dt>Failure</dt>
-                              <dd>{node.failure}</dd>
-                            </>
-                          )}
-                          {node.control && (
-                            <>
-                              <dt>Control</dt>
-                              <dd>{node.control}</dd>
-                            </>
-                          )}
-                          {node.evidence?.length ? (
-                            <>
-                              <dt>Evidence</dt>
-                              <dd>
-                                {node.evidence.map((e) => (
-                                  <p>
-                                    <EvidenceTag kind={e.state === 'verified' ? 'verified' : 'partial'} />{' '}
-                                    <span>
-                                      {e.text} {e.caveat}
-                                    </span>
-                                  </p>
-                                ))}
-                              </dd>
-                            </>
-                          ) : null}
-                          {node.limitation && (
-                            <>
-                              <dt>Limitation</dt>
-                              <dd>{node.limitation}</dd>
-                            </>
-                          )}
-                          {node.source && (
-                            <>
-                              <dt>Source</dt>
-                              <dd class="source">{node.source}</dd>
-                            </>
-                          )}
-                        </dl>
-                      </details>
-                    )}
-                    {markers.has(node.id) && (
-                      <button type="button" class="rm-show" data-show-bench={c.channel}>
-                        show on the bench
-                      </button>
-                    )}
-                  </div>
-                </details>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div class="cblock" data-beat="2">
-          <h4>
-            Decision<span class="visually-hidden">: {d.title}</span>
-          </h4>
-          <p>{c.decisionPlain}</p>
+          <p class="beat-line">{c.beats.catches}</p>
           <details class="cdeep">
             <summary>In engineering terms</summary>
+            <p>{c.does}</p>
+            <p>{c.decisionPlain}</p>
             <p>{c.decision}</p>
           </details>
+          <details class="cdeep csteps">
+            <summary>Every step, one at a time</summary>
+            <p class="rm-hint">Select a step to see what it does and why it exists.</p>
+            <ol class="routemap" aria-label={`How ${d.title} works`}>
+              {nodes.map((node) => (
+                <li>
+                  <details name={`route-${c.channel}`}>
+                    <summary>
+                      <i aria-hidden="true" />
+                      <span class="rm-label">{plainStep[node.id] ?? node.label}</span>{' '}
+                      <span class="rm-role">{plainStep[node.id] ? node.label : first(node.role)}</span>
+                    </summary>
+                    <div class="rm-body">
+                      <p>{node.role}</p>
+                      {node.decision && (
+                        <p>
+                          <b>Decision.</b> {node.decision}
+                        </p>
+                      )}
+                      {hasMore(node) && (
+                        <details class="rm-more">
+                          <summary>
+                            more<span class="visually-hidden"> about {node.label}</span>
+                          </summary>
+                          <dl>
+                            {node.why && (
+                              <>
+                                <dt>Why it exists</dt>
+                                <dd>{node.why}</dd>
+                              </>
+                            )}
+                            {node.io && (
+                              <>
+                                <dt>In and out</dt>
+                                <dd>
+                                  {node.io.in} {node.io.out}
+                                </dd>
+                              </>
+                            )}
+                            {node.failure && (
+                              <>
+                                <dt>Failure</dt>
+                                <dd>{node.failure}</dd>
+                              </>
+                            )}
+                            {node.control && (
+                              <>
+                                <dt>Control</dt>
+                                <dd>{node.control}</dd>
+                              </>
+                            )}
+                            {node.evidence?.length ? (
+                              <>
+                                <dt>Evidence</dt>
+                                <dd>
+                                  {node.evidence.map((e) => (
+                                    <p>
+                                      <EvidenceTag kind={e.state === 'verified' ? 'verified' : 'partial'} />{' '}
+                                      <span>
+                                        {e.text} {e.caveat}
+                                      </span>
+                                    </p>
+                                  ))}
+                                </dd>
+                              </>
+                            ) : null}
+                            {node.limitation && (
+                              <>
+                                <dt>Limitation</dt>
+                                <dd>{node.limitation}</dd>
+                              </>
+                            )}
+                            {node.source && (
+                              <>
+                                <dt>Source</dt>
+                                <dd class="source">{node.source}</dd>
+                              </>
+                            )}
+                          </dl>
+                        </details>
+                      )}
+                      {markers.has(node.id) && (
+                        <button type="button" class="rm-show" data-show-bench={c.channel}>
+                          show on the bench
+                        </button>
+                      )}
+                    </div>
+                  </details>
+                </li>
+              ))}
+            </ol>
+          </details>
         </div>
-        <div class="cblock" data-beat="3">
+        <div class="cblock story-page" data-beat="3">
           <h4>
-            What happened<span class="visually-hidden">: {d.title}</span>
+            {BEAT_NAMES[3]}
+            <span class="visually-hidden">: {d.title}</span>
           </h4>
-          <p>{c.evidenceHuman}</p>
+          <p class="beat-line">{c.beats.survives}</p>
           <details class="cdeep">
             <summary>
               Evidence detail <EvidenceTag kind="verified" label="Checked by me" />
             </summary>
+            <p>{c.evidenceHuman}</p>
             <p>{d.evidenceLine.text}</p>
           </details>
         </div>
-        <div class="cblock" data-beat="4">
+        <div class="cblock story-page" data-beat="4">
           <h4>
-            Where it still fails<span class="visually-hidden">: {d.title}</span>
+            {BEAT_NAMES[4]}
+            <span class="visually-hidden">: {d.title}</span>
           </h4>
-          <p>{c.limitationPlain}</p>
+          <p class="beat-line">{c.beats.holds}</p>
           <details class="cdeep">
             <summary>In engineering terms</summary>
+            <p>{c.limitationPlain}</p>
             <p>{c.limitation}</p>
           </details>
           <p class="clinks">
@@ -294,10 +294,10 @@ const hasMore = (n: ArchitectureNode) =>
           </span>
         </p>
         <button type="button" class="operate" data-operate="research" aria-label="Operate on the bench">
-          bench ↑
+          try it ↑
         </button>
       </header>
-      <div class="cblock" data-beat="0">
+      <div class="cblock story-page" data-beat="0">
         <h3 id="chapter-h-research" class="cq">
           What stays unshown, and why?
         </h3>
@@ -305,7 +305,7 @@ const hasMore = (n: ArchitectureNode) =>
         <h4>Question</h4>
         <p>{research.data.question}</p>
       </div>
-      <div class="cblock" data-beat="1">
+      <div class="cblock story-page" data-beat="1">
         <h4>How it works, in public terms</h4>
         <p class="rm-hint">Select a step to read more.</p>
         <ol class="routemap" aria-label="Public mechanics of the method">
@@ -326,11 +326,11 @@ const hasMore = (n: ArchitectureNode) =>
           ))}
         </ol>
       </div>
-      <div class="cblock" data-beat="2">
+      <div class="cblock story-page" data-beat="2">
         <h4>What stays private</h4>
         <p>{research.data.disclosureNotes}</p>
       </div>
-      <div class="cblock" data-beat="3">
+      <div class="cblock story-page" data-beat="3">
         <h4>Limitation</h4>
         <p>{research.data.limitations.join(' ')}</p>
         <p class="clinks">
@@ -339,9 +339,4 @@ const hasMore = (n: ArchitectureNode) =>
       </div>
     </section>
   )}
-  <p class="all">
-    <a class="arrow-link" href="/work/">
-      All work
-    </a>
-  </p>
 </div>

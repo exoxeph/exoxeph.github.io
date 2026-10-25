@@ -3,12 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 test.use({ reducedMotion: 'reduce' });
 
-const visibleCase = (page: import('@playwright/test').Page) =>
-  page.locator('.flow-case').filter({ visible: true });
-
-test('the opening shows name, role, one line, actions and the flow, with the Bench starting below', async ({
-  page,
-}) => {
+test('the opening shows name, role, one line and the idea, and the Bench follows', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   const h1 = page.getByRole('heading', { level: 1 });
@@ -17,82 +12,41 @@ test('the opening shows name, role, one line, actions and the flow, with the Ben
   await expect(page.locator('.hero .lede')).toHaveText(
     'I build AI systems and test what they do when inputs go wrong.',
   );
-  for (const name of ['Selected work', 'Résumé']) {
-    await expect(page.locator('.hero .actions').getByRole('link', { name })).toBeVisible();
-  }
-  const hero = await page.locator('.hero').boundingBox();
-  expect(hero!.height).toBeGreaterThan(900 * 0.6);
-  expect(hero!.height).toBeLessThan(900 * 0.9);
-  const bench = await page.locator('.bench').boundingBox();
-  expect(bench!.y).toBeGreaterThan(600);
-  expect(bench!.y).toBeLessThan(900);
+  await expect(page.locator('.hero .idea-svg')).toBeInViewport();
+  // The opening fills the first screen under the bar; the Bench comes next.
+  const open = (await page.locator('#story-open').boundingBox())!;
+  const bench = (await page.locator('.bench').boundingBox())!;
+  expect(open.y + open.height).toBeGreaterThanOrEqual(900 - 1);
+  expect(open.y + open.height).toBeLessThanOrEqual(900 + 1);
+  expect(bench.y).toBeGreaterThanOrEqual(open.y + open.height - 1);
+  // The résumé stays one click away on the first screen, in the bar.
+  await expect(page.locator('header.top').getByRole('link', { name: 'Résumé' })).toBeVisible();
 });
 
-test('the first frame reads as input, check, control, outcome, with no script needed', async ({
-  browser,
-}) => {
+test('the idea reads with no script', async ({ browser }) => {
   const context = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 1440, height: 900 },
   });
   const page = await context.newPage();
   await page.goto('/');
-  const shown = visibleCase(page);
-  await expect(shown).toHaveCount(1);
-  for (const label of ['Input', 'Check', 'Control', 'Outcome']) {
-    await expect(shown.locator('.fs-label', { hasText: label })).toBeVisible();
-  }
-  await expect(shown.locator('.fs-flag')).toHaveText('caught');
-  await expect(shown).toContainText('Too vague to write from');
-  await expect(shown).toContainText('Ask a question first');
+  for (const word of ['a request', 'check', 'the system acts', 'ask, refuse, leave out'])
+    await expect(page.locator('.idea-svg')).toContainText(word);
   await context.close();
 });
 
-test('choosing a case shows that input being caught, or passing, with the matching control', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  const expectations: [string, string, string, string][] = [
-    ['Unclear', 'caught', 'Ask a question first', 'No email is written'],
-    ['Bad reading', 'caught', 'Leave the row out', 'Not guessed, not kept'],
-    ['Low score', 'caught', 'One repair attempt', 'Checked again'],
-    ['Passes', 'passes', 'No intervention needed', 'Accepted'],
-    ['Over capacity', 'caught', 'Refuse the request', 'Nothing changes'],
-  ];
-  for (const [tab, flag, control, outcome] of expectations) {
-    await page.locator('.flow-tabs label', { hasText: tab }).click();
-    const shown = visibleCase(page);
-    await expect(shown).toHaveCount(1);
-    await expect(shown.locator('.fs-flag')).toHaveText(flag);
-    await expect(shown.locator('.fs-control')).toContainText(control);
-    await expect(shown.locator('.fs-out')).toContainText(outcome);
-  }
-});
-
-test('the cases are a keyboard radio group with names', async ({ page }) => {
-  await page.goto('/');
-  const first = page.getByRole('radio', { name: 'Unclear' });
-  await first.focus();
-  await page.keyboard.press('ArrowDown');
-  await expect(page.getByRole('radio', { name: 'Over capacity' })).toBeChecked();
-  await expect(visibleCase(page)).toContainText('Refuse the request');
-});
-
-test('mobile opening: identity, actions, then the flow, with no overflow', async ({ page }) => {
+test('mobile opening: identity, then the idea, with no overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  const flow = (await page.locator('.flow').boundingBox())!;
-  const actions = (await page.locator('.hero .actions').boundingBox())!;
+  const idea = (await page.locator('.idea').boundingBox())!;
   const h1 = (await page.getByRole('heading', { level: 1 }).boundingBox())!;
-  expect(h1.y).toBeLessThan(flow.y);
-  // On a phone the actions come straight after the identity, with the signature check under them.
-  expect(actions.y).toBeLessThan(flow.y);
-  await expect(visibleCase(page)).toHaveCount(1);
+  expect(h1.y).toBeLessThan(idea.y);
 });
 
-test('phone: both actions are on the first screen, in portrait and on its side', async ({ page }) => {
+test('phone: name and the one line are on the first screen, in portrait and on its side', async ({
+  page,
+}) => {
   const sizes: [number, number][] = [
     [375, 667],
     [320, 640],
@@ -102,20 +56,17 @@ test('phone: both actions are on the first screen, in portrait and on its side',
   for (const [width, height] of sizes) {
     await page.setViewportSize({ width, height });
     await page.goto('/');
-    const links = page.locator('.hero .actions a');
-    for (const i of [0, 1]) {
-      const box = (await links.nth(i).boundingBox())!;
-      expect(box.y + box.height, `${width}x${height} action ${i}`).toBeLessThanOrEqual(height);
+    for (const sel of ['h1', '.hero .lede']) {
+      const box = (await page.locator(sel).boundingBox())!;
+      expect(box.y + box.height, `${width}x${height} ${sel}`).toBeLessThanOrEqual(height);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
 });
 
-test('Phase 19: the default case is an AI one, and the opening names the current role', async ({ page }) => {
+test('Phase 19: the opening names the current role', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await expect(page.getByRole('radio', { name: 'Unclear' })).toBeChecked();
-  await expect(visibleCase(page)).toContainText('AI email writer');
   await expect(page.locator('.hero .who')).toContainText('AI Engineer at Data Solution-360');
 });
 
@@ -153,17 +104,22 @@ test('Phase 19R: each chapter leads with what goes wrong, why it matters, what i
         question: pick('.cq'),
         plain: pick('.csub'),
         who: pick('.cwho'),
-        terms: [...el.querySelectorAll('.cstory dt')].map((d) => d.textContent?.trim()),
-        body: [...el.querySelectorAll('.cstory dd')].map((d) => d.textContent?.trim() ?? ''),
+        // What goes wrong, in plain words, sits right after the plain sentence in the disclosure.
+        wrong: pick('.cterms .csub + p'),
+        // The one line a recruiter reads on each of the four pages.
+        lines: [...el.closest('.chapter')!.querySelectorAll('.beat-line')].map(
+          (d) => d.textContent?.trim() ?? '',
+        ),
         order: [...el.children].map((c) => c.className || c.tagName.toLowerCase()),
       };
     });
-    expect(text.terms, `chapter ${i} story terms`).toEqual(['Goes wrong', 'Why it matters', 'What it does']);
-    for (const part of [text.question, text.plain, ...text.body])
+    expect(text.lines, `chapter ${i} page lines`).toHaveLength(4);
+    expect(text.wrong.length, `chapter ${i} what goes wrong`).toBeGreaterThan(30);
+    for (const part of [text.question, text.plain, text.wrong, ...text.lines])
       expect(part, `chapter ${i}: "${part}"`).not.toMatch(specialist);
     expect(text.who, `chapter ${i} my part`).toMatch(/^My part:/);
     // My part comes before the story and before any heading, so it is read early.
-    expect(text.order.indexOf('cwho')).toBeLessThan(text.order.indexOf('cstory'));
+    expect(text.order.indexOf('cwho')).toBeLessThan(text.order.indexOf('beat-line'));
     expect(text.order.indexOf('cwho')).toBeLessThan(text.order.indexOf('h4'));
   }
 });

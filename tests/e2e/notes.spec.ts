@@ -6,10 +6,10 @@ test.use({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
 const visibleNotes = (page: import('@playwright/test').Page) =>
   page.locator('.note').filter({ visible: true });
 
-test('hand-drawn notes explain the hero flow, the active stage and the deck frame', async ({ page }) => {
+test('hand-drawn notes explain the opening idea, the active stage and the deck frame', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.hero .note').first()).toBeVisible();
-  await expect(page.locator('.hero .note', { hasText: 'the rule that catches it' })).toBeVisible();
+  await expect(page.locator('.hero .note', { hasText: 'the check sits in its path' })).toBeVisible();
   await expect(page.locator('.channel.pool .note', { hasText: 'drag to change the seats' })).toBeAttached();
   await expect(page.locator('.df[data-ch="pool"][data-b="0"] .note')).toBeAttached();
   // Notes never take pointer events or screen reader attention.
@@ -157,7 +157,7 @@ test('notes sit on clear space: no note box covers diagram text, at several chap
       return found;
     });
   for (const channel of ['pool', 'email', 'rag', 'speech']) {
-    for (const beat of [0, 2, 4]) {
+    for (const beat of [0, 1, 3, 4]) {
       await page.evaluate(
         ([c, b]) => {
           const el = document.querySelector('.chapter[data-chapter="' + c + '"] [data-beat="' + b + '"]')!;

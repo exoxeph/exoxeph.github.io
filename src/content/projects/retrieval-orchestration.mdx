@@ -23,6 +23,11 @@ chapter:
   problem: "Answering questions over research papers, including tables, with answers that are checked rather than trusted."
   decision: "Score each draft with the rule-based verifier, accept at a threshold, and make one bounded repair attempt below it."
   limitation: "The committed runs use a mock generator, so scores describe harness behavior and not answer quality. Repair is not a guarantee."
+  beats:
+    fails: "A first draft can be too short, drift off the question or stop mid-thought, and nothing says so."
+    catches: "Each draft is scored with simple quality rules; below the required quality, one more attempt with tighter settings."
+    survives: "Four recorded queries: two passed first time, two tried again and still fell short. Drafts from a mock generator."
+    holds: "Score before returning. Limit: repair is an attempt, not a guarantee; both repaired answers stayed below the requirement."
 technologies: [Python, FastAPI, DuckDB, sentence-transformers]
 contribution:
   role: Sole contributor in the commit history.

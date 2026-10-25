@@ -269,6 +269,8 @@ export function start(guide: HTMLElement) {
     },
     { passive: true },
   );
+  // A snapped page can change the beat after the last scroll event, when the page comes to rest.
+  document.addEventListener('bench:beat', kick);
   addEventListener('resize', refresh);
   wide.addEventListener('change', refresh);
   reduced.addEventListener('change', kick);

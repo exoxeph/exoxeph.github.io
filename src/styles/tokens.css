@@ -48,4 +48,6 @@
   --m-micro: 120ms;
   --m-state: 220ms;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* Arrivals: a long, soft settle for things that appear (pictures, notes, page text). */
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }

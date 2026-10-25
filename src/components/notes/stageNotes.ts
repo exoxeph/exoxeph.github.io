@@ -132,7 +132,7 @@ export const stageNotes: Record<string, NoteData[]> = {
 
 export const deckNotes: Record<string, NoteData> = {
   'pool-0': {
-    t: 'the catch is below',
+    t: 'see what fails below',
     to: '.story-pool .story-head',
     at: 'mr',
     dx: 120,
@@ -273,7 +273,7 @@ export const deckNotes: Record<string, NoteData> = {
     w: '130px',
   },
   'speech-0': {
-    t: 'the catch is below',
+    t: 'see what fails below',
     to: '.story-speech .story-head',
     at: 'mr',
     dx: 120,

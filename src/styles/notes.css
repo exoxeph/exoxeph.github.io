@@ -53,13 +53,47 @@
   margin-top: calc(-24px * var(--len, 1));
   transform: scaleX(-1);
 }
+/* A note is written onto the page, not switched on: it settles in slowly from a slightly steeper angle whenever it is
+   shown, and a note the placer has to hide or reveal fades instead of blinking. Over a picture that is still arriving
+   (a deck frame, the opening idea), the whole layer, arrows included, waits until the picture has settled, so no note
+   is placed against a part that is still moving. Arrows are rebuilt on every placement, so they carry no animation of
+   their own (an animation ending inside a diagram asks for a new placement). */
 @media (prefers-reduced-motion: no-preference) {
   .note {
-    animation: note-in 220ms var(--ease) backwards;
+    animation: note-in 760ms var(--ease-soft) backwards;
+  }
+  /* A later placement (the diagram changed under the note) moves it there, arrow and all, instead of jumping. The first
+     placement, and any placement after the diagram was away, has nothing to glide from: an unset position and a new
+     arrow do not transition. */
+  .note {
+    transition:
+      opacity 520ms var(--ease-soft),
+      left 640ms var(--ease-soft),
+      top 640ms var(--ease-soft);
+  }
+  .note-arrow {
+    transition: d 640ms var(--ease-soft);
+  }
+  .notes-layer[data-away] :is(.note, .note-arrow) {
+    transition: none;
+  }
+  .note[style*='visibility: hidden'] {
+    opacity: 0;
   }
   @keyframes note-in {
     from {
-      transform: rotate(var(--rot, -2deg)) translateY(4px);
+      opacity: 0;
+      transform: rotate(calc(var(--rot, -2deg) - 3deg)) translateY(6px);
+    }
+  }
+  .df > .notes-layer,
+  .idea > .notes-layer {
+    animation: layer-after 1500ms var(--ease-soft) both;
+  }
+  @keyframes layer-after {
+    0%,
+    66% {
+      opacity: 0;
     }
   }
 }
@@ -119,6 +153,9 @@ main {
 .note-dyn {
   visibility: hidden;
   transform-origin: center;
+}
+.notes-layer[data-away] :is(.note, .notes-arrows) {
+  visibility: hidden !important;
 }
 .notes-arrows {
   position: absolute;

@@ -103,6 +103,8 @@ test('log survives reload and clear empties visitor entries', async ({ page }) =
   await page.locator('.tesla-svg.desktop [data-send]').click();
   await page.reload();
   await expect(page.locator('.visitor-entries li')).toHaveCount(1);
+  // The home page turns whole pages: go to the Bench's page, where the log sits, as a reader would.
+  await page.evaluate(() => document.getElementById('bench-heading')!.scrollIntoView());
   await page.locator('[data-clear]').click();
   await expect(page.locator('.visitor-entries li')).toHaveCount(0);
   await expect(page.locator('[data-empty]')).toBeVisible();
@@ -129,8 +131,11 @@ test('the recorded Tesla log stays in place on every channel', async ({ page }) 
 
 test('pointer grip snaps to seat units', async ({ page }) => {
   await page.goto('/');
+  // The stage code swaps in its live grip once loaded: wait for that before reaching for it.
+  await page.waitForLoadState('networkidle');
   await page.locator('.tesla-svg.desktop [data-handle]').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(200);
+  // Let the page come to rest (the stage code and fonts are still settling the layout) before aiming at the grip.
+  await page.waitForTimeout(600);
   const box = (await page.locator('.tesla-svg.desktop [data-handle]').boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();

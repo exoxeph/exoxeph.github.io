@@ -1,6 +1,12 @@
 const bench = document.querySelector<HTMLElement>('.bench');
 if (bench) {
-  void import('./channels/tesla');
+  // A controller that loads mid-chapter catches up to the beat being read (beat 0 is the server-rendered frame).
+  const catchUp = (id: string) => {
+    const beat = Number(bench.dataset.beat ?? 0);
+    if (beat > 0 && (document.getElementById('ch-' + id) as HTMLInputElement | null)?.checked)
+      document.dispatchEvent(new CustomEvent('bench:beat', { detail: { channel: id, beat } }));
+  };
+  void import('./channels/tesla').then(() => catchUp('pool'));
   const loaded = new Set<string>();
   const loaders: Record<string, () => Promise<unknown>> = {
     'ch-speech': () => import('./channels/speech'),
@@ -20,10 +26,7 @@ if (bench) {
       const id = target.id.slice(3);
       void loaders[target.id]!().then(() => {
         bench.setAttribute('data-ready-' + id, '');
-        // A controller that loads mid-chapter catches up to the beat being read (beat 0 is the server-rendered frame).
-        const beat = Number(bench.dataset.beat ?? 0);
-        if (beat > 0 && target.checked)
-          document.dispatchEvent(new CustomEvent('bench:beat', { detail: { channel: id, beat } }));
+        catchUp(id);
       });
     }
   });
@@ -52,7 +55,7 @@ if (bench) {
           (button) => button.getClientRects().length,
         );
         const target = opener?.isConnected && opener.getClientRects().length ? opener : fallback;
-        target?.focus();
+        target?.focus({ preventScroll: true });
       }, 0);
     }).observe(drawer, { attributes: true, attributeFilter: ['hidden'] });
   }

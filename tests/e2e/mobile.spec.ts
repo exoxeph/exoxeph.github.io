@@ -20,10 +20,10 @@ for (const width of [375, 820]) {
 test.describe('375px specifics', () => {
   test.use({ viewport: { width: 375, height: 740 } });
 
-  test('hero, primary action and menu are reachable without hover', async ({ page }) => {
+  test('the opening and the menu are reachable without hover', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Selected work' })).toBeVisible();
+    await expect(page.locator('.hero .lede')).toBeVisible();
     await expect(page.locator('details.menu summary')).toBeVisible();
     await page.locator('details.menu summary').click();
     await expect(page.locator('details.menu').getByRole('link', { name: 'Work' })).toBeVisible();

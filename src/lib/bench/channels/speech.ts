@@ -131,7 +131,7 @@ function openInspector() {
   inspector.classList.remove('email-inspector');
   inspector.hidden = false;
   selectTab('value-normalizer');
-  inspector.focus();
+  inspector.focus({ preventScroll: true });
 }
 function selectTab(id: string) {
   inspector.querySelector<HTMLElement>('#speech-inspector-title')!.textContent =
@@ -152,7 +152,7 @@ inspector.addEventListener('click', (event) => {
   }
   if (target.closest('[data-speech-close]')) {
     inspector.hidden = true;
-    stage.querySelector<HTMLButtonElement>('.speech-bracket-button')?.focus();
+    stage.querySelector<HTMLButtonElement>('.speech-bracket-button')?.focus({ preventScroll: true });
     return;
   }
   if (target.closest('[data-load-misread]')) {
@@ -160,12 +160,12 @@ inspector.addEventListener('click', (event) => {
     changed();
     window.clearTimeout(timer);
     record();
-    input.focus();
+    input.focus({ preventScroll: true });
   }
 });
 bench.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && !inspector.hidden && inspector.classList.contains('speech-inspector')) {
     inspector.hidden = true;
-    stage.querySelector<HTMLButtonElement>('.speech-bracket-button')?.focus();
+    stage.querySelector<HTMLButtonElement>('.speech-bracket-button')?.focus({ preventScroll: true });
   }
 });

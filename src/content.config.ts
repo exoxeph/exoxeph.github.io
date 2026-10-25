@@ -33,6 +33,13 @@ const projectBase = z.object({
     problem: z.string().min(40),
     decision: z.string().min(30),
     limitation: z.string().min(30),
+    // The storybook pages: one short line each, paraphrasing the copy above; the full wording stays in the disclosures.
+    beats: z.object({
+      fails: z.string().max(140),
+      catches: z.string().max(140),
+      survives: z.string().max(140),
+      holds: z.string().max(140),
+    }),
   }),
   technologies: z.array(z.string().min(2)).min(2).max(5),
   contribution: z.object({

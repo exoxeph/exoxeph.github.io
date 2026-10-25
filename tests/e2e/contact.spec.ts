@@ -26,5 +26,8 @@ test('the homepage ends on the résumé and contact tabs, with no About or Conta
   await expect(tabs).toHaveCount(2);
   await expect(tabs.nth(0)).toHaveAttribute('href', '/resume/');
   await expect(tabs.nth(1)).toHaveAttribute('href', '/contact/');
-  await expect(page.locator('.hero .actions a')).toHaveCount(2);
+  await expect(page.locator('header.top').getByRole('link', { name: 'Résumé' })).toHaveAttribute(
+    'href',
+    '/resume/',
+  );
 });

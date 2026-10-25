@@ -71,6 +71,9 @@ test('dragging, mobile targets, no overflow and axe', async ({ page }) => {
       await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
     ).toBeLessThanOrEqual(0);
     const slider = art(page).locator('[data-rag-slider="draft"]');
+    // On a phone the stage is below the opening page: scroll to it, as a reader would, before dragging.
+    await slider.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
     const box = (await slider.boundingBox())!;
     await page.mouse.move(box.x + box.width / 2, box.y + 20);
     await page.mouse.down();

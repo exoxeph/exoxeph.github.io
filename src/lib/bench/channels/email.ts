@@ -143,11 +143,11 @@ function openInspector(from: HTMLElement | SVGElement | null, tab: string) {
   inspector.querySelector<HTMLElement>('[data-email-inspector]')!.hidden = false;
   inspector.hidden = false;
   selectTab(tab);
-  inspector.focus();
+  inspector.focus({ preventScroll: true });
 }
 function closeInspector() {
   inspector.hidden = true;
-  returnFocus?.focus();
+  returnFocus?.focus({ preventScroll: true });
 }
 
 // Scroll beats set a canonical frame that matches the chapter text. They never write to the log.
@@ -197,7 +197,7 @@ stage.addEventListener('click', (event) => {
     if (facts.children.length >= 5) return;
     const row = factRow('');
     facts.append(row);
-    row.querySelector('input')!.focus();
+    row.querySelector('input')!.focus({ preventScroll: true });
     edited();
   }
   const remove = target.closest('[data-email-remove]');
