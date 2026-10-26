@@ -1396,6 +1396,10 @@ html[data-pager] {
   }
 }
 @media (max-width: 999px) {
+  /* Phones scroll freely: no page lock, and no snapping by the browser either. */
+  html:has(.story) {
+    scroll-snap-type: none;
+  }
   /* Phones: the chips and the compact identity stay on top, the stage is a page of its own (try it lands on it), and
      a picture page keeps its own height. */
   :root {

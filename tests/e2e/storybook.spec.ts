@@ -60,6 +60,27 @@ test('home turns pages, other pages scroll freely', async ({ page }) => {
   await expect(page.locator('html')).not.toHaveAttribute('data-pager', /.*/);
 });
 
+test('phones scroll freely: no page lock, no snapping', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.waitForTimeout(800);
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollSnapType)).toBe('none');
+  await page.mouse.move(200, 500);
+  // The wheel moves the page by what it asked, not to a page; a second one adds to it straight away.
+  await page.mouse.wheel(0, 700);
+  await page.waitForTimeout(700);
+  const y1 = await page.evaluate(() => Math.round(scrollY));
+  expect(y1).toBeGreaterThan(650);
+  expect(y1).toBeLessThan(760);
+  await page.mouse.wheel(0, 300);
+  await page.waitForTimeout(100);
+  await page.mouse.wheel(0, 300);
+  await page.waitForTimeout(700);
+  const y2 = await page.evaluate(() => Math.round(scrollY));
+  expect(y2).toBeGreaterThan(y1 + 500);
+  expect(y2).toBeLessThan(y1 + 700);
+});
+
 // Where the page comes to rest after a gesture.
 const rest = async (page: import('@playwright/test').Page) => {
   let last = -1;

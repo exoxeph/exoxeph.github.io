@@ -3,10 +3,12 @@
 // freely between pages. What is left alone: a page taller than the screen (an opened disclosure) is read natively until
 // its end, scrollable boxes inside the page scroll themselves, controls and the open inspector keep their keys, and
 // links, "try it", deep links and keyboard focus are settled onto a page by the browser's own scroll.
+// Phones (under 1000px wide) scroll freely: none of this applies there.
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 // The CSS snapping stays the fallback until this runs; from here the turns are ours.
 root.dataset.pager = '';
+const phone = matchMedia('(max-width: 999px)');
 
 type Stop = { top: number; end: number };
 
@@ -160,7 +162,7 @@ let lastAbs = 0;
 addEventListener(
   'wheel',
   (e) => {
-    if (e.ctrlKey || e.defaultPrevented || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if (phone.matches || e.ctrlKey || e.defaultPrevented || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;
     const dy = e.deltaY * unit;
     if (!dy || keepsInput(e.target, dy)) return;
@@ -195,6 +197,7 @@ addEventListener(
 addEventListener(
   'touchmove',
   (e) => {
+    if (phone.matches) return;
     const dy = touchY - e.touches[0]!.clientY;
     if (touchMode === 'none') {
       if (Math.abs(dy) < 6) return;
@@ -207,6 +210,7 @@ addEventListener(
 addEventListener('touchend', (e) => {
   // A flick that scrolled a tall page itself carries on by the browser's momentum, possibly past the page's end:
   // wherever it comes to rest between pages, it settles onto one.
+  if (phone.matches) return;
   if (touchMode === 'native') arm();
   if (touchMode !== 'page') return;
   touchMode = 'none';
@@ -223,7 +227,7 @@ const keyMove: Record<string, number | undefined> = {
   ' ': 0.9,
 };
 addEventListener('keydown', (e) => {
-  if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
+  if (phone.matches || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) return;
   const t = e.target as Element;
   if (
     t.closest(
@@ -267,6 +271,7 @@ const keyboard = () => {
 // nearest page, with the same glide.
 const reading = (list: Stop[], y: number) => list.some((p) => y > p.top - 3 && y < p.end + 3);
 const land = () => {
+  if (phone.matches) return;
   const list = stops();
   if (!list.length || gliding || performance.now() < lockedUntil || keyboard() || reading(list, scrollY))
     return;
