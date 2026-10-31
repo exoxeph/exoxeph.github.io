@@ -821,7 +821,7 @@ export function windowIg(
   };
 }
 
-/** Station 08, the Redis stack, drawn as the props gallery draws its props: a dark server plinth with a status strip,
+/** Station 09, the Redis stack, drawn as the props gallery draws its props: a dark server plinth with a status strip,
  * and on it the Redis mark as three red slabs with the star on top; three keys float over it inside a TTL ring. While
  * the station plays the keys are written, their TTL ring runs down, one key expires and the stack glows. Click it
  * (PING): the slabs lift apart, the strip lights and the keys light up (PONG). It stands against the right-hand wall. */
@@ -852,4 +852,59 @@ export function redisIg(pt: Project, vec: Delta, z: number) {
     s += `<g class="rkey k${i}" style="--i:${i}">${mat('cream', box(x, y, 108, 16, 16, 6, 3))}<g transform="${TOP(x, y, 114)}"><rect class="face rkt" x="3" y="3" width="10" height="10" rx="2"/></g></g>`;
   });
   return prop('redis', s);
+}
+
+/** Station 07, the cloud console: a dark server tower that stands on the floor in front of the fireplace, so the two
+ * AWS badges hang side by side. The Cloud Practitioner badge is framed on its front, over a label and three status
+ * lights (compute, storage, database), and a cloud hovers over it, tied to the tower by dashed links. While the station
+ * plays the lights come on one by one, packets of data fall from the cloud into the tower, and the cloud lifts and
+ * glows while the frame shines. Click it: the cloud lifts, the links and the lights come on. */
+export function cloudIg(pt: Project, vec: Delta, z: number) {
+  const K = 0.12;
+  const { TOP, FRONT, SIDE, box, path } = igKernel(pt, vec, 49, 40, z - 6 * K, K);
+  const [TX, TY, TW, TD, TH] = [4, 4, 58, 80, 150];
+  const TT = 6 + TH;
+  let s = `<g transform="${TOP(0, 0, 6)}"><ellipse class="cglow" cx="33" cy="44" rx="62" ry="58"/></g>`;
+  s += mat('dark', box(TX - 4, TY - 4, 6, TW + 8, TD + 8, 8, 4));
+  s += mat('dark', box(TX, TY, 14, TW, TD, TH - 8, 5));
+  // The face toward the room: the framed badge, its label, the status lights, vents.
+  const lights = ['compute', 'storage', 'database']
+    .map(
+      (_, i) =>
+        `<rect class="face recess" x="${14 + i * 20}" y="104" width="14" height="8" rx="2"/><rect class="svl" style="--i:${i}" x="${15 + i * 20}" y="105" width="12" height="6" rx="1.6"/>`,
+    )
+    .join('');
+  let vents = '';
+  for (let v = 122; v <= TH - 14; v += 5) vents += `<line class="detail" x1="12" y1="${v}" x2="${TD - 12}" y2="${v}"/>`;
+  s += `<g transform="${SIDE(TX + TW, TY + TD, TT)}"><rect class="face recess" x="6" y="6" width="${TD - 12}" height="4" rx="2"/><rect class="face lampg" x="7" y="6.8" width="${TD - 14}" height="2.4" rx="1.2"/>
+    <rect class="frame cframe" x="11" y="16" width="${TD - 22}" height="${TD - 22}" rx="3"/><image href="/certs/aws-cloud-practitioner.webp" x="15" y="20" width="${TD - 30}" height="${TD - 30}"/>
+    <text data-keep class="gscr" x="${TD / 2}" y="${TD - 0}" font-size="7.5" text-anchor="middle">aws cloud</text>${lights}${vents}</g>`;
+  let slots = '';
+  for (let v = 18; v <= TH - 18; v += 12) slots += `<rect class="face recess" x="10" y="${v}" width="${TW - 20}" height="5" rx="2"/>`;
+  s += `<g transform="${FRONT(TX, TY + TD, TT)}">${slots}</g>`;
+  s += `<g transform="${TOP(TX, TY, TT)}"><rect class="face recess" x="10" y="12" width="${TW - 20}" height="${TD - 24}" rx="4"/></g>`;
+  // Packets falling from the cloud into the tower's top.
+  s += [
+    [16, 22],
+    [30, 46],
+    [20, 64],
+  ]
+    .map(([x, y], i) => `<g class="cdrop" style="--i:${i}">${mat('svc', box(x!, y!, TT + 2, 10, 10, 8, 2))}</g>`)
+    .join('');
+  s += [
+    [20, 26],
+    [34, 50],
+    [24, 68],
+  ]
+    .map(([x, y]) => `<path class="clink" d="${path([[x!, y!, TT], [x!, y!, 196]])}"/>`)
+    .join('');
+  s += `<g class="cloud">${mat(
+    'cloud',
+    box(-16, -4, 196, 96, 96, 16, 34) +
+      box(-6, 4, 212, 46, 44, 18, 20) +
+      box(10, 40, 210, 44, 46, 16, 20) +
+      box(30, 14, 214, 48, 50, 26, 24) +
+      box(54, 50, 208, 26, 30, 12, 13),
+  )}</g>`;
+  return prop('cloud', s);
 }

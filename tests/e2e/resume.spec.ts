@@ -34,9 +34,13 @@ test('the résumé page carries the CV sections, links and certifications', asyn
     page.getByRole('list', { name: 'Contact' }).getByRole('link', { name: 'LinkedIn' }),
   ).toHaveAttribute('href', 'https://www.linkedin.com/in/imtiazmashrafee');
   const credentials = page.getByRole('link', { name: /View credential/ });
-  await expect(credentials).toHaveCount(2);
+  await expect(credentials).toHaveCount(3);
   await expect(credentials.nth(0)).toHaveAttribute('href', /credly\.com/);
-  await expect(credentials.nth(1)).toHaveAttribute('href', /credentials\.redis\.io/);
+  await expect(credentials.nth(1)).toHaveAttribute(
+    'href',
+    'https://www.credly.com/badges/1be73443-89e4-4657-96c6-d4fa99cf607b/',
+  );
+  await expect(credentials.nth(2)).toHaveAttribute('href', /credentials\.redis\.io/);
   await expect(page.getByRole('link', { name: /Read the case study on this site/ })).toHaveAttribute(
     'href',
     '/work/retrieval-orchestration/',
@@ -44,6 +48,13 @@ test('the résumé page carries the CV sections, links and certifications', asyn
   // The certification is named as the CV lists it, and the phone number is not published.
   await expect(page.locator('.droom')).toContainText('AWS Certified AI Practitioner');
   await expect(page.locator('.droom')).toContainText('Redis Certified: Associate Developer');
+  await expect(page.locator('.droom')).toContainText('AWS Certified Cloud Practitioner');
+  // Every step on the page has a station in the room, and the cloud is the second certification.
+  await expect(page.locator('.dr-svg .st')).toHaveCount(await page.locator('.droom [data-step]').count());
+  await expect(page.locator('.dr-svg .st[data-st="6"]')).toHaveAttribute('href', '#rs-cloud');
+  // Every step on the page has a station in the room, the new one included.
+  await expect(page.locator('.dr-svg .st')).toHaveCount(await page.locator('.droom [data-step]').count());
+  await expect(page.locator('.dr-svg .st[href="#rs-cloud"]')).toHaveCount(1);
   const text = await page.locator('main').innerText();
   expect(text).not.toMatch(/\+?880\d{6,}/);
   expect(text).not.toMatch(/[–—]/);

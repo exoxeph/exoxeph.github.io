@@ -13,6 +13,7 @@ import {
   beltIg,
   boardIg,
   carBodyIg,
+  cloudIg,
   deskIg,
   fireplaceIg,
   guitarIg,
@@ -755,15 +756,15 @@ function c1(stand: [number, number]) {
       yRect(34.4, 45.6, z + 20, z + 33, 'frame cframe', 4.05),
       yImage('/certs/aws-ai-practitioner.webp', 35.3, z + 32.2, 10.2, 4.1),
       // Kept in the art, not lifted into the labels, so the words move with the chimney they are on.
-      yText(34.4, z + 38, 'AWS', 'wt sm', 4.15).replace('<text ', '<text data-keep '),
-      yText(34.4, z + 35.4, 'CERTIFIED', 'wt sm', 4.15).replace('<text ', '<text data-keep '),
+      yText(40.75, z + 38.2, 'AWS', 'wt xs', 4.15).replace('<text ', '<text data-keep '),
+      yText(40.75, z + 35.8, 'CERTIFIED', 'wt xs', 4.15).replace('<text ', '<text data-keep '),
     ),
     `<image class="holo" href="/certs/aws-ai-practitioner.webp" x="${r1(stand[0] - 24)}" y="${r1(stand[1] - 158)}" width="48" height="48"/>`,
     confetti,
   ].join('');
 }
 
-// 07 At the trophy case: the mascot lifts the trophy. Act 1, the case lights; act 2, the trophy goes up; act 3, the
+// 08 At the trophy case: the mascot lifts the trophy. Act 1, the case lights; act 2, the trophy goes up; act 3, the
 // certificate on the wall shines.
 function c2(stand: [number, number]) {
   const z = UP;
@@ -772,7 +773,7 @@ function c2(stand: [number, number]) {
   ).join('');
   return [
     floorRect(98, 14, W - 0.2, 46, z + 0.15, 'pad'),
-    floorText(99, 16, z + 0.2, '07', true),
+    floorText(99, 16, z + 0.2, '08', true),
     xRect(38.5, 56.5, z + 12, z + 31, 'frame cframe'),
     xImage('/certs/udacity.webp', 39.5, z + 30, 16),
     xText(38.5, z + 34, 'NANODEGREE', 'wt'),
@@ -781,15 +782,27 @@ function c2(stand: [number, number]) {
   ].join('');
 }
 
-// 08 At the Redis stack: the mascot points at it. Act 1, three keys are written; act 2, their TTL ring runs down; act 3,
+// 09 At the Redis stack: the mascot points at it. Act 1, three keys are written; act 2, their TTL ring runs down; act 3,
 // one key expires and the stack glows, and the badge rises over the mascot.
 function c3(stand: [number, number]) {
   const z = UP;
   return [
     floorRect(104, 54, W - 0.2, 76, z + 0.15, 'pad'),
-    floorText(105, 56, z + 0.2, '08', true),
+    floorText(105, 56, z + 0.2, '09', true),
     redisIg(pt, vec, z),
     `<image class="holo" href="/certs/redis.webp" x="${r1(stand[0] - 24)}" y="${r1(stand[1] - 158)}" width="48" height="48"/>`,
+  ].join('');
+}
+
+// 07 Under the cloud: the mascot holds the badge up. Act 1, three services deploy on the plinth; act 2, their links run
+// up to the cloud; act 3, the cloud lifts and glows, and the badge rises over the mascot.
+function c4(stand: [number, number]) {
+  const z = UP;
+  return [
+    floorRect(33, 37, 52, 53, z + 0.15, 'pad'),
+    floorText(36, 55.5, z + 0.2, '07', false),
+    cloudIg(pt, vec, z),
+    `<image class="holo" href="/certs/aws-cloud-practitioner.webp" x="${r1(stand[0] - 24)}" y="${r1(stand[1] - 158)}" width="48" height="48"/>`,
   ].join('');
 }
 
@@ -848,6 +861,7 @@ function upper() {
       xText(60, z + 26, 'SEP 2026 · AWS', 'wn'),
       xText(60, z + 21.6, 'OCT 2026 · UDACITY', 'wn'),
       xText(60, z + 17.2, 'OCT 2026 · REDIS', 'wn'),
+      xText(60, z + 12.8, 'OCT 2026 · AWS CLOUD', 'wn'),
       line('tl', [W - 0.3, 58, z + 30], [W - 0.3, 92, z + 30]),
     ].join(''),
     study: [
@@ -982,6 +996,14 @@ export function renderIcon(kind: string) {
       m.prism(6, 8, 0, 24, 22, 4, 'n'),
       `<g class="ric">${[0, 1, 2].map((i) => m.prism(9, 11, 5 + i * 3.4, 21, 19, 7.6 + i * 3.4, 'a')).join('')}</g>`,
     ].join(''),
+    cloud: [
+      m.prism(9, 9, 0, 21, 21, 15, 'n'),
+      `<g class="cic">${sq('q on', 21.05, 11, 19, 6, 13)}</g>`,
+      (() => {
+        const [cx, cy] = P(15, 15, 22);
+        return `<g class="cpf">${m.puck(cx - 7, cy + 2, 7, 4, 'w')}${m.puck(cx + 6, cy + 2, 8, 4, 'w')}${m.puck(cx, cy - 3, 9, 5, 'w')}</g>`;
+      })(),
+    ].join(''),
     trophy: [
       m.prism(10, 10, 0, 20, 20, 7, 'n'),
       (() => {
@@ -1066,11 +1088,23 @@ const STOPS: Stop[] = [
     ],
   },
   {
+    at: [31, 50, UP],
+    pose: 'raise',
+    face: 1,
+    // From the fireplace, off the hearth and down to the console's left, so the framed badge on its face stays in view.
+    via: [
+      [40, 22, UP],
+      [31, 30, UP],
+    ],
+  },
+  {
     at: [104, 36, UP],
     pose: 'lift',
     face: 1,
+    // Back up past the hearth, then across the back of the room, clear of the armchair, to the trophy case.
     via: [
-      [48, 24, UP],
+      [31, 30, UP],
+      [56, 32, UP],
       [100, 44, UP],
     ],
   },
@@ -1097,7 +1131,7 @@ export function renderRoom(stations: RoomStation[]) {
   const [sx0, sy0] = pt(106, 31, 0);
   const [sx1, sy1] = pt(106, 44, 0);
   const shuttle = `--hx:${r1(sx1 - sx0)}px;--hy:${r1(sy1 - sy0)}px`;
-  const parts = [s1(), s2(), s3(), s4(), s5(), c1(stand(5)), c2(stand(6)), c3(stand(7))];
+  const parts = [s1(), s2(), s3(), s4(), s5(), c1(stand(5)), c4(stand(6)), c2(stand(7)), c3(stand(8))];
   const pieces = parts.map(split);
   const group = (i: number) =>
     `<a class="st" data-st="${i}" data-pose="${STOPS[i]!.pose}" data-face="${STOPS[i]!.face}" href="#${stations[i]!.id}" aria-label="${stations[i]!.label}"${i === 3 ? ` style="${shuttle}"` : ''}>${pieces[i]!.art}</a>`;
@@ -1126,5 +1160,5 @@ export function renderRoom(stations: RoomStation[]) {
     return `<g class="fspot" data-fspot="${i}"><ellipse cx="${r1(x)}" cy="${r1(y)}" rx="50" ry="25" fill="url(#dr-fpool)"/><ellipse class="fp-ring" cx="${r1(x)}" cy="${r1(y)}" rx="34" ry="17"/><path d="M${r1(x - 24)} ${r1(y - 2)}L${r1(x - 46)} ${r1(y - 150)}H${r1(x + 46)}L${r1(x + 24)} ${r1(y - 2)}Z" fill="url(#dr-fcone)"/>${motes}</g>`;
   };
   const focus = `<g class="fx-focus" aria-hidden="true" pointer-events="none"><defs><radialGradient id="dr-focus" gradientUnits="userSpaceOnUse" cx="${mx}" cy="${r1(my - 34)}" r="470"><stop offset=".18" stop-color="#08050c" stop-opacity="0"/><stop offset=".55" stop-color="#08050c" stop-opacity=".18"/><stop offset="1" stop-color="#08050c" stop-opacity=".28"/></radialGradient><radialGradient id="dr-fpool"><stop offset="0" stop-color="#ffc867" stop-opacity=".55"/><stop offset=".6" stop-color="#ffc867" stop-opacity=".2"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></radialGradient><linearGradient id="dr-fcone" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffd98a" stop-opacity=".34"/><stop offset=".7" stop-color="#ffd98a" stop-opacity=".08"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></linearGradient></defs><rect x="-600" y="-600" width="${VIEW.w + 1200}" height="${VIEW.h + PAN + 1200}" fill="url(#dr-focus)"/>${STOPS.map((_, i) => spotAt(i)).join('')}</g>`;
-  return `<svg class="dr-svg" viewBox="0 0 ${VIEW.w} ${VIEW.h}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="My dev room: two floors, one station for each point of my résumé" data-route="${JSON.stringify(screen)}" data-room="${JSON.stringify(route.map(([x, y]) => [x, y]))}" data-z="${JSON.stringify(route.map((p) => p[2]))}" data-stops="${JSON.stringify(stops)}" data-pan="${PAN}" data-up="${UP}"><defs><linearGradient id="dr-beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".45"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><radialGradient id="dr-warm"><stop offset="0" style="stop-color:var(--partial);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--partial);stop-opacity:0"/></radialGradient><linearGradient id="dr-rm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".3"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></linearGradient><linearGradient id="dr-rc" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".26"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><linearGradient id="dr-shaft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb057" stop-opacity=".3"/><stop offset="1" stop-color="#ffb057" stop-opacity="0"/></linearGradient><radialGradient id="dr-um"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".42"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient><pattern id="dr-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#fff" fill-opacity=".07"/><rect x="2" y="2" width="1" height="1" fill="#fff" fill-opacity=".07"/></pattern><radialGradient id="dr-haze"><stop offset="0" stop-color="#ff9a55" stop-opacity=".09"/><stop offset="1" stop-color="#ff9a55" stop-opacity="0"/></radialGradient></defs><g data-cam><g data-art><g class="outside" data-outside>${outside()}</g>${st.back}<g class="mass">${prism(-3, -3, -6, W + 3, D, H, 'n')}</g><g class="floor-g">${gs.art}${group(2)}${group(1)}${group(0)}${gl.art}${group(3)}${group(4)}${gf.art}</g><g class="floor-u">${us.art}${group(5)}${group(6)}${group(7)}${uf.art}</g>${st.front}</g>${focus}<g class="labels"><g class="lbl-g">${gs.text}${gl.text}${gf.text}${[0, 1, 2, 3, 4].map(words).join('')}</g><g class="lbl-u">${us.text}${uf.text}${words(5)}${words(6)}${words(7)}</g></g><g class="mascot" data-mascot transform="translate(${mx} ${my})" style="${shuttle}">${MASCOT}</g></g></svg>`;
+  return `<svg class="dr-svg" viewBox="0 0 ${VIEW.w} ${VIEW.h}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="My dev room: two floors, one station for each point of my résumé" data-route="${JSON.stringify(screen)}" data-room="${JSON.stringify(route.map(([x, y]) => [x, y]))}" data-z="${JSON.stringify(route.map((p) => p[2]))}" data-stops="${JSON.stringify(stops)}" data-pan="${PAN}" data-up="${UP}"><defs><linearGradient id="dr-beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".45"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><radialGradient id="dr-warm"><stop offset="0" style="stop-color:var(--partial);stop-opacity:.34"/><stop offset="1" style="stop-color:var(--partial);stop-opacity:0"/></radialGradient><linearGradient id="dr-rm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".3"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></linearGradient><linearGradient id="dr-rc" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#ffc867" stop-opacity=".26"/><stop offset="1" stop-color="#ffc867" stop-opacity="0"/></linearGradient><linearGradient id="dr-shaft" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb057" stop-opacity=".3"/><stop offset="1" stop-color="#ffb057" stop-opacity="0"/></linearGradient><radialGradient id="dr-um"><stop offset="0" stop-color="#ff8a3d" stop-opacity=".42"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient><pattern id="dr-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#fff" fill-opacity=".07"/><rect x="2" y="2" width="1" height="1" fill="#fff" fill-opacity=".07"/></pattern><radialGradient id="dr-haze"><stop offset="0" stop-color="#ff9a55" stop-opacity=".09"/><stop offset="1" stop-color="#ff9a55" stop-opacity="0"/></radialGradient></defs><g data-cam><g data-art><g class="outside" data-outside>${outside()}</g>${st.back}<g class="mass">${prism(-3, -3, -6, W + 3, D, H, 'n')}</g><g class="floor-g">${gs.art}${group(2)}${group(1)}${group(0)}${gl.art}${group(3)}${group(4)}${gf.art}</g><g class="floor-u">${us.art}${group(5)}${group(7)}${group(8)}${group(6)}${uf.art}</g>${st.front}</g>${focus}<g class="labels"><g class="lbl-g">${gs.text}${gl.text}${gf.text}${[0, 1, 2, 3, 4].map(words).join('')}</g><g class="lbl-u">${us.text}${uf.text}${words(5)}${words(6)}${words(7)}${words(8)}</g></g><g class="mascot" data-mascot transform="translate(${mx} ${my})" style="${shuttle}">${MASCOT}</g></g></svg>`;
 }
